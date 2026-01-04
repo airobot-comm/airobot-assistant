@@ -1,5 +1,7 @@
-package com.xiaozhi.ai.ui
+package com.airobotcomm.tablet.ui
 
+import java.text.SimpleDateFormat
+import java.util.*
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -31,14 +33,12 @@ import androidx.compose.foundation.layout.ime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import com.xiaozhi.ai.R
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
-import com.xiaozhi.ai.ui.theme.TechLightBlue80
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,17 +47,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.xiaozhi.ai.data.ConfigManager
-import com.xiaozhi.ai.data.Message
-import com.xiaozhi.ai.data.MessageRole
-import com.xiaozhi.ai.ui.theme.ConnectedGreen
-import com.xiaozhi.ai.ui.theme.ConnectionRed
-import com.xiaozhi.ai.ui.theme.DarkColorScheme
-import com.xiaozhi.ai.utils.ConfigValidator
-import com.xiaozhi.ai.viewmodel.ConversationState
-import com.xiaozhi.ai.viewmodel.ConversationViewModel
-import java.text.SimpleDateFormat
-import java.util.*
+import com.airobotcomm.tablet.R
+import com.airobotcomm.tablet.ui.theme.TechLightBlue80
+import com.airobotcomm.tablet.data.ConfigManager
+import com.airobotcomm.tablet.data.Message
+import com.airobotcomm.tablet.data.MessageRole
+import com.airobotcomm.tablet.ui.theme.ConnectedGreen
+import com.airobotcomm.tablet.ui.theme.ConnectionRed
+import com.airobotcomm.tablet.ui.theme.DarkColorScheme
+import com.airobotcomm.tablet.utils.ConfigValidator
+import com.airobotcomm.tablet.viewmodel.ConversationState
+import com.airobotcomm.tablet.viewmodel.ConversationViewModel
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable

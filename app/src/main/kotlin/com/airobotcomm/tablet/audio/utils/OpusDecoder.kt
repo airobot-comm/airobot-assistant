@@ -1,4 +1,4 @@
-package com.xiaozhi.ai.audio.utils
+package com.airobotcomm.tablet.audio.utils
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers

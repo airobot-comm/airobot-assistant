@@ -1,4 +1,4 @@
-package com.xiaozhi.ai.ui.theme
+package com.airobotcomm.tablet.ui.theme
 
 import android.app.Activity
 import android.os.Build

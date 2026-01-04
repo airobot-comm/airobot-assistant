@@ -1,4 +1,4 @@
-package com.xiaozhi.ai.audio.utils
+package com.airobotcomm.tablet.audio.utils
 
 import android.content.Context
 import android.media.AudioAttributes
@@ -14,7 +14,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class OpusStreamPlayer(

@@ -1,4 +1,4 @@
-package com.xiaozhi.ai
+package com.airobotcomm.tablet
 
 import android.os.Bundle
 import android.util.Log
@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.xiaozhi.ai.ui.ConversationScreen
-import com.xiaozhi.ai.ui.theme.DarkColorScheme
-import com.xiaozhi.ai.ui.theme.YTheme
+import com.airobotcomm.tablet.ui.ConversationScreen
+import com.airobotcomm.tablet.ui.theme.DarkColorScheme
+import com.airobotcomm.tablet.ui.theme.YTheme
 
 class MainActivity : ComponentActivity() {
     companion object {

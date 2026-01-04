@@ -1,4 +1,4 @@
-package com.xiaozhi.ai.viewmodel
+package com.airobotcomm.tablet.viewmodel
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -7,17 +7,17 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.xiaozhi.ai.audio.AudioEvent
-import com.xiaozhi.ai.audio.EnhancedAudioManager
-import com.xiaozhi.ai.data.ConfigManager
-import com.xiaozhi.ai.data.Message
-import com.xiaozhi.ai.data.MessageRole
-import com.xiaozhi.ai.data.XiaozhiConfig
-import com.xiaozhi.ai.network.WebSocketEvent
-import com.xiaozhi.ai.network.WebSocketManager
-import com.xiaozhi.ai.network.OtaService
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import com.airobotcomm.tablet.audio.AudioEvent
+import com.airobotcomm.tablet.audio.EnhancedAudioManager
+import com.airobotcomm.tablet.data.ConfigManager
+import com.airobotcomm.tablet.data.Message
+import com.airobotcomm.tablet.data.MessageRole
+import com.airobotcomm.tablet.data.XiaozhiConfig
+import com.airobotcomm.tablet.network.WebSocketEvent
+import com.airobotcomm.tablet.network.WebSocketManager
+import com.airobotcomm.tablet.network.OtaService
 
 /**
  * 对话状态

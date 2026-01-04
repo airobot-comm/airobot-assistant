@@ -1,4 +1,4 @@
-package com.xiaozhi.ai.ui
+package com.airobotcomm.tablet.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,9 +16,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.xiaozhi.ai.data.ConfigManager
-import com.xiaozhi.ai.data.XiaozhiConfig
-import com.xiaozhi.ai.ui.theme.DarkColorScheme
+import com.airobotcomm.tablet.data.ConfigManager
+import com.airobotcomm.tablet.data.XiaozhiConfig
+import com.airobotcomm.tablet.ui.theme.DarkColorScheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

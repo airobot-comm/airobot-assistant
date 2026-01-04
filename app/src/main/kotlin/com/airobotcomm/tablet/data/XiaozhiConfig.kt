@@ -1,4 +1,4 @@
-package com.xiaozhi.ai.data
+package com.airobotcomm.tablet.data
 
 /**
  * 配置数据类

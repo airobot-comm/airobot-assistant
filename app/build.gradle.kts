@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.xiaozhi.ai"
+    namespace = "com.airobotcomm.tablet"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.xiaozhi.ai"
+        applicationId = "com.airobotcomm.tablet"
         minSdk = 29
         targetSdk = 35
         versionCode = 10020

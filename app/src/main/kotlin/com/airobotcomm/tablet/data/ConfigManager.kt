@@ -1,9 +1,8 @@
-package com.xiaozhi.ai.data
+package com.airobotcomm.tablet.data
 
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 
 /**
  * 配置管理器，负责配置的存储和读取

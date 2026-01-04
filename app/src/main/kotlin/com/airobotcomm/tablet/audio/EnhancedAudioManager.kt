@@ -1,4 +1,4 @@
-package com.xiaozhi.ai.audio
+package com.airobotcomm.tablet.audio
 
 import android.Manifest
 import android.content.Context
@@ -9,13 +9,13 @@ import android.media.audiofx.NoiseSuppressor
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
-import com.xiaozhi.ai.audio.utils.OpusDecoder
-import com.xiaozhi.ai.audio.utils.OpusEncoder
-import com.xiaozhi.ai.audio.utils.OpusStreamPlayer
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.flow
+import com.airobotcomm.tablet.audio.utils.OpusDecoder
+import com.airobotcomm.tablet.audio.utils.OpusEncoder
+import com.airobotcomm.tablet.audio.utils.OpusStreamPlayer
 
 /**
  * 音频事件

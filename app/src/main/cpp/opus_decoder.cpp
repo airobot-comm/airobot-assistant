@@ -12,7 +12,7 @@ static OpusDecoder* decoderHandle = nullptr;
 extern "C" {
 
 JNIEXPORT jlong JNICALL
-Java_com_xiaozhi_ai_audio_utils_OpusDecoder_nativeInitDecoder(JNIEnv *env, jobject thiz,
+Java_com_airobotcomm_tablet_audio_utils_OpusDecoder_nativeInitDecoder(JNIEnv *env, jobject thiz,
                                                         jint sample_rate, jint channels) {
     int error;
     OpusDecoder *decoder = opus_decoder_create(sample_rate, channels, &error);
@@ -27,7 +27,7 @@ Java_com_xiaozhi_ai_audio_utils_OpusDecoder_nativeInitDecoder(JNIEnv *env, jobje
 }
 
 JNIEXPORT jint JNICALL
-Java_com_xiaozhi_ai_audio_utils_OpusDecoder_nativeDecodeBytes(JNIEnv *env, jobject thiz,
+Java_com_airobotcomm_tablet_audio_utils_OpusDecoder_nativeDecodeBytes(JNIEnv *env, jobject thiz,
                                                         jlong decoder_handle,
                                                         jbyteArray input_buffer,
                                                         jint input_size,
@@ -58,7 +58,7 @@ Java_com_xiaozhi_ai_audio_utils_OpusDecoder_nativeDecodeBytes(JNIEnv *env, jobje
 }
 
 JNIEXPORT void JNICALL
-Java_com_xiaozhi_ai_audio_utils_OpusDecoder_nativeReleaseDecoder(JNIEnv *env, jobject thiz,
+Java_com_airobotcomm_tablet_audio_utils_OpusDecoder_nativeReleaseDecoder(JNIEnv *env, jobject thiz,
                                                            jlong decoder_handle) {
     OpusDecoder *decoder = (OpusDecoder*)(intptr_t)decoder_handle;
     if (decoder != nullptr) {

@@ -1,7 +1,7 @@
-package com.xiaozhi.ai.utils
+package com.airobotcomm.tablet.utils
 
 import android.content.Context
-import com.xiaozhi.ai.data.ConfigManager
+import com.airobotcomm.tablet.data.ConfigManager
 
 /**
  * 配置验证工具类

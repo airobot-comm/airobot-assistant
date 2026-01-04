@@ -1,4 +1,4 @@
-package com.xiaozhi.ai.network
+package com.airobotcomm.tablet.network
 
 import android.annotation.SuppressLint
 import kotlinx.serialization.SerialName

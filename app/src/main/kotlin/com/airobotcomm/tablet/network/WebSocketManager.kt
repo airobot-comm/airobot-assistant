@@ -1,4 +1,4 @@
-package com.xiaozhi.ai.network
+package com.airobotcomm.tablet.network
 
 import android.content.Context
 import android.util.Log

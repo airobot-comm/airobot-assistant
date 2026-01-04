@@ -13,7 +13,7 @@ static OpusEncoder *encoderHandle = nullptr;
 extern "C" {
 
 JNIEXPORT jlong JNICALL
-Java_com_xiaozhi_ai_audio_utils_OpusEncoder_nativeInitEncoder(JNIEnv *env, jobject thiz,
+Java_com_airobotcomm_tablet_audio_utils_OpusEncoder_nativeInitEncoder(JNIEnv *env, jobject thiz,
                                                         jint sample_rate, jint channels,
                                                         jint application) {
     int error;
@@ -32,7 +32,7 @@ Java_com_xiaozhi_ai_audio_utils_OpusEncoder_nativeInitEncoder(JNIEnv *env, jobje
 }
 
 JNIEXPORT jint JNICALL
-Java_com_xiaozhi_ai_audio_utils_OpusEncoder_nativeEncodeBytes(JNIEnv *env, jobject thiz,
+Java_com_airobotcomm_tablet_audio_utils_OpusEncoder_nativeEncodeBytes(JNIEnv *env, jobject thiz,
                                                         jlong encoder_handle,
                                                         jbyteArray input_buffer,
                                                         jint input_size,
@@ -65,7 +65,7 @@ Java_com_xiaozhi_ai_audio_utils_OpusEncoder_nativeEncodeBytes(JNIEnv *env, jobje
 }
 
 JNIEXPORT void JNICALL
-Java_com_xiaozhi_ai_audio_utils_OpusEncoder_nativeReleaseEncoder(JNIEnv *env, jobject thiz,
+Java_com_airobotcomm_tablet_audio_utils_OpusEncoder_nativeReleaseEncoder(JNIEnv *env, jobject thiz,
                                                            jlong encoder_handle) {
     OpusEncoder *encoder = (OpusEncoder *) (intptr_t) encoder_handle;
     if (encoder != nullptr) {
