@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AiRobot-Tablet</string>
-    <string name="conversation_title">AiRobot</string>
+    <string name="conversation_title">AiRobot-Assistant </string>
     <string name="connecting">连接中...</string>
     <string name="connected">已连接</string>
     <string name="disconnected">未连接</string>

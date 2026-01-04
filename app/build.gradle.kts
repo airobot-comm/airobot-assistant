@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.airobotcomm.tablet"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.airobotcomm.tablet"

@@ -186,7 +186,7 @@ fun MainConversationContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "AIRobot",
+                            text = "AiRobot-Assistant",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             color = DarkColorScheme.onPrimary
