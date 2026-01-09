@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- AI机器人主题颜色 -->
+    <color name="robot_background_dark">#0F172A</color> <!-- slate-900 -->
+    <color name="robot_primary_cyan">#22D3EE</color> <!-- cyan-500 -->
+    <color name="robot_secondary_indigo">#6366F1</color> <!-- indigo-600 -->
+    <color name="robot_text_primary">#FFFFFF</color>
+    <color name="robot_text_secondary">#94A3B8</color> <!-- slate-400 -->
+    <color name="robot_surface">#1E293B</color> <!-- slate-800 -->
+    
+    <!-- 保持原有颜色 -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>

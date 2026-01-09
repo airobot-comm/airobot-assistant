@@ -39,6 +39,8 @@
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="true"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/Theme.AiRobot">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

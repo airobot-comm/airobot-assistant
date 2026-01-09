@@ -19,6 +19,12 @@ import androidx.compose.ui.unit.sp
 import com.airobotcomm.tablet.data.ConfigManager
 import com.airobotcomm.tablet.data.XiaozhiConfig
 import com.airobotcomm.tablet.ui.theme.DarkColorScheme
+import com.airobotcomm.tablet.ui.theme.RobotTextPrimary
+import com.airobotcomm.tablet.ui.theme.RobotTextSecondary
+import com.airobotcomm.tablet.ui.theme.RobotSurface
+import com.airobotcomm.tablet.ui.theme.RobotBackgroundDark
+import com.airobotcomm.tablet.ui.theme.RobotPrimaryCyan
+import com.airobotcomm.tablet.ui.theme.RobotSecondaryIndigo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,12 +68,12 @@ fun SettingsScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = DarkColorScheme.background,
+        containerColor = RobotBackgroundDark,
         topBar = {
             // 顶部标题栏 - 优化设计
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = DarkColorScheme.primary,
+                color = RobotPrimaryCyan,
                 shadowElevation = 8.dp
             ) {
                 Row(
@@ -88,7 +94,7 @@ fun SettingsScreen(
                         Icon(
                             Icons.Default.ArrowBack,
                             contentDescription = "返回",
-                            tint = DarkColorScheme.onPrimary,
+                            tint = RobotTextPrimary,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -97,14 +103,14 @@ fun SettingsScreen(
                         text = "设置",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DarkColorScheme.onPrimary,
+                        color = RobotTextPrimary,
                         modifier = Modifier.weight(1f)
                     )
                     Button(
                         onClick = { validateAndSaveConfig() },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = DarkColorScheme.onPrimary.copy(alpha = 0.1f),
-                            contentColor = DarkColorScheme.onPrimary
+                            containerColor = RobotTextPrimary.copy(alpha = 0.1f),
+                            contentColor = RobotTextPrimary
                         ),
                         shape = RoundedCornerShape(20.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
@@ -131,7 +137,7 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .padding(top = 16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = DarkColorScheme.surface
+                    containerColor = RobotSurface
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 shape = RoundedCornerShape(8.dp)
@@ -143,21 +149,21 @@ fun SettingsScreen(
                         text = "Server配置",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = RobotTextPrimary
                     )
                     Spacer(modifier = Modifier.height(20.dp))
 
                     OutlinedTextField(
                         value = editedConfig.name,
                         onValueChange = { editedConfig = editedConfig.copy(name = it) },
-                        label = { Text("设备名称", color = Color.Black) },
+                        label = { Text("设备名称", color = RobotTextPrimary) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = DarkColorScheme.primary,
-                            focusedLabelColor = DarkColorScheme.primary,
-                            focusedLeadingIconColor = DarkColorScheme.primary,
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black
+                            focusedBorderColor = RobotPrimaryCyan,
+                            focusedLabelColor = RobotPrimaryCyan,
+                            focusedLeadingIconColor = RobotPrimaryCyan,
+                            focusedTextColor = RobotTextPrimary,
+                            unfocusedTextColor = RobotTextPrimary
                         ),
                         shape = RoundedCornerShape(6.dp),
                         singleLine = true
@@ -170,14 +176,14 @@ fun SettingsScreen(
                         onValueChange = {
                             editedConfig = editedConfig.copy(otaUrl = it)
                         },
-                        label = { Text("OTA地址", color = Color.Black) },
+                        label = { Text("OTA地址", color = RobotTextPrimary) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = DarkColorScheme.primary,
-                            focusedLabelColor = DarkColorScheme.primary,
-                            focusedLeadingIconColor = DarkColorScheme.primary,
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black
+                            focusedBorderColor = RobotPrimaryCyan,
+                            focusedLabelColor = RobotPrimaryCyan,
+                            focusedLeadingIconColor = RobotPrimaryCyan,
+                            focusedTextColor = RobotTextPrimary,
+                            unfocusedTextColor = RobotTextPrimary
                         ),
                         shape = RoundedCornerShape(6.dp),
                         singleLine = true
@@ -190,14 +196,14 @@ fun SettingsScreen(
                         onValueChange = {
                             editedConfig = editedConfig.copy(websocketUrl = it)
                         },
-                        label = { Text("WSS地址", color = Color.Black) },
+                        label = { Text("WSS地址", color = RobotTextPrimary) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = DarkColorScheme.primary,
-                            focusedLabelColor = DarkColorScheme.primary,
-                            focusedLeadingIconColor = DarkColorScheme.primary,
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black
+                            focusedBorderColor = RobotPrimaryCyan,
+                            focusedLabelColor = RobotPrimaryCyan,
+                            focusedLeadingIconColor = RobotPrimaryCyan,
+                            focusedTextColor = RobotTextPrimary,
+                            unfocusedTextColor = RobotTextPrimary
                         ),
                         shape = RoundedCornerShape(6.dp),
                         singleLine = true
@@ -210,14 +216,14 @@ fun SettingsScreen(
                         onValueChange = {
                             editedConfig = editedConfig.copy(macAddress = it)
                         },
-                        label = { Text("MAC地址", color = Color.Black) },
+                        label = { Text("MAC地址", color = RobotTextPrimary) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = DarkColorScheme.primary,
-                            focusedLabelColor = DarkColorScheme.primary,
-                            focusedLeadingIconColor = DarkColorScheme.primary,
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black
+                            focusedBorderColor = RobotPrimaryCyan,
+                            focusedLabelColor = RobotPrimaryCyan,
+                            focusedLeadingIconColor = RobotPrimaryCyan,
+                            focusedTextColor = RobotTextPrimary,
+                            unfocusedTextColor = RobotTextPrimary
                         ),
                         shape = RoundedCornerShape(6.dp),
                         singleLine = true,
@@ -239,7 +245,7 @@ fun SettingsScreen(
                                 Icon(
                                     Icons.Default.Refresh,
                                     contentDescription = "重新生成",
-                                    tint = DarkColorScheme.primary,
+                                    tint = RobotPrimaryCyan,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -251,14 +257,14 @@ fun SettingsScreen(
                     OutlinedTextField(
                         value = editedConfig.token,
                         onValueChange = { editedConfig = editedConfig.copy(token = it) },
-                        label = { Text("Token", color = Color.Black) },
+                        label = { Text("Token", color = RobotTextPrimary) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = DarkColorScheme.primary,
-                            focusedLabelColor = DarkColorScheme.primary,
-                            focusedLeadingIconColor = DarkColorScheme.primary,
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black
+                            focusedBorderColor = RobotPrimaryCyan,
+                            focusedLabelColor = RobotPrimaryCyan,
+                            focusedLeadingIconColor = RobotPrimaryCyan,
+                            focusedTextColor = RobotTextPrimary,
+                            unfocusedTextColor = RobotTextPrimary
                         ),
                         shape = RoundedCornerShape(6.dp),
                         singleLine = true
@@ -270,7 +276,7 @@ fun SettingsScreen(
 
             Text(
                 "Tips:\n1.设备名称和Token不影响对话\n2.Mac地址可随机生成\n3.OTA地址和WSS地址至少填一个",
-                color = Color.Gray,
+                color = RobotTextSecondary,
                 fontSize = 12.sp
             )
 
@@ -285,13 +291,13 @@ fun SettingsScreen(
                 Text(
                     text = "配置验证",
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = RobotTextPrimary
                 )
             },
             text = {
                 Text(
                     text = validationMessage,
-                    color = Color.Black
+                    color = RobotTextPrimary
                 )
             },
             confirmButton = {
@@ -300,11 +306,11 @@ fun SettingsScreen(
                 ) {
                     Text(
                         "确定",
-                        color = DarkColorScheme.primary
+                        color = RobotPrimaryCyan
                     )
                 }
             },
-            containerColor = DarkColorScheme.surface,
+            containerColor = RobotSurface,
             shape = RoundedCornerShape(12.dp)
         )
     }

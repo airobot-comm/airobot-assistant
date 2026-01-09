@@ -17,20 +17,20 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 val DarkColorScheme = darkColorScheme(
-    primary = TechBlue80,
-    secondary = TechBlueGrey80,
-    tertiary = TechLightBlue80,
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    surfaceVariant = Color(0xFFF5F5F5),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    onSurfaceVariant = Color(0xFF49454F),
-    outline = Color(0xFF79747E),
-    error = Color(0xFFBA1A1A)
+    primary = RobotPrimaryCyan,
+    secondary = RobotSecondaryIndigo,
+    tertiary = RobotPrimaryCyan,
+    background = RobotBackgroundDark,
+    surface = RobotSurface,
+    surfaceVariant = RobotSurface,
+    onPrimary = RobotTextPrimary,
+    onSecondary = RobotTextPrimary,
+    onTertiary = RobotTextPrimary,
+    onBackground = RobotTextPrimary,
+    onSurface = RobotTextPrimary,
+    onSurfaceVariant = RobotTextSecondary,
+    outline = RobotTextSecondary,
+    error = Color(0xFFEF4444) // red-500
 )
 
 val LightColorScheme = lightColorScheme(
@@ -70,8 +70,9 @@ fun YTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = TechBlue80.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            // 使用深色背景色（slate-900）而不是蓝色
+            window.statusBarColor = Color(0xFF0F172A).toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
         }
     }
 
