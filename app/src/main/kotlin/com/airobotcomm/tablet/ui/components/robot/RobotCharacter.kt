@@ -12,9 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -24,71 +22,52 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * 机器人角色主组件
+ * 机器人角色主组件 - 增强版
  * 
- * Web原型对应: IPCharacter.tsx
- * 
- * 功能:
- * - 机器人头部外壳
- * - 双天线动画
- * - 动态眼睛
- * - 说话嘴巴动画
- * - 状态提示气泡
- * - 背景光晕
- * - 头部跟随/悬浮动画
+ * 对应原型: IPCharacter.tsx
  */
 @Composable
 fun RobotCharacter(
     state: RobotVisualState,
     statusTip: String? = null,
+    ttsProgressNormalized: Float = 0f,
+    audioLevel: Float = 0f, // 传入音频等级 0-1
     headSize: Dp = 280.dp,
     modifier: Modifier = Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "robotAnimation")
     
-    // 悬浮动画（仅IDLE状态）
+    // 悬浮动画 (Floating)
     val floatOffset by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 12f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = EaseInOutQuad),
+            animation = tween(2000, easing = EaseInOutQuad),
             repeatMode = RepeatMode.Reverse
         ),
         label = "floatOffset"
     )
     
-    // 背景光晕脉冲
-    val auraScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = if (state == RobotVisualState.FOCUS) 0.8f else 1.25f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(10000, easing = EaseInOutQuad),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "auraScale"
-    )
-    
-    val auraAlpha by infiniteTransition.animateFloat(
-        initialValue = if (state == RobotVisualState.FOCUS) 0.05f else 0.1f,
-        targetValue = if (state == RobotVisualState.FOCUS) 0.05f else 0.25f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(10000, easing = EaseInOutQuad),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "auraAlpha"
-    )
-    
-    // 眨眼状态
+    // 眨眼状态逻辑 (使用 Random 实现随机性)
     var isBlinking by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(state) {
         while (true) {
-            kotlinx.coroutines.delay(4000)
-            if (state != RobotVisualState.LISTENING && 
-                state != RobotVisualState.THINKING && 
-                state != RobotVisualState.FOCUS) {
+            // 随机间隔 2s - 7s
+            val delayTime = kotlin.random.Random.nextLong(2000, 7000)
+            kotlinx.coroutines.delay(delayTime)
+            
+            if (state == RobotVisualState.IDLE || state == RobotVisualState.HAPPY || state == RobotVisualState.LISTENING) {
                 isBlinking = true
                 kotlinx.coroutines.delay(150)
                 isBlinking = false
+                
+                // 偶尔双眨眼 (15% 概率)
+                if (kotlin.random.Random.nextFloat() < 0.15f) {
+                    kotlinx.coroutines.delay(100)
+                    isBlinking = true
+                    kotlinx.coroutines.delay(150)
+                    isBlinking = false
+                }
             }
         }
     }
@@ -96,22 +75,26 @@ fun RobotCharacter(
     Box(
         modifier = modifier
             .width(headSize * 1.8f)
-            .height(headSize * 1.5f),
+            .height(headSize * 1.6f),
         contentAlignment = Alignment.Center
     ) {
-        // 背景光晕
+        // ... (背景环境光保持不变)
         Box(
             modifier = Modifier
                 .size(headSize * 1.5f)
-                .scale(auraScale)
-                .clip(CircleShape)
+                .graphicsLayer { alpha = 0.15f }
                 .background(
-                    Color(0xFF22D3EE).copy(alpha = auraAlpha) // cyan-500
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xFF22D3EE), // cyan-400
+                            Color.Transparent
+                        )
+                    )
                 )
-                .blur(100.dp)
+                .blur(80.dp)
         )
         
-        // 主体结构（带悬浮动画）
+        // 主体结构
         Column(
             modifier = Modifier
                 .offset(y = if (state == RobotVisualState.IDLE) floatOffset.dp else 0.dp),
@@ -119,16 +102,14 @@ fun RobotCharacter(
         ) {
             // 状态提示气泡
             AnimatedVisibility(
-                visible = (state == RobotVisualState.IDLE || state == RobotVisualState.FOCUS) && statusTip != null,
-                enter = scaleIn(
-                    animationSpec = spring(dampingRatio = 0.6f, stiffness = 200f)
-                ) + fadeIn(),
+                visible = statusTip != null && state == RobotVisualState.IDLE,
+                enter = scaleIn() + fadeIn(),
                 exit = scaleOut() + fadeOut()
             ) {
                 StatusTipBubble(
                     tip = statusTip ?: "",
                     isFocusMode = state == RobotVisualState.FOCUS,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 24.dp)
                 )
             }
             
@@ -136,18 +117,24 @@ fun RobotCharacter(
             RobotHead(
                 state = state,
                 isBlinking = isBlinking,
+                ttsProgressNormalized = ttsProgressNormalized,
+                audioLevel = audioLevel,
                 headSize = headSize
             )
             
-            // 投影
+            // ... (地面阴影保持不变)
             Box(
                 modifier = Modifier
-                    .offset(y = (-8).dp)
+                    .offset(y = (-10).dp)
                     .width(headSize * 0.7f)
-                    .height(20.dp)
-                    .clip(RoundedCornerShape(50))
-                    .background(Color.Black.copy(alpha = 0.4f))
-                    .blur(30.dp)
+                    .height(24.dp)
+                    .graphicsLayer { 
+                        alpha = if (state == RobotVisualState.IDLE) 0.3f else 0.5f
+                        scaleX = if (state == RobotVisualState.IDLE) 0.8f + (floatOffset / 60f) else 1f
+                    }
+                    .clip(CircleShape)
+                    .background(Color.Black)
+                    .blur(15.dp)
             )
         }
     }
@@ -160,6 +147,8 @@ fun RobotCharacter(
 private fun RobotHead(
     state: RobotVisualState,
     isBlinking: Boolean,
+    ttsProgressNormalized: Float,
+    audioLevel: Float,
     headSize: Dp,
     modifier: Modifier = Modifier
 ) {
@@ -168,80 +157,100 @@ private fun RobotHead(
     Box(
         modifier = modifier
             .width(headSize)
-            .height(headSize * 0.72f)
-            .shadow(
-                elevation = 24.dp,
-                shape = RoundedCornerShape(headSize * 0.4f),
-                ambientColor = Color.Black.copy(alpha = 0.3f)
-            )
-            .clip(RoundedCornerShape(headSize * 0.4f))
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF0F172A).copy(alpha = 0.95f), // slate-900
-                        Color(0xFF020617).copy(alpha = 0.95f)  // slate-950
-                    )
-                )
-            ),
+            .height(headSize * 0.75f),
         contentAlignment = Alignment.Center
     ) {
-        // 天线
+        // 天线 (放置在头部后面)
         RobotAntennas(
             state = state,
             headSize = headSize,
             infiniteTransition = infiniteTransition
         )
         
-        // 内部深色区域
+        // ... (头部外壳保持不变)
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-                .clip(RoundedCornerShape(headSize * 0.35f))
-                .background(Color.Black.copy(alpha = 0.5f))
+                .shadow(
+                    elevation = 20.dp,
+                    shape = RoundedCornerShape(headSize * 0.25f),
+                    ambientColor = Color.Black
+                )
+                .clip(RoundedCornerShape(headSize * 0.25f))
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF0F172A), // slate-900
+                            Color(0xFF020617)  // slate-950
+                        )
+                    )
+                )
         )
         
-        // 眼睛和嘴巴
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        // 内部显示屏区域
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(headSize * 0.04f)
+                .clip(RoundedCornerShape(headSize * 0.21f))
+                .background(Color.Black.copy(alpha = 0.6f))
         ) {
-            // 眼睛
-            if (isBlinking && state == RobotVisualState.IDLE) {
-                // 眨眼状态
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(headSize * 0.2f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    BlinkingEye(size = headSize * 0.17f)
-                    BlinkingEye(size = headSize * 0.17f)
-                }
-            } else {
-                DynamicEyes(
-                    state = state,
-                    eyeSize = headSize * 0.17f,
-                    eyeGap = headSize * 0.2f
-                )
-            }
-            
-            // 说话嘴巴（仅SPEAKING状态）
-            AnimatedVisibility(
-                visible = state == RobotVisualState.SPEAKING,
-                enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut()
+            // 眼睛和嘴巴
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                SpeakingMouth(
-                    infiniteTransition = infiniteTransition,
-                    modifier = Modifier.padding(top = headSize * 0.12f)
-                )
+                if (isBlinking) {
+                    // 眨眼动画 (保持长椭圆)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(headSize * 0.2f)
+                    ) {
+                        BlinkingEye(size = headSize * 0.17f)
+                        BlinkingEye(size = headSize * 0.17f)
+                    }
+                } else {
+                    EnhancedDynamicEyes(
+                        state = state,
+                        ttsProgressNormalized = ttsProgressNormalized,
+                        audioLevel = audioLevel,
+                        eyeSize = headSize * 0.17f,
+                        eyeGap = headSize * 0.2f
+                    )
+                }
+                
+                // ... (嘴巴动画保持不变)
+                AnimatedVisibility(
+                    visible = state == RobotVisualState.SPEAKING,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    SpeakingMouth(
+                        infiniteTransition = infiniteTransition,
+                        modifier = Modifier.padding(top = headSize * 0.1f)
+                    )
+                }
             }
         }
     }
 }
 
 /**
- * 机器人天线
+ * 眨眼时的眼睛形状
+ */
+@Composable
+private fun BlinkingEye(size: Dp) {
+    Box(
+        modifier = Modifier
+            .width(size * 1.2f) // 稍微宽一点
+            .height(size * 0.1f) // 很扁
+            .clip(RoundedCornerShape(50)) // 胶囊形状
+            .background(Color.White.copy(alpha = 0.8f))
+    )
+}
+
+/**
+ * 机器人天线 - 增强发光效果
  */
 @Composable
 private fun RobotAntennas(
@@ -250,123 +259,67 @@ private fun RobotAntennas(
     infiniteTransition: InfiniteTransition,
     modifier: Modifier = Modifier
 ) {
-    // 天线动画
+    // ... (旋转动画保持不变)
     val antennaRotation by infiniteTransition.animateFloat(
-        initialValue = when (state) {
-            RobotVisualState.IDLE -> -8f
-            RobotVisualState.THINKING -> 0f
-            else -> 0f
-        },
-        targetValue = when (state) {
-            RobotVisualState.IDLE -> 8f
-            RobotVisualState.THINKING -> 360f
-            else -> 0f
-        },
-        animationSpec = when (state) {
-            RobotVisualState.IDLE -> infiniteRepeatable(
-                animation = tween(5000, easing = EaseInOutQuad),
-                repeatMode = RepeatMode.Reverse
-            )
-            RobotVisualState.THINKING -> infiniteRepeatable(
-                animation = tween(2000, easing = LinearEasing)
-            )
-            else -> infiniteRepeatable(
-                animation = tween(500, easing = EaseInOutQuad),
-                repeatMode = RepeatMode.Reverse
-            )
-        },
+        initialValue = -5f,
+        targetValue = 5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3000, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
         label = "antennaRotation"
     )
-    
-    val antennaScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = if (state == RobotVisualState.LISTENING) 1.15f else 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(300, easing = EaseInOutQuad),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "antennaScale"
-    )
-    
-    val antennaOffsetY by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = if (state == RobotVisualState.SPEAKING) -5f else 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(400, easing = EaseInOutQuad),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "antennaOffsetY"
-    )
-    
-    val isFocusMode = state == RobotVisualState.FOCUS
-    val antennaLightColor = if (isFocusMode) Color(0xFFF87171) else Color(0xFF22D3EE) // red-400 or cyan-400
-    val antennaLightColor2 = if (isFocusMode) Color(0xFFF87171) else Color(0xFF6366F1) // red-400 or indigo-500
-    
-    // 左天线
-    Box(
-        modifier = Modifier
-            .offset(x = (-headSize * 0.25f), y = (-headSize * 0.22f))
-            .graphicsLayer {
-                rotationZ = antennaRotation
-                scaleX = antennaScale
-                scaleY = antennaScale
-                translationY = antennaOffsetY
-            }
+
+    val isFocus = state == RobotVisualState.FOCUS
+    val color1 = if (isFocus) Color(0xFFF87171) else Color(0xFF22D3EE) // cyan
+    val color2 = if (isFocus) Color(0xFFF87171) else Color(0xFF818CF8) // indigo
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .offset(y = (-headSize * 0.35f)), // 向上移动更多，因为天线变长了
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        // 天线杆
-        Box(
-            modifier = Modifier
-                .width(12.dp)
-                .height(headSize * 0.22f)
-                .clip(RoundedCornerShape(6.dp))
-                .background(Color(0xFF1E293B)) // slate-800
-        )
-        // 天线灯
-        Box(
-            modifier = Modifier
-                .offset(x = (-8).dp, y = (-16).dp)
-                .size(28.dp)
-                .shadow(
-                    elevation = 16.dp,
-                    shape = CircleShape,
-                    ambientColor = antennaLightColor.copy(alpha = 0.5f)
-                )
-                .clip(CircleShape)
-                .background(antennaLightColor)
-        )
+        // 左天线
+        AntennaItem(color = color1, rotation = antennaRotation, headSize = headSize)
+        // 右天线
+        AntennaItem(color = color2, rotation = -antennaRotation, headSize = headSize)
     }
-    
-    // 右天线
-    Box(
-        modifier = Modifier
-            .offset(x = (headSize * 0.25f), y = (-headSize * 0.22f))
-            .graphicsLayer {
-                rotationZ = -antennaRotation
-                scaleX = antennaScale
-                scaleY = antennaScale
-                translationY = antennaOffsetY
-            }
+}
+
+@Composable
+private fun AntennaItem(color: Color, rotation: Float, headSize: Dp) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.graphicsLayer { rotationZ = rotation }
     ) {
-        // 天线杆
+        // 灯头 + 发光 (保持不变)
+        Box(contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(color.copy(alpha = 0.5f), Color.Transparent)
+                        )
+                    )
+                    .blur(10.dp)
+            )
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(color)
+                    .shadow(elevation = 8.dp, shape = CircleShape, clip = false, spotColor = color)
+            )
+        }
+        // 天线杆 - 变长
         Box(
             modifier = Modifier
-                .width(12.dp)
-                .height(headSize * 0.22f)
-                .clip(RoundedCornerShape(6.dp))
+                .width(10.dp)
+                .height(headSize * 0.35f) // 增加长度 (原 0.2f)
+                .clip(RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp))
                 .background(Color(0xFF1E293B)) // slate-800
-        )
-        // 天线灯
-        Box(
-            modifier = Modifier
-                .offset(x = (-8).dp, y = (-16).dp)
-                .size(28.dp)
-                .shadow(
-                    elevation = 16.dp,
-                    shape = CircleShape,
-                    ambientColor = antennaLightColor2.copy(alpha = 0.5f)
-                )
-                .clip(CircleShape)
-                .background(antennaLightColor2)
         )
     }
 }
@@ -380,10 +333,10 @@ private fun SpeakingMouth(
     modifier: Modifier = Modifier
 ) {
     val mouthScale by infiniteTransition.animateFloat(
-        initialValue = 0.1f,
-        targetValue = 2.5f,
+        initialValue = 0.5f,
+        targetValue = 2.0f,
         animationSpec = infiniteRepeatable(
-            animation = tween(250, easing = EaseInOutQuad),
+            animation = tween(200, easing = EaseInOutQuad),
             repeatMode = RepeatMode.Reverse
         ),
         label = "mouthScale"
@@ -391,16 +344,16 @@ private fun SpeakingMouth(
     
     Box(
         modifier = modifier
-            .width(48.dp * mouthScale)
-            .height(12.dp)
-            .clip(RoundedCornerShape(6.dp))
+            .width(32.dp * mouthScale)
+            .height(8.dp)
+            .clip(CircleShape)
             .background(Color.White)
-            .blur(1.dp)
+            .blur(0.5.dp)
     )
 }
 
 /**
- * 状态提示气泡
+ * 状态提示气泡 (考考你的知识)
  */
 @Composable
 private fun StatusTipBubble(
@@ -408,39 +361,26 @@ private fun StatusTipBubble(
     isFocusMode: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "tipPulse")
-    val pulseAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.5f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = EaseInOutQuad),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseAlpha"
-    )
-    
-    val indicatorColor = if (isFocusMode) Color(0xFFF87171) else Color(0xFF22D3EE) // red-400 or cyan-400
+    val indicatorColor = if (isFocusMode) Color(0xFFF87171) else Color(0xFF22D3EE)
     
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color.White.copy(alpha = 0.1f))
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(0xFF1E293B).copy(alpha = 0.8f))
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // 脉冲指示灯
         Box(
             modifier = Modifier
                 .size(6.dp)
                 .clip(CircleShape)
-                .background(indicatorColor.copy(alpha = pulseAlpha))
+                .background(indicatorColor)
         )
-        
         Text(
             text = tip,
-            color = Color.White.copy(alpha = 0.8f),
-            fontSize = 13.sp,
+            color = Color.White.copy(alpha = 0.9f),
+            fontSize = 12.sp,
             fontWeight = FontWeight.Bold
         )
     }

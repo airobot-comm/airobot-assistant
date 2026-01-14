@@ -94,7 +94,9 @@ dependencies {
     
     // 导航
     implementation("androidx.navigation:navigation-compose:2.7.6")
-    
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.constraintlayout.compose)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

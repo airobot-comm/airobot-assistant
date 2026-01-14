@@ -173,6 +173,10 @@ class OpusUsageExample(private val context: Context) {
                                 Log.d(TAG, "收到音频数据: ${event.data.size} 字节")
                                 // 可以在这里处理音频数据，比如发送到服务器
                             }
+                            is AudioEvent.AudioLevel -> {
+                                Log.d(TAG, "收到音频强度: ${event.level}")
+                                // 可以在这里处理音频强度，比如更新UI波形
+                            }
                             is AudioEvent.Error -> {
                                 Log.e(TAG, "音频错误: ${event.message}")
                             }

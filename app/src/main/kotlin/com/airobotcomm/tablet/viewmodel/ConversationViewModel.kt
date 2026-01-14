@@ -57,15 +57,28 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
     
     // 激活弹窗状态
+    // 激活弹窗状态
     private val _showActivationDialog = MutableStateFlow(false)
     val showActivationDialog: StateFlow<Boolean> = _showActivationDialog.asStateFlow()
     
     private val _activationCode = MutableStateFlow<String?>(null)
     val activationCode: StateFlow<String?> = _activationCode.asStateFlow()
+    
+    // 当前轮次的用户输入文本 (用于UI显示，每轮对话开始时清空)
+    private val _currentRoundUserText = MutableStateFlow<String?>(null)
+    val currentRoundUserText: StateFlow<String?> = _currentRoundUserText.asStateFlow()
+    
+    // 当前轮次的AI回复文本 (用于UI显示，确保换轮时清空)
+    private val _currentRoundAiText = MutableStateFlow<String?>(null)
+    val currentRoundAiText: StateFlow<String?> = _currentRoundAiText.asStateFlow()
 
     // 静音状态管理
     private val _isMuted = MutableStateFlow(false)
     val isMuted: StateFlow<Boolean> = _isMuted.asStateFlow()
+    
+    // 音频强度状态 - 用于驱动波形动画
+    private val _audioLevel = MutableStateFlow(0.0f)
+    val audioLevel: StateFlow<Float> = _audioLevel.asStateFlow()
 
     // 配置管理
     private val configManager = ConfigManager(application)
@@ -353,16 +366,17 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
 
             when (type) {
                 "stt" -> {
-                    // 语音转文本结果
                     val text = json.get("text")?.asString
                     if (!text.isNullOrEmpty() && !text.contains("请登录控制面板")) {
                         currentUserMessage = text
+                        _currentRoundUserText.value = text // 更新当前轮次文本
                         addMessage(Message(
                             role = MessageRole.USER,
                             content = text
                         ))
                         // STT结果表示用户说话结束，停止录音
                         audioManager.stopRecording()
+                        Log.d(TAG, "收到STT结果，从LISTENING切换到PROCESSING状态，当前状态: ${_state.value}")
                         _state.value = ConversationState.PROCESSING
                     }
                 }
@@ -376,38 +390,76 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
                 }
                 
                 "tts" -> {
-                    val state = json.get("state")?.asString
-                    when (state) {
+                    val ttsState = json.get("state")?.asString
+                    Log.d(TAG, "收到TTS消息，状态: $ttsState, 当前状态: ${_state.value}")
+                    
+                    when (ttsState) {
                         "sentence_start" -> {
                             // TTS句子开始，显示要播放的文本
                             val text = json.get("text")?.asString
                             if (!text.isNullOrEmpty()) {
+                                // 立即切换到SPEAKING状态，确保UI快速响应
+                                if (_state.value == ConversationState.PROCESSING) {
+                                    _state.value = ConversationState.SPEAKING
+                                    Log.d(TAG, "收到TTS句子开始，立即切换到SPEAKING状态")
+                                }
+                                
+                                _currentRoundAiText.value = text // 更新当前AI回复文本
+                                
                                 addMessage(Message(
                                     role = MessageRole.ASSISTANT,
                                     content = text
                                 ))
+                                Log.d(TAG, "收到TTS文本: $text")
                             }
                         }
                         "start" -> {
-                            // TTS开始播放
-                            _state.value = ConversationState.SPEAKING
+                            // TTS开始播放，确保状态为SPEAKING
+                            if (_state.value != ConversationState.SPEAKING) {
+                                Log.d(TAG, "TTS开始播放，从 ${_state.value} 切换到SPEAKING状态")
+                                _state.value = ConversationState.SPEAKING
+                            } else {
+                                Log.d(TAG, "TTS开始播放，当前已是SPEAKING状态")
+                            }
                             Log.d(TAG, "开始TTS播放")
                         }
                         "stop" -> {
-                            // TTS播放结束
+                            // TTS播放结束，停止播放
+                            Log.d(TAG, "TTS播放结束，当前状态: ${_state.value}")
                             audioManager.stopPlaying()
-                            Log.d(TAG, "TTS播放结束")
+                            Log.d(TAG, "TTS播放结束，处理下一轮对话")
                             
-                            // 根据模式决定下一步
-                            if (isAutoMode) {
-                                // 自动模式：继续下一轮对话
-                                startNextRound()
-                            } else {
-                                // 手动模式：回到空闲状态
-                                _state.value = ConversationState.IDLE
+                            // 延迟一小段时间，让交互节奏更自然
+                            viewModelScope.launch {
+                                kotlinx.coroutines.delay(500)
+                                // 根据模式决定下一步
+                                if (isAutoMode) {
+                                    // 自动模式：继续下一轮对话
+                                    Log.d(TAG, "自动模式，调用startNextRound()开始下一轮对话")
+                                    startNextRound()
+                                } else {
+                                    // 手动模式：回到空闲状态
+                                    Log.d(TAG, "手动模式，切换到IDLE状态")
+                                    _state.value = ConversationState.IDLE
+                                }
                             }
                         }
                     }
+                }
+                
+                "dialogue_end" -> {
+                    // 后端协议关闭对话
+                    Log.d(TAG, "收到后端协议消息：关闭当前对话")
+                    
+                    // 停止录音和播放
+                    audioManager.stopRecording()
+                    audioManager.stopPlaying()
+                    Log.d(TAG, "录音和播放已停止")
+                    
+                    // 注意：不要关闭auto模式，保持isAutoMode = true，以便后续可以继续对话
+                    // 切换到空闲状态，等待用户重新启动或服务器主动发起下一轮
+                    _state.value = ConversationState.IDLE
+                    Log.d(TAG, "对话状态切换到IDLE，当前对话已结束，auto模式保持: $isAutoMode")
                 }
             }
         } catch (e: Exception) {
@@ -440,6 +492,10 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
                     webSocketManager.sendBinaryMessage(event.data)
                 }
             }
+            is AudioEvent.AudioLevel -> {
+                // 更新音频强度状态
+                _audioLevel.value = event.level
+            }
             is AudioEvent.Error -> {
                 Log.e(TAG, "音频错误: ${event.message}")
                 _errorMessage.value = event.message
@@ -457,6 +513,9 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
         }
 
         isAutoMode = false
+        currentUserMessage = null 
+        _currentRoundUserText.value = null // 清除UI显示的当前文本
+        _currentRoundAiText.value = null   // 清除上一轮AI文本
         _state.value = ConversationState.LISTENING
         audioManager.startRecording()
         
@@ -474,6 +533,9 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
         }
 
         isAutoMode = true
+        currentUserMessage = null
+        _currentRoundUserText.value = null // 清除UI显示的当前文本
+        _currentRoundAiText.value = null   // 清除上一轮AI文本
         _state.value = ConversationState.LISTENING
         audioManager.startRecording()
         
@@ -521,16 +583,46 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
      */
     private fun startNextRound() {
         if (!isAutoMode || !_isConnected.value) {
+            Log.d(TAG, "自动模式已关闭或未连接，切换到空闲状态")
             _state.value = ConversationState.IDLE
             return
         }
 
-        _state.value = ConversationState.LISTENING
-        audioManager.startRecording()
+        // 检查当前状态是否允许切换到聆听状态
+        // 注意：在Websocket协议中，尽管服务端可能保持Session，但客户端麦克风必须由客户端显式开启。
+        // startNextRound() 的作用就是完成这个"客户端手动触发"的动作。
+        val currentState = _state.value
+        Log.d(TAG, "startNextRound() - 当前状态: $currentState, auto模式: $isAutoMode")
         
-        // 发送开始聆听消息
-        webSocketManager.sendStartListening("auto")
-        Log.d(TAG, "开始下一轮自动对话")
+        // 允许从SPEAKING、PROCESSING或IDLE状态切换到LISTENING
+        // PROCESSING状态可能是TTS消息顺序异常导致状态未正确切换
+        if (currentState == ConversationState.SPEAKING || 
+            currentState == ConversationState.PROCESSING || 
+            currentState == ConversationState.IDLE) {
+            Log.d(TAG, "从状态 $currentState 切换到 LISTENING，开始下一轮对话")
+            
+            // 先清除文本，避免状态切换时UI闪烁显示旧文本
+            currentUserMessage = null
+            _currentRoundUserText.value = null 
+            _currentRoundAiText.value = null // 清除上一轮AI文本 
+            
+            // 设置为聆听状态
+            _state.value = ConversationState.LISTENING
+            
+            // 启动录音
+            audioManager.startRecording()
+            
+            // 发送开始聆听消息，明确使用auto模式
+            webSocketManager.sendStartListening("auto")
+            Log.d(TAG, "开始下一轮自动对话，使用协议auto模式")
+        } else {
+            Log.d(TAG, "当前状态 $currentState 不允许启动下一轮对话，保持当前状态")
+            // 如果状态异常，强制切换到IDLE，等待重新启动
+            if (isAutoMode && currentState != ConversationState.LISTENING) {
+                Log.w(TAG, "状态异常，强制切换到IDLE状态")
+                _state.value = ConversationState.IDLE
+            }
+        }
     }
 
     /**

@@ -1,6 +1,6 @@
 # AiRobot Android Tablet
 
-AiRobot Android tablet智能对话,场景服务应用。
+AiRobot tablet智能对话,场景服务应用。
 
 ## 📱 功能特性
 

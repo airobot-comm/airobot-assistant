@@ -12,12 +12,13 @@ import androidx.compose.ui.unit.dp
 
 /**
  * 语音动态波形组件
- * 模拟麦克风输入的实时起伏
+ * 根据实际音频强度显示实时起伏
  */
 @Composable
 fun VoiceWaveform(
     isActive: Boolean,
     barColor: Color,
+    audioLevel: Float = 0.0f,
     modifier: Modifier = Modifier
 ) {
     val barCount = 5
@@ -29,9 +30,10 @@ fun VoiceWaveform(
         verticalAlignment = Alignment.CenterVertically
     ) {
         repeat(barCount) { index ->
-            val heightScale by infiniteTransition.animateFloat(
+            // 基础动画，模拟不同频率的波动
+            val baseScale by infiniteTransition.animateFloat(
                 initialValue = 0.3f,
-                targetValue = 1.0f,
+                targetValue = 0.7f,
                 animationSpec = infiniteRepeatable(
                     animation = tween(
                         durationMillis = 400 + (index * 100),
@@ -39,13 +41,23 @@ fun VoiceWaveform(
                     ),
                     repeatMode = RepeatMode.Reverse
                 ),
-                label = "barHeight"
+                label = "baseHeight"
             )
+            
+            // 音频强度影响，实际音频强度会放大波形效果
+            val audioInfluence = audioLevel * 0.5f // 音频强度贡献0-50%的高度
+            
+            // 总高度：基础动画 + 音频强度影响
+            val totalScale = if (isActive) {
+                baseScale + audioInfluence + (index * 0.1f) // 每个柱子有不同的基础高度
+            } else {
+                0.2f
+            }
 
             Box(
                 modifier = Modifier
                     .width(3.dp)
-                    .fillMaxHeight(if (isActive) heightScale else 0.2f)
+                    .fillMaxHeight(totalScale)
                     .background(
                         color = if (isActive) barColor else barColor.copy(alpha = 0.3f),
                         shape = RoundedCornerShape(2.dp)

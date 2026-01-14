@@ -1,6 +1,8 @@
 package com.airobotcomm.tablet.network
 
 import android.util.Log
+import com.airobotcomm.tablet.network.protocol.DeviceReportRequest
+import com.airobotcomm.tablet.network.protocol.OtaResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json

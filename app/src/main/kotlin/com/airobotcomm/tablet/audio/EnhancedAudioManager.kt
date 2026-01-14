@@ -22,6 +22,7 @@ import com.airobotcomm.tablet.audio.utils.OpusStreamPlayer
  */
 sealed class AudioEvent {
     data class AudioData(val data: ByteArray) : AudioEvent()
+    data class AudioLevel(val level: Float) : AudioEvent()
     data class Error(val message: String) : AudioEvent()
 }
 
@@ -187,6 +188,10 @@ class EnhancedAudioManager(private val context: Context) {
                     while (isRecording) {
                         val bytesRead = record.read(buffer, 0, buffer.size)
                         if (bytesRead > 0) {
+                            // 计算音频强度 (RMS)
+                            val audioLevel = calculateRmsLevel(buffer, bytesRead)
+                            _audioEvents.emit(AudioEvent.AudioLevel(audioLevel))
+                            
                             // 使用真正的Opus编码器
                             opusEncoder?.let { encoder ->
                                 val opusData = encoder.encode(buffer.copyOf(bytesRead))
@@ -318,6 +323,30 @@ class EnhancedAudioManager(private val context: Context) {
      * 获取录音状态
      */
     fun isRecording(): Boolean = isRecording
+
+    /**
+     * 计算音频强度 (RMS - Root Mean Square)
+     */
+    private fun calculateRmsLevel(buffer: ByteArray, bytesRead: Int): Float {
+        // 将byte数组转换为short数组（16位PCM）
+        val shorts = ShortArray(bytesRead / 2)
+        for (i in 0 until bytesRead step 2) {
+            shorts[i / 2] = ((buffer[i + 1].toInt() and 0xFF) shl 8 or (buffer[i].toInt() and 0xFF)).toShort()
+        }
+        
+        // 计算平方和
+        var sumOfSquares = 0.0
+        for (sample in shorts) {
+            val normalizedSample = sample / 32768.0 // 归一化到[-1, 1]
+            sumOfSquares += normalizedSample * normalizedSample
+        }
+        
+        // 计算平均值和平方根
+        val rms = Math.sqrt(sumOfSquares / shorts.size)
+        
+        // 映射到[0, 1]范围，增强小音量的显示效果
+        return Math.min(1.0, rms * 3.0).toFloat() // 放大3倍，让波形更明显
+    }
 
     /**
      * 获取播放状态

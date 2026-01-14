@@ -5,9 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
-import android.net.Network
 import android.os.BatteryManager
-import android.os.Build
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -24,17 +22,14 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.constraintlayout.compose.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.airobotcomm.tablet.R
 import com.airobotcomm.tablet.data.ConfigManager
 import com.airobotcomm.tablet.ui.SettingsScreen
@@ -48,18 +43,13 @@ import com.airobotcomm.tablet.ui.theme.RobotSecondaryIndigo
 import com.airobotcomm.tablet.ui.theme.RobotTextPrimary
 import com.airobotcomm.tablet.viewmodel.ConversationState
 import com.airobotcomm.tablet.viewmodel.ConversationViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 /**
  * 机器人对话主屏幕
  * 
  * Web原型对应: App.tsx
- * 
- * 整合所有组件:
- * - 机器人角色 (RobotCharacter)
- * - 对话气泡 (DialogueBubble)
- * - 语音输入面板 (RobotVoiceInputPanel)
- * - 服务卡片轮播 (ServiceCardCarousel)
- * - 专注计时器 (FocusTimerWidget)
  */
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -80,11 +70,12 @@ fun RobotConversationScreen(
     // 从ViewModel收集状态
     val conversationState by viewModel.state.collectAsState()
     val isConnected by viewModel.isConnected.collectAsState()
-    val messages by viewModel.messages.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-    val isMuted by viewModel.isMuted.collectAsState()
+    val audioLevel by viewModel.audioLevel.collectAsState()
     val showActivationDialog by viewModel.showActivationDialog.collectAsState()
     val activationCode by viewModel.activationCode.collectAsState()
+    val currentRoundUserText by viewModel.currentRoundUserText.collectAsState()
+    val currentRoundAiText by viewModel.currentRoundAiText.collectAsState()
     
     // 本地UI状态
     var showSettings by remember { mutableStateOf(false) }
@@ -92,7 +83,7 @@ fun RobotConversationScreen(
     
     // 机器人UI状态
     var robotUiState by remember { mutableStateOf(RobotUiState()) }
-    var currentCardIndex by remember { mutableStateOf(0) }
+    var currentCardIndex by remember { mutableIntStateOf(0) }
     
     // 同步ViewModel状态到UI状态
     LaunchedEffect(conversationState, isConnected) {
@@ -102,14 +93,10 @@ fun RobotConversationScreen(
         )
     }
     
-    // 获取最新消息
-    val latestUserMsg = messages.lastOrNull { it.role == com.airobotcomm.tablet.data.MessageRole.USER }?.content
-    val latestAiMsg = messages.lastOrNull { it.role == com.airobotcomm.tablet.data.MessageRole.ASSISTANT }?.content
-    
-    LaunchedEffect(latestUserMsg, latestAiMsg) {
+    LaunchedEffect(currentRoundUserText, currentRoundAiText) {
         robotUiState = robotUiState.copy(
-            currentUserMsg = latestUserMsg,
-            currentAiMsg = latestAiMsg
+            currentUserMsg = currentRoundUserText,
+            currentAiMsg = currentRoundAiText
         )
     }
     
@@ -124,13 +111,11 @@ fun RobotConversationScreen(
     val serviceCards = DEFAULT_SERVICE_CARDS
     val currentCard = serviceCards.getOrNull(currentCardIndex) ?: serviceCards.first()
     
-    // 更新状态提示 - 动态跟随卡片变化
+    // 更新状态提示
     LaunchedEffect(currentCard, robotUiState.timerStatus, robotUiState.timerCommand) {
-        val newStatusTip = when {
-            robotUiState.timerStatus == TimerStatus.RUNNING -> 
-                "正在专注: ${robotUiState.timerCommand?.task ?: "未知任务"}..."
-            robotUiState.timerStatus == TimerStatus.PAUSED -> 
-                "已暂停，休息一下..."
+        val newStatusTip = when (robotUiState.timerStatus) {
+            TimerStatus.RUNNING -> "正在专注: ${robotUiState.timerCommand?.task ?: "未知任务"}..."
+            TimerStatus.PAUSED -> "已暂停，休息一下..."
             else -> currentCard.statusTip
         }
         robotUiState = robotUiState.copy(statusTip = newStatusTip)
@@ -154,29 +139,27 @@ fun RobotConversationScreen(
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF0F172A), // slate-900
-                            Color(0xFF020617)  // slate-950
+                            Color(0xFF0F172A),
+                            Color(0xFF020617)
                         )
                     )
                 )
         ) {
-            // 背景装饰
             BackgroundDecorations()
             
-            // 主内容
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
                     .navigationBarsPadding()
             ) {
-                // 顶部栏
                 TopBar(
-                    isConnected = isConnected,
-                    onShowSettings = { showSettings = true }
+                    onShowSettings = { showSettings = true },
+                    isAutoMode = conversationState == ConversationState.LISTENING || 
+                                 conversationState == ConversationState.PROCESSING || 
+                                 conversationState == ConversationState.SPEAKING
                 )
                 
-                // 错误提示
                 AnimatedVisibility(
                     visible = errorMessage != null,
                     enter = slideInVertically() + fadeIn(),
@@ -188,171 +171,186 @@ fun RobotConversationScreen(
                     )
                 }
                 
-                // 主内容区域 - 使用约束布局，避免重叠
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                // 中心内容区域 - 使用 ConstraintLayout 精确控制相对位置
+                ConstraintLayout(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f)
                 ) {
-                    // AI角色区域 - 固定在左侧50%区域
+                    val (robotRef, voicePanelRef, aiBubbleRef, userBubbleRef, serviceCardsRef) = createRefs()
+
+                    // 1. 机器人角色 (偏上布局)
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth(0.5f)
-                            .fillMaxHeight(),
+                            .constrainAs(robotRef) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom, margin = 300.dp) // 偏上给语音面板留空间
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                                // 垂直偏置，让机器人视觉上处于最佳位置
+                                verticalBias = 0.5f
+                            },
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            // 机器人角色（居中显示）
-                            Box(contentAlignment = Alignment.Center) {
-                                RobotCharacter(
-                                    state = robotUiState.visualState,
-                                    statusTip = if (robotUiState.visualState == RobotVisualState.IDLE || 
-                                                   robotUiState.visualState == RobotVisualState.FOCUS) 
-                                               robotUiState.statusTip else null,
-                                    headSize = 240.dp
-                                )
-                                
-                                // AI对话气泡
-                                DialogueBubble(
-                                    robotState = robotUiState.visualState,
-                                    aiMsg = if (robotUiState.interactionType == InteractionType.CHAT) 
-                                            robotUiState.currentAiMsg else null,
-                                    onAiSpeechComplete = {
-                                        if (robotUiState.timerCommand != null && 
-                                            robotUiState.timerStatus == TimerStatus.IDLE) {
-                                            robotUiState = robotUiState.copy(
-                                                timerStatus = TimerStatus.RUNNING,
-                                                visualState = RobotVisualState.FOCUS
-                                            )
-                                        }
-                                    },
-                                    onClose = {
+                        RobotCharacter(
+                            state = robotUiState.visualState,
+                            statusTip = if (robotUiState.visualState == RobotVisualState.IDLE ||
+                                robotUiState.visualState == RobotVisualState.FOCUS
+                            )
+                                robotUiState.statusTip else null,
+                            audioLevel = audioLevel, // 传入音频等级用于微表情
+                            headSize = 420.dp
+                        )
+                    }
+
+                    // 2. 语音输入面板 (底部保持一定距离)
+                    Box(
+                        modifier = Modifier
+                            .constrainAs(voicePanelRef) {
+                                bottom.linkTo(parent.bottom, margin = 60.dp)
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                            }
+                    ) {
+                        RobotVoiceInputPanel(
+                            robotState = robotUiState.visualState,
+                            isConnected = isConnected,
+                            timerStatus = robotUiState.timerStatus,
+                            audioLevel = audioLevel,
+                            onStartListening = {
+                                if (permissionsState.allPermissionsGranted) {
+                                    robotUiState = robotUiState.copy(
+                                        interactionType = InteractionType.CHAT,
+                                        currentUserMsg = null,
+                                        currentAiMsg = null
+                                    )
+                                    viewModel.startAutoConversation()
+                                }
+                            },
+                            onStopListening = {
+                                viewModel.stopAutoConversation()
+                            },
+                            onTimerControl = { action ->
+                                when (action) {
+                                    "PAUSE" -> robotUiState = robotUiState.copy(
+                                        timerStatus = TimerStatus.PAUSED,
+                                        visualState = RobotVisualState.IDLE
+                                    )
+
+                                    "RESUME" -> robotUiState = robotUiState.copy(
+                                        timerStatus = TimerStatus.RUNNING,
+                                        visualState = RobotVisualState.FOCUS
+                                    )
+
+                                    "STOP" -> {
                                         robotUiState = robotUiState.copy(
-                                            visualState = RobotVisualState.IDLE,
-                                            currentUserMsg = null,
-                                            currentAiMsg = null,
                                             timerStatus = TimerStatus.IDLE,
                                             timerCommand = null,
-                                            activeCard = null
+                                            visualState = RobotVisualState.IDLE,
+                                            activeCard = null,
+                                            interactionType = InteractionType.CHAT
                                         )
-                                        viewModel.interrupt()
-                                    },
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .offset(x = 180.dp, y = 40.dp)
-                                )
-                            }
-                            
-                            Spacer(modifier = Modifier.height(24.dp))
-                            
-                            // 用户消息气泡
-                            androidx.compose.animation.AnimatedVisibility(
-                                visible = robotUiState.currentUserMsg != null && robotUiState.isInteracting,
-                                enter = slideInHorizontally() + fadeIn(),
-                                exit = slideOutHorizontally() + fadeOut()
-                            ) {
-                                UserMessageBubble(
-                                    message = robotUiState.currentUserMsg ?: "",
-                                    modifier = Modifier.padding(bottom = 8.dp)
-                                )
-                            }
-                            
-                            // 语音输入面板
-                            RobotVoiceInputPanel(
-                                robotState = robotUiState.visualState,
-                                isConnected = isConnected,
-                                timerStatus = robotUiState.timerStatus,
-                                onStartListening = {
-                                    if (permissionsState.allPermissionsGranted) {
-                                        robotUiState = robotUiState.copy(
-                                            interactionType = InteractionType.CHAT,
-                                            currentUserMsg = null,
-                                            currentAiMsg = null
-                                        )
-                                        viewModel.startListening()
                                     }
-                                },
-                                onStopListening = {
-                                    viewModel.stopListening()
-                                },
-                                onTimerControl = { action ->
-                                    when (action) {
-                                        "PAUSE" -> robotUiState = robotUiState.copy(
-                                            timerStatus = TimerStatus.PAUSED,
-                                            visualState = RobotVisualState.IDLE
-                                        )
-                                        "RESUME" -> robotUiState = robotUiState.copy(
-                                            timerStatus = TimerStatus.RUNNING,
-                                            visualState = RobotVisualState.FOCUS
-                                        )
-                                        "STOP" -> {
-                                            robotUiState = robotUiState.copy(
-                                                timerStatus = TimerStatus.IDLE,
-                                                timerCommand = null,
-                                                visualState = RobotVisualState.IDLE,
-                                                activeCard = null,
-                                                interactionType = InteractionType.CHAT
-                                            )
-                                        }
+                                }
+                            }
+                        )
+                    }
+
+                    // 3. AI 对话气泡 (机器人右上角)
+                    Box(
+                        modifier = Modifier
+                            .constrainAs(aiBubbleRef) {
+                                start.linkTo(robotRef.end, margin = (-180).dp) // 稍微重叠一点看起来像从机器人发出
+                                top.linkTo(robotRef.top, margin = 180.dp)
+                            }
+                    ) {
+                        DialogueBubble(
+                            robotState = robotUiState.visualState,
+                            aiMsg = if (robotUiState.interactionType == InteractionType.CHAT)
+                                robotUiState.currentAiMsg else null,
+                            onAiSpeechComplete = {
+                                if (robotUiState.timerCommand != null &&
+                                    robotUiState.timerStatus == TimerStatus.IDLE
+                                ) {
+                                    robotUiState = robotUiState.copy(
+                                        timerStatus = TimerStatus.RUNNING,
+                                        visualState = RobotVisualState.FOCUS
+                                    )
+                                }
+                            },
+                            onClose = {
+                                robotUiState = robotUiState.copy(
+                                    visualState = RobotVisualState.IDLE,
+                                    currentUserMsg = null,
+                                    currentAiMsg = null,
+                                    timerStatus = TimerStatus.IDLE,
+                                    timerCommand = null,
+                                    activeCard = null
+                                )
+                                viewModel.interrupt()
+                            }
+                        )
+                    }
+
+                    // 4. 用户消息气泡 (位于语音面板左上方)
+                    if (robotUiState.currentUserMsg != null &&
+                        (robotUiState.visualState == RobotVisualState.LISTENING ||
+                                robotUiState.visualState == RobotVisualState.THINKING)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .constrainAs(userBubbleRef) {
+                                    end.linkTo(voicePanelRef.start, margin = 0.dp)
+                                    bottom.linkTo(voicePanelRef.top, margin = 20.dp)
+                                }
+                        ) {
+                            UserMessageBubble(
+                                message = robotUiState.currentUserMsg ?: ""
+                            )
+                        }
+                    }
+
+                    // 5. 右侧功能推荐卡片 (非交互/卡片模式时显示)
+                    if (!robotUiState.isInteracting) {
+                        Box(
+                            modifier = Modifier
+                                .constrainAs(serviceCardsRef) {
+                                    end.linkTo(parent.end, margin = 64.dp)
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                }
+                                .width(260.dp),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
+                            ServiceCardCarousel(
+                                cards = serviceCards,
+                                onCardClick = { card ->
+                                    currentCardIndex = serviceCards.indexOf(card)
+                                    robotUiState = robotUiState.copy(
+                                        interactionType = InteractionType.CARD,
+                                        activeCard = card,
+                                        visualState = RobotVisualState.LISTENING,
+                                        currentUserMsg = null,
+                                        currentAiMsg = null
+                                    )
+                                    if (permissionsState.allPermissionsGranted) {
+                                        viewModel.startAutoConversation()
                                     }
                                 }
                             )
                         }
                     }
+                }
                     
-                    // 右侧 - 功能区域（在右侧区域居中，使用绝对定位防止重叠）
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        androidx.compose.animation.AnimatedVisibility(
-                            visible = !robotUiState.isInteracting,
-                            enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(),
-                            exit = slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
+                    // 功能卡片模式 - 右侧面板
+                    if (robotUiState.isCardMode) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = 64.dp),
+                            contentAlignment = Alignment.CenterEnd
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .width(320.dp), // 减小卡片宽度
-                                contentAlignment = Alignment.Center
-                            ) {
-                                ServiceCardCarousel(
-                                    cards = serviceCards,
-                                    onCardClick = { card ->
-                                        currentCardIndex = serviceCards.indexOf(card)
-                                        robotUiState = robotUiState.copy(
-                                            interactionType = InteractionType.CARD,
-                                            activeCard = card,
-                                            visualState = RobotVisualState.LISTENING,
-                                            currentUserMsg = null,
-                                            currentAiMsg = null
-                                        )
-                                        if (permissionsState.allPermissionsGranted) {
-                                            viewModel.startListening()
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    
-                    // 功能卡片模式 - 右侧面板（在右侧区域居中，使用绝对定位防止重叠）
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        androidx.compose.animation.AnimatedVisibility(
-                            visible = robotUiState.isCardMode,
-                            enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(),
-                            exit = slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .width(420.dp)
-                            ) {
+                            Box(modifier = Modifier.width(420.dp)) {
                                 FunctionalModulePanel(
                                     card = robotUiState.activeCard,
                                     aiMsg = robotUiState.currentAiMsg,
@@ -390,34 +388,27 @@ fun RobotConversationScreen(
                                 )
                             }
                         }
-                    }
-                    
-                    // 底部信息
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        contentAlignment = Alignment.BottomCenter
-                    ) {
-                        BottomFooter()
-                    }
-                }
-                
-                // 激活弹窗
-                if (showActivationDialog && activationCode != null) {
-                    ActivationDialog(
-                        activationCode = activationCode!!,
-                        onConfirm = { viewModel.onActivationConfirmed() }
-                    )
                 }
             }
             
-        } // Box
-    } // else
-} // RobotConversationScreen
+            // 底部页脚
+            BottomFooter(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
+            )
+            
+            // 激活弹窗
+            if (showActivationDialog && activationCode != null) {
+                ActivationDialog(
+                    activationCode = activationCode!!,
+                    onConfirm = { viewModel.onActivationConfirmed() }
+                )
+            }
+        }
+    }
+}
 
-/**
- * 背景装饰
- */
 @Composable
 private fun BackgroundDecorations() {
     val infiniteTransition = rememberInfiniteTransition(label = "bgAnimation")
@@ -432,7 +423,6 @@ private fun BackgroundDecorations() {
     )
     
     Box(modifier = Modifier.fillMaxSize()) {
-        // 左上光晕
         Box(
             modifier = Modifier
                 .offset(x = (-100).dp, y = (-150).dp)
@@ -442,7 +432,6 @@ private fun BackgroundDecorations() {
                 .blur(120.dp)
         )
         
-        // 右下光晕
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -455,13 +444,10 @@ private fun BackgroundDecorations() {
     }
 }
 
-/**
- * 顶部栏 - 模仿原型：LOGO + 网络/电量/设置
- */
 @Composable
 private fun TopBar(
-    isConnected: Boolean,
     onShowSettings: () -> Unit,
+    isAutoMode: Boolean,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -471,7 +457,6 @@ private fun TopBar(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Logo
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -483,8 +468,8 @@ private fun TopBar(
                     .background(
                         brush = Brush.linearGradient(
                             colors = listOf(
-                                RobotPrimaryCyan, // cyan-500
-                                RobotSecondaryIndigo  // indigo-600
+                                RobotPrimaryCyan,
+                                RobotSecondaryIndigo
                             )
                         )
                     ),
@@ -507,24 +492,39 @@ private fun TopBar(
             )
         }
         
-        // 右侧按钮 - 网络/电量/设置
         Row(
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 网络/电量状态图标
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // WiFi图标
                 NetworkStatusIcon()
-                
-                // 电量图标
                 BatteryLevelIcon()
+                
+                AnimatedVisibility(
+                    visible = isAutoMode,
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(CircleShape)
+                            .background(RobotPrimaryCyan.copy(alpha = 0.2f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.cloud_on),
+                            contentDescription = "自动模式",
+                            modifier = Modifier.size(12.dp),
+                            tint = RobotPrimaryCyan
+                        )
+                    }
+                }
             }
             
-            // 设置按钮
             IconButton(
                 onClick = onShowSettings,
                 modifier = Modifier
@@ -543,34 +543,22 @@ private fun TopBar(
     }
 }
 
-/**
- * 网络状态图标组件
- */
 @Composable
 private fun NetworkStatusIcon() {
     val context = LocalContext.current
     var wifiConnected by remember { mutableStateOf(false) }
     
-    // 监听网络状态变化
     LaunchedEffect(Unit) {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        
-        // 获取初始网络状态
-        val activeNetwork = connectivityManager.activeNetworkInfo
-        wifiConnected = activeNetwork?.isConnectedOrConnecting == true
-        
-        // 监听网络变化
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            connectivityManager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
-                override fun onAvailable(network: Network) {
-                    wifiConnected = true
-                }
-                
-                override fun onLost(network: Network) {
-                    wifiConnected = false
-                }
-            })
-        }
+        connectivityManager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: android.net.Network) {
+                wifiConnected = true
+            }
+            
+            override fun onLost(network: android.net.Network) {
+                wifiConnected = false
+            }
+        })
     }
     
     Icon(
@@ -581,36 +569,20 @@ private fun NetworkStatusIcon() {
     )
 }
 
-/**
- * 电池电量图标组件
- */
 @Composable
 private fun BatteryLevelIcon() {
     val context = LocalContext.current
-    var batteryLevel by remember { mutableStateOf(100) }
+    var batteryLevel by remember { mutableIntStateOf(100) }
     var batteryCharging by remember { mutableStateOf(false) }
     
-    // 监听电池状态变化
     LaunchedEffect(Unit) {
-        val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        val batteryStatus = context.registerReceiver(null, filter)
-        
-        val level = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
-        val scale = batteryStatus?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
-        val status = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-        
-        batteryLevel = (level.toFloat() / scale.toFloat() * 100).toInt()
-        batteryCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || 
-                          status == BatteryManager.BATTERY_STATUS_FULL
-        
-        // 注册广播接收器监听电池变化
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
                 val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
                 val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
                 
-                batteryLevel = (level.toFloat() / scale.toFloat() * 100).toInt()
+                batteryLevel = if (scale > 0) (level.toFloat() / scale.toFloat() * 100).toInt() else 0
                 batteryCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || 
                                   status == BatteryManager.BATTERY_STATUS_FULL
             }
@@ -619,7 +591,6 @@ private fun BatteryLevelIcon() {
         context.registerReceiver(receiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
     }
     
-    // 根据电量选择不同图标和颜色
     val batteryIcon = when {
         batteryCharging -> R.drawable.battery_charging
         batteryLevel >= 80 -> R.drawable.battery_full
@@ -629,22 +600,19 @@ private fun BatteryLevelIcon() {
     }
     
     val batteryColor = when {
-        batteryCharging -> Color(0xFF34D399) // green-400
+        batteryCharging -> Color(0xFF34D399)
         batteryLevel >= 50 -> RobotTextPrimary.copy(alpha = 0.3f)
-        else -> Color(0xFFEF4444).copy(alpha = 0.3f) // red-500
+        else -> Color(0xFFEF4444).copy(alpha = 0.3f)
     }
     
     Icon(
         painter = painterResource(id = batteryIcon),
-        contentDescription = "电池电量: ${batteryLevel}%",
+        contentDescription = "电池电量: $batteryLevel%",
         modifier = Modifier.size(16.dp),
         tint = batteryColor
     )
 }
 
-/**
- * 错误提示条
- */
 @Composable
 private fun ErrorBanner(
     message: String,
@@ -682,9 +650,6 @@ private fun ErrorBanner(
     }
 }
 
-/**
- * 底部信息
- */
 @Composable
 private fun BottomFooter(modifier: Modifier = Modifier) {
     Box(
@@ -720,9 +685,6 @@ private fun BottomFooter(modifier: Modifier = Modifier) {
     }
 }
 
-/**
- * 功能模块面板
- */
 @Composable
 private fun FunctionalModulePanel(
     card: ServiceCard?,
@@ -745,7 +707,6 @@ private fun FunctionalModulePanel(
             .padding(20.dp)
     ) {
         Column {
-            // 头部
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -813,7 +774,6 @@ private fun FunctionalModulePanel(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // AI消息区域
             AnimatedVisibility(
                 visible = aiMsg != null || robotState == RobotVisualState.THINKING,
                 enter = fadeIn() + slideInVertically(),
@@ -856,7 +816,6 @@ private fun FunctionalModulePanel(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // 内容区域
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -869,7 +828,6 @@ private fun FunctionalModulePanel(
                         onTimerComplete = onTimerComplete
                     )
                 } else {
-                    // 其他功能模块占位
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -898,9 +856,6 @@ private fun FunctionalModulePanel(
     }
 }
 
-/**
- * 激活弹窗
- */
 @Composable
 private fun ActivationDialog(
     activationCode: String,

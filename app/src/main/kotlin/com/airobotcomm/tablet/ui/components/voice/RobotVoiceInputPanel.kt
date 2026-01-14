@@ -42,6 +42,7 @@ fun RobotVoiceInputPanel(
     robotState: RobotVisualState,
     isConnected: Boolean,
     timerStatus: TimerStatus,
+    audioLevel: Float = 0.0f,
     onStartListening: () -> Unit,
     onStopListening: () -> Unit,
     onTimerControl: (String) -> Unit, // "PAUSE", "RESUME", "STOP"
@@ -83,6 +84,7 @@ fun RobotVoiceInputPanel(
                     isListening = isListening,
                     isThinking = isThinking,
                     isSpeaking = isSpeaking,
+                    audioLevel = audioLevel,
                     onStopListening = onStopListening
                 )
             }
@@ -102,7 +104,7 @@ private fun IdleMicButton(
     val infiniteTransition = rememberInfiniteTransition(label = "micPulse")
     val ringScale by infiniteTransition.animateFloat(
         initialValue = 1f,
-        targetValue = 1.4f,
+        targetValue = 1.6f, // 增加波动范围
         animationSpec = infiniteRepeatable(
             animation = tween(2000),
             repeatMode = RepeatMode.Restart
@@ -110,7 +112,7 @@ private fun IdleMicButton(
         label = "ringScale"
     )
     val ringAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.2f,
+        initialValue = 0.25f,
         targetValue = 0f,
         animationSpec = infiniteRepeatable(
             animation = tween(2000),
@@ -122,40 +124,40 @@ private fun IdleMicButton(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(20.dp) // 增加间距
     ) {
-        // 麦克风按钮
+        // 麦克风按钮 - 增大尺寸
         Box(
-            modifier = Modifier.size(80.dp),
+            modifier = Modifier.size(120.dp), // 从 80 增大到 120
             contentAlignment = Alignment.Center
         ) {
             // 脉冲环
             if (isConnected) {
                 Box(
                     modifier = Modifier
-                        .size(80.dp)
+                        .size(120.dp)
                         .scale(ringScale)
                         .clip(CircleShape)
-                        .background(Color(0xFF6366F1).copy(alpha = ringAlpha)) // indigo-400
+                        .background(Color(0xFF6366F1).copy(alpha = ringAlpha))
                 )
             }
             
             // 按钮主体
             Box(
                 modifier = Modifier
-                    .size(72.dp)
+                    .size(100.dp) // 从 72 增大到 100
                     .clip(CircleShape)
                     .background(
                         brush = Brush.verticalGradient(
                             colors = if (isConnected) {
                                 listOf(
-                                    Color(0xFF0F172A), // slate-900
-                                    Color(0xFF1E293B)  // slate-800
+                                    Color(0xFF0F172A),
+                                    Color(0xFF1E293B)
                                 )
                             } else {
                                 listOf(
-                                    Color(0xFF374151), // gray-700
-                                    Color(0xFF4B5563)  // gray-600
+                                    Color(0xFF374151),
+                                    Color(0xFF4B5563)
                                 )
                             }
                         )
@@ -166,35 +168,45 @@ private fun IdleMicButton(
                 Icon(
                     painter = painterResource(id = R.drawable.mic),
                     contentDescription = "开始录音",
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(44.dp), // 图标同步增大
                     tint = if (isConnected) Color.White else Color.White.copy(alpha = 0.5f)
                 )
             }
         }
         
-        // 提示文字
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
-                .background(Color.White.copy(alpha = 0.1f))
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.chat),
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-                tint = Color(0xFF22D3EE) // cyan-300
-            )
-            Text(
-                text = if (isConnected) "点击开始对话" else "未连接",
-                color = Color.White.copy(alpha = 0.7f),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp
-            )
-        }
+        // 提示文字 - 保持常驻
+        VoiceHintText(
+            text = if (isConnected) "点击开始对话" else "等待连接..."
+        )
+    }
+}
+
+/**
+ * 统一的语音提示文字逻辑
+ */
+@Composable
+private fun VoiceHintText(text: String) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color.White.copy(alpha = 0.08f))
+            .padding(horizontal = 20.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.chat),
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+            tint = Color(0xFF22D3EE)
+        )
+        Text(
+            text = text,
+            color = Color.White.copy(alpha = 0.8f),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.2.sp
+        )
     }
 }
 
@@ -206,70 +218,78 @@ private fun ActiveStatusPanel(
     isListening: Boolean,
     isThinking: Boolean,
     isSpeaking: Boolean,
+    audioLevel: Float,
     onStopListening: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "activeStatus")
     
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(28.dp))
-            .background(Color.White.copy(alpha = 0.1f))
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-            .clickable(enabled = isListening) { onStopListening() },
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        when {
-            isListening -> {
-                VoiceWaveform(
-                    isActive = true,
-                    barColor = Color(0xFF22D3EE)
-                )
-                Text(
-                    text = "请说话...",
-                    color = Color(0xFF22D3EE),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 2.sp
-                )
-            }
-            isThinking -> {
-                val rotation by infiniteTransition.animateFloat(
-                    initialValue = 0f,
-                    targetValue = 360f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(1500, easing = LinearEasing)
-                    ),
-                    label = "thinkingRotation"
-                )
-                Icon(
-                    painter = painterResource(id = R.drawable.settings),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(20.dp)
-                        .graphicsLayer { rotationZ = rotation },
-                    tint = Color(0xFF6366F1) // indigo-400
-                )
-                Text(
-                    text = "思考中",
-                    color = Color(0xFF6366F1),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 2.sp
-                )
-            }
-            isSpeaking -> {
-                SpeakingDots(
-                    dotColor = Color.White
-                )
-                Text(
-                    text = "正在播报回复",
-                    color = Color.White.copy(alpha = 0.9f),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 2.sp
-                )
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(28.dp))
+                .background(Color.White.copy(alpha = 0.1f))
+                .padding(horizontal = 32.dp, vertical = 20.dp) // 增大内边距
+                .clickable(enabled = isListening) { onStopListening() },
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            when {
+                isListening -> {
+                        VoiceWaveform(
+                            isActive = true,
+                            barColor = Color(0xFF22D3EE),
+                            audioLevel = audioLevel
+                        )
+                        Text(
+                            text = "倾听中",
+                            color = Color(0xFF22D3EE),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 2.sp
+                        )
+                    }
+                isThinking -> {
+                    val rotation by infiniteTransition.animateFloat(
+                        initialValue = 0f,
+                        targetValue = 360f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(1500, easing = LinearEasing)
+                        ),
+                        label = "thinkingRotation"
+                    )
+                    Icon(
+                        painter = painterResource(id = R.drawable.settings),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .graphicsLayer { rotationZ = rotation },
+                        tint = Color(0xFF6366F1)
+                    )
+                    Text(
+                        text = "思考中",
+                        color = Color(0xFF6366F1),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 2.sp
+                    )
+                }
+                isSpeaking -> {
+                    SpeakingDots(
+                        dotColor = Color.White
+                    )
+                    Text(
+                        text = "正在播报",
+                        color = Color.White.copy(alpha = 0.9f),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 2.sp
+                    )
+                }
             }
         }
     }
