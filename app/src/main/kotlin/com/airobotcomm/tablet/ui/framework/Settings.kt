@@ -1,7 +1,6 @@
-package com.airobotcomm.tablet.ui
+package com.airobotcomm.tablet.ui.framework
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -11,20 +10,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobotcomm.tablet.data.ConfigManager
 import com.airobotcomm.tablet.data.XiaozhiConfig
-import com.airobotcomm.tablet.ui.theme.DarkColorScheme
 import com.airobotcomm.tablet.ui.theme.RobotTextPrimary
 import com.airobotcomm.tablet.ui.theme.RobotTextSecondary
 import com.airobotcomm.tablet.ui.theme.RobotSurface
 import com.airobotcomm.tablet.ui.theme.RobotBackgroundDark
 import com.airobotcomm.tablet.ui.theme.RobotPrimaryCyan
-import com.airobotcomm.tablet.ui.theme.RobotSecondaryIndigo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

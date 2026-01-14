@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.viewmodel
+package com.airobotcomm.tablet.ui.viewmodel
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -18,6 +18,7 @@ import com.airobotcomm.tablet.data.XiaozhiConfig
 import com.airobotcomm.tablet.network.WebSocketEvent
 import com.airobotcomm.tablet.network.WebSocketManager
 import com.airobotcomm.tablet.network.OtaService
+import kotlinx.coroutines.delay
 
 /**
  * 对话状态
@@ -431,7 +432,7 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
                             
                             // 延迟一小段时间，让交互节奏更自然
                             viewModelScope.launch {
-                                kotlinx.coroutines.delay(500)
+                                delay(500)
                                 // 根据模式决定下一步
                                 if (isAutoMode) {
                                     // 自动模式：继续下一轮对话

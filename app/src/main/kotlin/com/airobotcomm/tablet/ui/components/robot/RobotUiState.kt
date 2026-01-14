@@ -1,6 +1,6 @@
 package com.airobotcomm.tablet.ui.components.robot
 
-import com.airobotcomm.tablet.viewmodel.ConversationState
+import com.airobotcomm.tablet.ui.viewmodel.ConversationState
 
 /**
  * 机器人视觉状态 - 用于控制眼睛、天线等动画

@@ -1,10 +1,12 @@
-package com.airobotcomm.tablet.ui.screens
+package com.airobotcomm.tablet.ui
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
+import android.net.Network
 import android.os.BatteryManager
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -28,21 +30,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.*
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.airobotcomm.tablet.R
 import com.airobotcomm.tablet.data.ConfigManager
-import com.airobotcomm.tablet.ui.SettingsScreen
 import com.airobotcomm.tablet.ui.components.dialogue.DialogueBubble
+import com.airobotcomm.tablet.ui.components.dialogue.TypewriterText
 import com.airobotcomm.tablet.ui.components.dialogue.UserMessageBubble
 import com.airobotcomm.tablet.ui.components.robot.*
 import com.airobotcomm.tablet.ui.components.service.*
 import com.airobotcomm.tablet.ui.components.voice.RobotVoiceInputPanel
+import com.airobotcomm.tablet.ui.framework.SettingsScreen
 import com.airobotcomm.tablet.ui.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.ui.theme.RobotSecondaryIndigo
 import com.airobotcomm.tablet.ui.theme.RobotTextPrimary
-import com.airobotcomm.tablet.viewmodel.ConversationState
-import com.airobotcomm.tablet.viewmodel.ConversationViewModel
+import com.airobotcomm.tablet.ui.viewmodel.ConversationState
+import com.airobotcomm.tablet.ui.viewmodel.ConversationViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
@@ -62,8 +64,8 @@ fun RobotConversationScreen(
     // 权限管理
     val permissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
-            android.Manifest.permission.RECORD_AUDIO,
-            android.Manifest.permission.MODIFY_AUDIO_SETTINGS
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.MODIFY_AUDIO_SETTINGS
         )
     )
     
@@ -551,11 +553,11 @@ private fun NetworkStatusIcon() {
     LaunchedEffect(Unit) {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         connectivityManager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: android.net.Network) {
+            override fun onAvailable(network: Network) {
                 wifiConnected = true
             }
             
-            override fun onLost(network: android.net.Network) {
+            override fun onLost(network: Network) {
                 wifiConnected = false
             }
         })
@@ -806,7 +808,7 @@ private fun FunctionalModulePanel(
                             )
                         }
                     } else if (aiMsg != null) {
-                        com.airobotcomm.tablet.ui.components.dialogue.TypewriterText(
+                        TypewriterText(
                             text = aiMsg,
                             onComplete = onAiSpeechComplete
                         )
