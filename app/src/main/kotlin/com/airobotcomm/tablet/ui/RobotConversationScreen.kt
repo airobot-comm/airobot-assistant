@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.*
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobotcomm.tablet.R
 import com.airobotcomm.tablet.data.ConfigManager
 import com.airobotcomm.tablet.ui.components.dialogue.DialogueBubble
@@ -56,10 +57,9 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun RobotConversationScreen(
-    viewModel: ConversationViewModel = viewModel()
+    viewModel: ConversationViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val configManager = remember { ConfigManager(context) }
     
     // 权限管理
     val permissionsState = rememberMultiplePermissionsState(
@@ -81,7 +81,8 @@ fun RobotConversationScreen(
     
     // 本地UI状态
     var showSettings by remember { mutableStateOf(false) }
-    var currentConfig by remember { mutableStateOf(configManager.loadConfig()) }
+    // 注意：我们将在此处使用一个简单的配置占位或通过 ViewModel 获取
+    var currentConfig by remember { mutableStateOf(com.airobotcomm.tablet.data.XiaozhiConfig.createDefault()) }
     
     // 机器人UI状态
     var robotUiState by remember { mutableStateOf(RobotUiState()) }
@@ -128,7 +129,6 @@ fun RobotConversationScreen(
             config = currentConfig,
             onConfigChange = { newConfig ->
                 currentConfig = newConfig
-                configManager.saveConfig(newConfig)
                 viewModel.updateConfig(newConfig)
                 showSettings = false
             },

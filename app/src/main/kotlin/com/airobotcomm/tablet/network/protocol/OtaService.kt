@@ -1,8 +1,6 @@
-package com.airobotcomm.tablet.network
+package com.airobotcomm.tablet.network.protocol
 
 import android.util.Log
-import com.airobotcomm.tablet.network.protocol.DeviceReportRequest
-import com.airobotcomm.tablet.network.protocol.OtaResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -40,7 +38,8 @@ class OtaService {
             try {
                 val url = otaUrl?.takeIf { it.isNotBlank() } ?: ""
                 val deviceRequest = createDeviceReportRequest(clientId, deviceId)
-                val requestBodyString = json.encodeToString(DeviceReportRequest.serializer(), deviceRequest)
+                val requestBodyString =
+                    json.encodeToString(DeviceReportRequest.serializer(), deviceRequest)
                 val requestBody = requestBodyString.toRequestBody("application/json".toMediaType())
 
                 val request = Request.Builder()
@@ -56,16 +55,17 @@ class OtaService {
                 Log.d(TAG, "请求体数据: $requestBodyString")
 
                 val response = client.newCall(request).execute()
-                
+
                 Log.d(TAG, "收到响应 - 状态码: ${response.code}, 消息: ${response.message}")
                 Log.d(TAG, "响应头: ${response.headers}")
-                
+
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
                     if (responseBody != null) {
                         Log.d(TAG, "OTA响应成功 - 状态码: ${response.code}")
                         Log.d(TAG, "响应体数据: $responseBody")
-                        val otaResponse = json.decodeFromString(OtaResponse.serializer(), responseBody)
+                        val otaResponse =
+                            json.decodeFromString(OtaResponse.serializer(), responseBody)
                         Log.d(TAG, "解析后的OTA响应对象: $otaResponse")
                         Result.success(otaResponse)
                     } else {

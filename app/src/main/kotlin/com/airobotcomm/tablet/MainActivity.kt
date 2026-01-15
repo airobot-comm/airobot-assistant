@@ -14,6 +14,9 @@ import com.airobotcomm.tablet.ui.RobotConversationScreen
 import com.airobotcomm.tablet.ui.theme.DarkColorScheme
 import com.airobotcomm.tablet.ui.theme.YTheme
 
+import dagger.hilt.android.AndroidEntryPoint
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     companion object {
         private const val TAG = "MainActivity"

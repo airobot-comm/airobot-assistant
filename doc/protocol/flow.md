@@ -14,7 +14,7 @@
 ```kotlin
 // 握手流程
 private fun handleHelloResponse(json: JsonObject) {
-    val transport = json.get("transport")?.asString
+    val transport = json.get("connect")?.asString
     if (transport == "websocket") {
         sessionId = json.get("session_id")?.asString
         isHandshakeComplete = true

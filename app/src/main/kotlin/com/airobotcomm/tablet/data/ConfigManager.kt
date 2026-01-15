@@ -7,7 +7,14 @@ import com.google.gson.Gson
 /**
  * 配置管理器，负责配置的存储和读取
  */
-class ConfigManager(private val context: Context) {
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class ConfigManager @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
     private val sharedPreferences: SharedPreferences = 
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val gson = Gson()

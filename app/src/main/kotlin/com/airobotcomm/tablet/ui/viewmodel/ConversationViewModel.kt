@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import com.airobotcomm.tablet.audio.AudioEvent
@@ -15,9 +14,11 @@ import com.airobotcomm.tablet.data.ConfigManager
 import com.airobotcomm.tablet.data.Message
 import com.airobotcomm.tablet.data.MessageRole
 import com.airobotcomm.tablet.data.XiaozhiConfig
-import com.airobotcomm.tablet.network.WebSocketEvent
-import com.airobotcomm.tablet.network.WebSocketManager
-import com.airobotcomm.tablet.network.OtaService
+import com.airobotcomm.tablet.network.NetworkService
+import com.airobotcomm.tablet.network.NetworkState
+import com.airobotcomm.tablet.network.protocol.AiRobotEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.delay
 
 /**
@@ -34,15 +35,18 @@ enum class ConversationState {
 /**
  * 对话ViewModel
  */
-class ConversationViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class ConversationViewModel @Inject constructor(
+    application: Application,
+    private val networkService: NetworkService,
+    private val configManager: ConfigManager,
+    private val audioManager: EnhancedAudioManager
+) : AndroidViewModel(application) {
     companion object {
         private const val TAG = "ConversationViewModel"
     }
 
     private val gson = Gson()
-    private val webSocketManager = WebSocketManager(application)
-    private val audioManager = EnhancedAudioManager(application)
-    private val otaService = OtaService()
 
     // 状态管理
     private val _state = MutableStateFlow(ConversationState.IDLE)
@@ -82,8 +86,6 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
     val audioLevel: StateFlow<Float> = _audioLevel.asStateFlow()
 
     // 配置管理
-    private val configManager = ConfigManager(application)
-    private var config = configManager.loadConfig()
     
     // 多轮对话支持
     private var isAutoMode = false
@@ -107,19 +109,26 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
             return
         }
 
-        // 执行OTA检查
-        performOtaCheck()
+        // 开始连接
+        connectToServer()
     }
     
     /**
      * 启动事件监听
      */
     private fun startEventListening() {
-        // 监听WebSocket事件 - 确保在WebSocket连接之前就开始监听
+        // 监听统一网络服务事件
         viewModelScope.launch {
-            Log.d(TAG, "开始监听WebSocket事件")
-            webSocketManager.events.collect { event ->
-                handleWebSocketEvent(event)
+            Log.d(TAG, "开始监听 NetworkService 事件")
+            networkService.events.collect { event ->
+                handleAiRobotEvent(event)
+            }
+        }
+
+        // 监听网络连接状态
+        viewModelScope.launch {
+            networkService.state.collect { networkState ->
+                updateStateFromNetwork(networkState)
             }
         }
 
@@ -132,354 +141,109 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
     }
 
     /**
-     * 执行OTA检查
+     * 根据网络服务状态映射 UI 状态
      */
-    private fun performOtaCheck() {
-        viewModelScope.launch {
-            try {
-                // 检查OTA URL是否配置
-                if (config.otaUrl.isBlank()) {
-                    Log.w(TAG, "OTA URL未配置，跳过OTA检查")
-                    return@launch
-                }
-                
-                Log.d(TAG, "开始执行OTA检查...")
-                val result = otaService.reportDeviceAndGetOta(
-                    clientId = config.uuid,
-                    deviceId = config.macAddress,
-                    otaUrl = config.otaUrl
-                )
-                
-                result.onSuccess { otaResponse ->
-                    Log.d(TAG, "OTA检查成功")
-                    Log.d(TAG, "服务器时间: ${otaResponse.serverTime.timestamp}")
-                    Log.d(TAG, "固件版本: ${otaResponse.firmware.version}")
-                    Log.d(TAG, "WebSocket URL: ${otaResponse.websocket.url}")
-                    
-                    // 更新WebSocket URL（如果服务器返回了新的URL）
-                    updateWebSocketUrl(otaResponse.websocket.url)
-                    
-                    // 处理激活信息（如果是首次激活）
-                    otaResponse.activation?.let { activation ->
-                        Log.d(TAG, "设备激活信息: ${activation.message}")
-                        Log.d(TAG, "激活码: ${activation.code}")
-                        // 设备未激活，显示激活弹窗
-                        _activationCode.value = activation.code
-                        _showActivationDialog.value = true
-                        return@onSuccess // 不连接WebSocket，等待用户确认激活
-                    }
-                    
-                    // OTA检查完成后连接WebSocket（仅在没有activation时）
-                    connectToServer()
-                }.onFailure { exception ->
-                    Log.e(TAG, "OTA检查失败", exception)
-                    _errorMessage.value = "OTA检查失败: ${exception.message}"
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "OTA检查异常", e)
-                _errorMessage.value = "OTA检查异常: ${e.message}"
+    private fun updateStateFromNetwork(networkState: NetworkState) {
+        _isConnected.value = networkService.isConnected
+        when (networkState) {
+            NetworkState.CONNECTING, NetworkState.INITIALIZING, NetworkState.RECONNECTING -> {
+                _state.value = ConversationState.CONNECTING
             }
-        }
-    }
-    
-    /**
-     * 用户确认激活后连接WebSocket
-     */
-    fun onActivationConfirmed() {
-        Log.d(TAG, "用户确认激活，开始连接WebSocket")
-        _showActivationDialog.value = false
-        _activationCode.value = null
-        connectToServer()
-    }
-    
-    /**
-     * 关闭激活弹窗
-     */
-    fun dismissActivationDialog() {
-        _showActivationDialog.value = false
-        _activationCode.value = null
-    }
-    
-    /**
-     * 更新WebSocket URL
-     */
-    private fun updateWebSocketUrl(newUrl: String) {
-        if (newUrl.isNotEmpty() && newUrl != config.websocketUrl) {
-            Log.d(TAG, "更新WebSocket URL: $newUrl")
-            // 更新配置中的WebSocket URL
-            val updatedConfig = config.copy(websocketUrl = newUrl)
-            updateConfig(updatedConfig)
-        }
-    }
-
-    /**
-     * 连接到服务器
-     */
-    private fun connectToServer() {
-        _state.value = ConversationState.CONNECTING
-        
-        // 如果websocketUrl为空，先请求OTA接口获取websocketUrl
-        if (config.websocketUrl.isBlank()) {
-            Log.d(TAG, "WebSocket URL为空，先执行OTA检查获取URL")
-            performOtaCheckForWebSocketUrl()
-        } else {
-            // 直接使用配置的websocketUrl连接
-            Log.d(TAG, "使用配置的WebSocket URL连接: ${config.websocketUrl}")
-            webSocketManager.connect(
-                url = config.websocketUrl,
-                deviceId = config.macAddress,
-                token = config.token
-            )
-        }
-    }
-    
-    /**
-     * 专门用于获取WebSocket URL的OTA检查
-     */
-    private fun performOtaCheckForWebSocketUrl() {
-        viewModelScope.launch {
-            try {
-                // 检查OTA URL是否配置
-                if (config.otaUrl.isBlank()) {
-                    Log.w(TAG, "OTA URL未配置，无法获取WebSocket URL")
-                    _errorMessage.value = "OTA URL未配置，无法连接服务器"
-                    _state.value = ConversationState.IDLE
-                    return@launch
-                }
-                
-                Log.d(TAG, "执行OTA检查以获取WebSocket URL...")
-                val result = otaService.reportDeviceAndGetOta(
-                    clientId = config.uuid,
-                    deviceId = config.macAddress,
-                    otaUrl = config.otaUrl
-                )
-                
-                result.onSuccess { otaResponse ->
-                    Log.d(TAG, "获取WebSocket URL成功: ${otaResponse.websocket.url}")
-                    
-                    // 更新WebSocket URL
-                    updateWebSocketUrl(otaResponse.websocket.url)
-                    
-                    // 处理激活信息（如果是首次激活）
-                    otaResponse.activation?.let { activation ->
-                        Log.d(TAG, "设备激活信息: ${activation.message}")
-                        Log.d(TAG, "激活码: ${activation.code}")
-                        // 设备未激活，显示激活弹窗
-                        _activationCode.value = activation.code
-                        _showActivationDialog.value = true
-                        return@onSuccess // 不连接WebSocket，等待用户确认激活
-                    }
-                    
-                    // 使用获取到的WebSocket URL连接（仅在没有activation时）
-                    webSocketManager.connect(
-                        url = otaResponse.websocket.url,
-                        deviceId = config.macAddress,
-                        token = config.token
-                    )
-                }.onFailure { exception ->
-                    Log.e(TAG, "获取WebSocket URL失败", exception)
-                    _errorMessage.value = "获取WebSocket URL失败: ${exception.message}"
-                    _state.value = ConversationState.IDLE
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "获取WebSocket URL异常", e)
-                _errorMessage.value = "获取WebSocket URL异常: ${e.message}"
+            NetworkState.ERROR, NetworkState.IDLE -> {
                 _state.value = ConversationState.IDLE
             }
-        }
-    }
-    
-    /**
-     * 更新配置并重连
-     */
-    fun updateConfig(newConfig: XiaozhiConfig) {
-        val oldConfig = config
-        config = newConfig
-        configManager.saveConfig(newConfig)
-        Log.d(TAG, "配置已更新")
-        
-        // 如果WebSocket相关配置发生变化，需要重连
-        if (oldConfig.websocketUrl != newConfig.websocketUrl || 
-            oldConfig.macAddress != newConfig.macAddress ||
-            oldConfig.token != newConfig.token) {
-            Log.d(TAG, "WebSocket配置发生变化，执行重连")
-            reconnect()
+            NetworkState.CONNECTED -> {
+                // 已通过 AiRobotEvent.Connected 处理
+            }
         }
     }
 
     /**
-     * 处理WebSocket事件
+     * 处理统一的 AiRobot 协议事件
      */
-    private fun handleWebSocketEvent(event: WebSocketEvent) {
-        Log.d(TAG, "收到WebSocket事件: ${event::class.simpleName}")
+    private fun handleAiRobotEvent(event: AiRobotEvent) {
         when (event) {
-            is WebSocketEvent.HelloReceived -> {
-                Log.d(TAG, "握手完成")
+            is AiRobotEvent.ActivationRequired -> {
+                _activationCode.value = event.code
+                _showActivationDialog.value = true
+                _state.value = ConversationState.IDLE
             }
-            
-            is WebSocketEvent.Connected -> {
-                Log.d(TAG, "WebSocket连接成功")
+            is AiRobotEvent.Connected -> {
                 _isConnected.value = true
                 _state.value = ConversationState.IDLE
                 _errorMessage.value = null
             }
-
-            is WebSocketEvent.Disconnected -> {
-                Log.d(TAG, "WebSocket连接断开")
+            is AiRobotEvent.Disconnected -> {
                 _isConnected.value = false
                 _state.value = ConversationState.IDLE
                 audioManager.stopRecording()
                 audioManager.stopPlaying()
             }
-
-            is WebSocketEvent.TextMessage -> {
-                handleTextMessage(event.message)
+            is AiRobotEvent.Error -> {
+                _errorMessage.value = event.message
+                _state.value = ConversationState.IDLE
             }
-
-            is WebSocketEvent.BinaryMessage -> {
-                handleBinaryMessage(event.data)
+            is AiRobotEvent.STT -> {
+                handleSttResult(event.text)
             }
-            
-            is WebSocketEvent.MCPMessage -> {
-                handleMCPMessage(event.message)
+            is AiRobotEvent.TtsSentence -> {
+                handleTtsSentence(event.text)
             }
-
-            is WebSocketEvent.Error -> {
-                Log.e(TAG, "WebSocket错误: ${event.error}")
-                _errorMessage.value = event.error
+            is AiRobotEvent.TtsStart -> {
+                _state.value = ConversationState.SPEAKING
+            }
+            is AiRobotEvent.TtsStop -> {
+                handleTtsStop()
+            }
+            is AiRobotEvent.AudioFrame -> {
+                if (!_isMuted.value) audioManager.playAudio(event.data)
+            }
+            is AiRobotEvent.DialogueEnd -> {
                 _state.value = ConversationState.IDLE
                 audioManager.stopRecording()
                 audioManager.stopPlaying()
             }
+            else -> {}
+        }
+    }
+
+    private fun handleSttResult(text: String) {
+        if (text.isNotBlank()) {
+            currentUserMessage = text
+            _currentRoundUserText.value = text
+            addMessage(Message(role = MessageRole.USER, content = text))
+            audioManager.stopRecording()
+            _state.value = ConversationState.PROCESSING
+        }
+    }
+
+    private fun handleTtsSentence(text: String) {
+        _currentRoundAiText.value = text
+        addMessage(Message(role = MessageRole.ASSISTANT, content = text))
+    }
+
+    private fun handleTtsStop() {
+        audioManager.stopPlaying()
+        viewModelScope.launch {
+            delay(500)
+            if (isAutoMode) startNextRound() else _state.value = ConversationState.IDLE
         }
     }
 
     /**
-     * 处理文本消息
+     * 连接到服务器（现在只需调用统一接口）
      */
-    private fun handleTextMessage(message: String) {
-        try {
-            val json = gson.fromJson(message, JsonObject::class.java)
-            val type = json.get("type")?.asString
-            val sessionId = json.get("session_id")?.asString
-
-            Log.d(TAG, "处理消息类型: $type, session_id: $sessionId")
-
-            when (type) {
-                "stt" -> {
-                    val text = json.get("text")?.asString
-                    if (!text.isNullOrEmpty() && !text.contains("请登录控制面板")) {
-                        currentUserMessage = text
-                        _currentRoundUserText.value = text // 更新当前轮次文本
-                        addMessage(Message(
-                            role = MessageRole.USER,
-                            content = text
-                        ))
-                        // STT结果表示用户说话结束，停止录音
-                        audioManager.stopRecording()
-                        Log.d(TAG, "收到STT结果，从LISTENING切换到PROCESSING状态，当前状态: ${_state.value}")
-                        _state.value = ConversationState.PROCESSING
-                    }
-                }
-                
-                "llm" -> {
-                    // 大语言模型表情结果
-                    val emotion = json.get("emotion")?.asString
-                    val text = json.get("text")?.asString
-                    Log.d(TAG, "收到表情: $emotion, 文本: $text")
-                    // 可以在这里处理表情显示
-                }
-                
-                "tts" -> {
-                    val ttsState = json.get("state")?.asString
-                    Log.d(TAG, "收到TTS消息，状态: $ttsState, 当前状态: ${_state.value}")
-                    
-                    when (ttsState) {
-                        "sentence_start" -> {
-                            // TTS句子开始，显示要播放的文本
-                            val text = json.get("text")?.asString
-                            if (!text.isNullOrEmpty()) {
-                                // 立即切换到SPEAKING状态，确保UI快速响应
-                                if (_state.value == ConversationState.PROCESSING) {
-                                    _state.value = ConversationState.SPEAKING
-                                    Log.d(TAG, "收到TTS句子开始，立即切换到SPEAKING状态")
-                                }
-                                
-                                _currentRoundAiText.value = text // 更新当前AI回复文本
-                                
-                                addMessage(Message(
-                                    role = MessageRole.ASSISTANT,
-                                    content = text
-                                ))
-                                Log.d(TAG, "收到TTS文本: $text")
-                            }
-                        }
-                        "start" -> {
-                            // TTS开始播放，确保状态为SPEAKING
-                            if (_state.value != ConversationState.SPEAKING) {
-                                Log.d(TAG, "TTS开始播放，从 ${_state.value} 切换到SPEAKING状态")
-                                _state.value = ConversationState.SPEAKING
-                            } else {
-                                Log.d(TAG, "TTS开始播放，当前已是SPEAKING状态")
-                            }
-                            Log.d(TAG, "开始TTS播放")
-                        }
-                        "stop" -> {
-                            // TTS播放结束，停止播放
-                            Log.d(TAG, "TTS播放结束，当前状态: ${_state.value}")
-                            audioManager.stopPlaying()
-                            Log.d(TAG, "TTS播放结束，处理下一轮对话")
-                            
-                            // 延迟一小段时间，让交互节奏更自然
-                            viewModelScope.launch {
-                                delay(500)
-                                // 根据模式决定下一步
-                                if (isAutoMode) {
-                                    // 自动模式：继续下一轮对话
-                                    Log.d(TAG, "自动模式，调用startNextRound()开始下一轮对话")
-                                    startNextRound()
-                                } else {
-                                    // 手动模式：回到空闲状态
-                                    Log.d(TAG, "手动模式，切换到IDLE状态")
-                                    _state.value = ConversationState.IDLE
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                "dialogue_end" -> {
-                    // 后端协议关闭对话
-                    Log.d(TAG, "收到后端协议消息：关闭当前对话")
-                    
-                    // 停止录音和播放
-                    audioManager.stopRecording()
-                    audioManager.stopPlaying()
-                    Log.d(TAG, "录音和播放已停止")
-                    
-                    // 注意：不要关闭auto模式，保持isAutoMode = true，以便后续可以继续对话
-                    // 切换到空闲状态，等待用户重新启动或服务器主动发起下一轮
-                    _state.value = ConversationState.IDLE
-                    Log.d(TAG, "对话状态切换到IDLE，当前对话已结束，auto模式保持: $isAutoMode")
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "解析文本消息失败", e)
-        }
+    private fun connectToServer() {
+        networkService.connect()
     }
 
     /**
-     * 处理二进制消息（音频数据）
+     * 更新配置
      */
-    private fun handleBinaryMessage(data: ByteArray) {
-        
-        Log.d(TAG, "收到二进制消息，长度: ${data.size}")
-        // 只有在非静音状态下才播放音频数据
-        if (!_isMuted.value) {
-            audioManager.playAudio(data)
-        } else {
-            Log.d(TAG, "静音模式，跳过音频播放")
-        }
+    fun updateConfig(newConfig: XiaozhiConfig) {
+        configManager.saveConfig(newConfig)
+        networkService.disconnect()
+        connectToServer()
     }
 
     /**
@@ -490,7 +254,7 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
             is AudioEvent.AudioData -> {
                 // 只有在聆听状态才发送音频数据
                 if (_state.value == ConversationState.LISTENING) {
-                    webSocketManager.sendBinaryMessage(event.data)
+                    networkService.sendAudio(event.data)
                 }
             }
             is AudioEvent.AudioLevel -> {
@@ -506,146 +270,78 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
     }
 
     /**
+     * 用户确认激活
+     */
+    fun onActivationConfirmed() {
+        _showActivationDialog.value = false
+        _activationCode.value = null
+        networkService.onActivationConfirmed()
+    }
+
+    /**
      * 开始聆听（手动模式）
      */
     fun startListening() {
-        if (_state.value != ConversationState.IDLE || !_isConnected.value) {
-            return
-        }
-
+        if (_state.value != ConversationState.IDLE || !networkService.isConnected) return
         isAutoMode = false
-        currentUserMessage = null 
-        _currentRoundUserText.value = null // 清除UI显示的当前文本
-        _currentRoundAiText.value = null   // 清除上一轮AI文本
+        resetRoundText()
         _state.value = ConversationState.LISTENING
         audioManager.startRecording()
-        
-        // 发送开始聆听消息
-        webSocketManager.sendStartListening("manual")
-        Log.d(TAG, "开始手动聆听")
+        networkService.startListening("manual")
     }
 
     /**
      * 开始自动对话模式
      */
     fun startAutoConversation() {
-        if (_state.value != ConversationState.IDLE || !_isConnected.value) {
-            return
-        }
-
+        if (_state.value != ConversationState.IDLE || !networkService.isConnected) return
         isAutoMode = true
-        currentUserMessage = null
-        _currentRoundUserText.value = null // 清除UI显示的当前文本
-        _currentRoundAiText.value = null   // 清除上一轮AI文本
+        resetRoundText()
         _state.value = ConversationState.LISTENING
         audioManager.startRecording()
-        
-        // 发送开始聆听消息
-        webSocketManager.sendStartListening("auto")
-        Log.d(TAG, "开始自动对话模式")
+        networkService.startListening("auto")
     }
 
     /**
      * 停止聆听
      */
     fun stopListening() {
-        if (_state.value != ConversationState.LISTENING) {
-            return
-        }
-
+        if (_state.value != ConversationState.LISTENING) return
         audioManager.stopRecording()
         _state.value = ConversationState.PROCESSING
-        
-        // 发送停止聆听消息
-        webSocketManager.sendStopListening()
-        Log.d(TAG, "停止聆听")
+        networkService.stopListening()
     }
 
     /**
-     * 取消当前录音并发送中止信号（可选原因）
-     * 用于上滑取消等场景：立即停止录音、停止Opus数据传输，并发送 type=abort 给服务器。
+     * 取消当前录音并发送中止信号
      */
     fun cancelListeningWithAbort(reason: String = "user_interrupt") {
-        // 将状态置为IDLE，确保 handleAudioEvent 不再发送后续音频帧
-        if (_state.value == ConversationState.LISTENING) {
-            _state.value = ConversationState.IDLE
-        }
-        // 停止录音，确保底层不再采集与编码音频
+        if (_state.value == ConversationState.LISTENING) _state.value = ConversationState.IDLE
         audioManager.stopRecording()
-
-        // 发送中止信号到服务器，包含 session_id 与原因
-        webSocketManager.sendAbort(reason)
-
-        Log.d(TAG, "取消录音并发送中止: $reason")
+        networkService.abort(reason)
     }
 
     /**
-     * 开始下一轮对话（自动模式）
+     * 开始下一轮对话
      */
     private fun startNextRound() {
-        if (!isAutoMode || !_isConnected.value) {
-            Log.d(TAG, "自动模式已关闭或未连接，切换到空闲状态")
+        if (!isAutoMode || !networkService.isConnected) {
             _state.value = ConversationState.IDLE
             return
         }
-
-        // 检查当前状态是否允许切换到聆听状态
-        // 注意：在Websocket协议中，尽管服务端可能保持Session，但客户端麦克风必须由客户端显式开启。
-        // startNextRound() 的作用就是完成这个"客户端手动触发"的动作。
-        val currentState = _state.value
-        Log.d(TAG, "startNextRound() - 当前状态: $currentState, auto模式: $isAutoMode")
-        
-        // 允许从SPEAKING、PROCESSING或IDLE状态切换到LISTENING
-        // PROCESSING状态可能是TTS消息顺序异常导致状态未正确切换
-        if (currentState == ConversationState.SPEAKING || 
-            currentState == ConversationState.PROCESSING || 
-            currentState == ConversationState.IDLE) {
-            Log.d(TAG, "从状态 $currentState 切换到 LISTENING，开始下一轮对话")
-            
-            // 先清除文本，避免状态切换时UI闪烁显示旧文本
-            currentUserMessage = null
-            _currentRoundUserText.value = null 
-            _currentRoundAiText.value = null // 清除上一轮AI文本 
-            
-            // 设置为聆听状态
-            _state.value = ConversationState.LISTENING
-            
-            // 启动录音
-            audioManager.startRecording()
-            
-            // 发送开始聆听消息，明确使用auto模式
-            webSocketManager.sendStartListening("auto")
-            Log.d(TAG, "开始下一轮自动对话，使用协议auto模式")
-        } else {
-            Log.d(TAG, "当前状态 $currentState 不允许启动下一轮对话，保持当前状态")
-            // 如果状态异常，强制切换到IDLE，等待重新启动
-            if (isAutoMode && currentState != ConversationState.LISTENING) {
-                Log.w(TAG, "状态异常，强制切换到IDLE状态")
-                _state.value = ConversationState.IDLE
-            }
-        }
+        resetRoundText()
+        _state.value = ConversationState.LISTENING
+        audioManager.startRecording()
+        networkService.startListening("auto")
     }
 
     /**
      * 发送文本消息
      */
     fun sendTextMessage(text: String) {
-        if (!_isConnected.value || text.isBlank()) {
-            return
-        }
-        // 发送唤醒词检测消息
-        webSocketManager.sendTextRequest(text)
+        if (!networkService.isConnected || text.isBlank()) return
+        networkService.sendText(text)
         _state.value = ConversationState.PROCESSING
-        Log.d(TAG, "发送文本消息: $text")
-    }
-
-    /**
-     * 发送初始化消息（设备激活时使用，不添加到对话列表）
-     */
-    private fun sendInitializationMessage() {
-        // 发送"初始化"文本消息，但不添加到对话列表
-        webSocketManager.sendTextRequest("初始化")
-        Log.d(TAG, "发送设备初始化消息")
     }
 
     /**
@@ -654,14 +350,9 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
     fun interrupt() {
         audioManager.stopPlaying()
         audioManager.stopRecording()
-        
-        // 发送中断消息
-        webSocketManager.sendAbort("user_interrupt")
-        
-        // 退出自动模式
+        networkService.abort("user_interrupt")
         isAutoMode = false
         _state.value = ConversationState.IDLE
-        Log.d(TAG, "用户打断对话")
     }
 
     /**
@@ -671,12 +362,14 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
         isAutoMode = false
         audioManager.stopRecording()
         audioManager.stopPlaying()
-        
-        // 发送中断消息
-        webSocketManager.sendAbort("stop_auto_mode")
-        
+        networkService.abort("stop_auto_mode")
         _state.value = ConversationState.IDLE
-        Log.d(TAG, "停止自动对话模式")
+    }
+
+    private fun resetRoundText() {
+        currentUserMessage = null
+        _currentRoundUserText.value = null
+        _currentRoundAiText.value = null
     }
 
     /**
@@ -704,8 +397,8 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
      * 重新连接
      */
     fun reconnect() {
-        webSocketManager.disconnect()
-        connectToServer()
+        networkService.disconnect()
+        networkService.connect()
     }
 
     /**
@@ -744,6 +437,6 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
     override fun onCleared() {
         super.onCleared()
         audioManager.cleanup()
-        webSocketManager.cleanup()
+        networkService.disconnect()
     }
 }

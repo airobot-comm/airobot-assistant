@@ -1,6 +1,7 @@
 package com.airobotcomm.tablet.audio
 
 import android.Manifest
+import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.*
@@ -16,6 +17,9 @@ import kotlinx.coroutines.flow.flow
 import com.airobotcomm.tablet.audio.utils.OpusDecoder
 import com.airobotcomm.tablet.audio.utils.OpusEncoder
 import com.airobotcomm.tablet.audio.utils.OpusStreamPlayer
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * 音频事件
@@ -30,7 +34,10 @@ sealed class AudioEvent {
  * 增强版音频管理器
  * 使用真正的Opus编解码器和流式播放
  */
-class EnhancedAudioManager(private val context: Context) {
+@Singleton
+class EnhancedAudioManager @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
     companion object {
         private const val TAG = "EnhancedAudioManager"
         private const val RECORD_SAMPLE_RATE = 16000

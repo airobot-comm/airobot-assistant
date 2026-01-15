@@ -1,0 +1,175 @@
+package com.airobotcomm.tablet.network
+
+import android.util.Log
+import com.airobotcomm.tablet.data.ConfigManager
+import com.airobotcomm.tablet.network.protocol.AiRobotEvent
+import com.airobotcomm.tablet.network.protocol.AiRobotProtocol
+import com.airobotcomm.tablet.network.protocol.OtaService
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+import com.airobotcomm.tablet.network.protocol.ProtocolAdapter
+import com.airobotcomm.tablet.network.transport.ConnectivityMonitor
+import com.airobotcomm.tablet.network.transport.WebSocketEvent
+import com.airobotcomm.tablet.network.transport.WebSocketManager
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class NetworkServiceImpl @Inject constructor(
+    private val otaService: OtaService,
+    private val webSocketManager: WebSocketManager,
+    private val configManager: ConfigManager,
+    private val protocolAdapter: ProtocolAdapter,
+    private val connectivityMonitor: ConnectivityMonitor,
+    private val protocol: AiRobotProtocol
+) : NetworkService {
+
+    companion object {
+        private const val TAG = "NetworkService"
+    }
+
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    
+    private val _state = MutableStateFlow(NetworkState.IDLE)
+    override val state: StateFlow<NetworkState> = _state.asStateFlow()
+
+    private val _events = MutableSharedFlow<AiRobotEvent>(replay = 0)
+    override val events: SharedFlow<AiRobotEvent> = _events.asSharedFlow()
+
+    override val isConnected: Boolean
+        get() = webSocketManager.isConnected()
+
+    init {
+        // 配置协议层的发送回调
+        protocol.setRawSender { text ->
+            webSocketManager.sendTextMessage(text)
+        }
+
+        // 桥接传输层事件
+        scope.launch {
+            webSocketManager.events.collect { wsEvent ->
+                when (wsEvent) {
+                    is WebSocketEvent.Connected -> {
+                        _state.value = NetworkState.CONNECTING // 传输层 OK，进入协议握手
+                        val config = configManager.loadConfig()
+                        protocol.open("", config.macAddress, config.token)
+                    }
+                    is WebSocketEvent.Disconnected -> {
+                        _state.value = NetworkState.RECONNECTING
+                        protocol.close()
+                        _events.emit(AiRobotEvent.Disconnected)
+                    }
+                    is WebSocketEvent.Error -> {
+                        _events.emit(AiRobotEvent.Error(wsEvent.error))
+                    }
+                    is WebSocketEvent.TextMessage -> {
+                        // 1. 交给协议层处理握手等控制逻辑
+                        protocol.handleRawText(wsEvent.message)
+                        // 2. 交给适配器解析业务数据
+                        protocolAdapter.parseTextMessage(wsEvent.message)?.let { businessEvent ->
+                            _events.emit(businessEvent)
+                        }
+                    }
+                    is WebSocketEvent.BinaryMessage -> {
+                        _events.emit(AiRobotEvent.AudioFrame(wsEvent.data))
+                    }
+                }
+            }
+        }
+
+        // 桥接协议层高层事件
+        scope.launch {
+            protocol.events.collect { protocolEvent ->
+                if (protocolEvent is AiRobotEvent.Connected) {
+                    _state.value = NetworkState.CONNECTED
+                }
+                _events.emit(protocolEvent)
+            }
+        }
+
+        // 监听系统网络变化并尝试自动恢复
+        scope.launch {
+            connectivityMonitor.isNetworkAvailable
+                .collect { isAvailable ->
+                    if (isAvailable && !isConnected && _state.value != NetworkState.IDLE) {
+                        Log.d(TAG, "检测到网络恢复，触发自动连接恢复")
+                        connect()
+                    }
+                }
+        }
+    }
+
+    override fun connect() {
+        val config = configManager.loadConfig()
+        if (config.otaUrl.isBlank()) {
+            _state.value = NetworkState.ERROR
+            scope.launch { _events.emit(AiRobotEvent.Error("OTA URL is empty")) }
+            return
+        }
+
+        _state.value = NetworkState.INITIALIZING
+        scope.launch {
+            try {
+                // 1. 执行 OTA 获取 WS URL (兼具报备功能)
+                val result = otaService.reportDeviceAndGetOta(
+                    clientId = config.uuid,
+                    deviceId = config.macAddress,
+                    otaUrl = config.otaUrl
+                )
+
+                result.onSuccess { otaResponse ->
+                    Log.d(TAG, "OTA Success")
+                    
+                    // 检查激活信息
+                    otaResponse.activation?.let { activation ->
+                        if (activation.code.isNotEmpty()) {
+                            Log.d(TAG, "Device needs activation: ${activation.code}")
+                            _events.emit(AiRobotEvent.ActivationRequired(activation.code))
+                            _state.value = NetworkState.IDLE
+                            return@onSuccess
+                        }
+                    }
+
+                    Log.d(TAG, "Connecting to WS: ${otaResponse.websocket.url}")
+                    _state.value = NetworkState.CONNECTING
+                    
+                    // 2. 连接 WebSocket (继续之前的逻辑)
+                    connectInternal(otaResponse.websocket.url, config.macAddress, config.token)
+                }.onFailure { e ->
+                    Log.e(TAG, "OTA Failed", e)
+                    _state.value = NetworkState.ERROR
+                    _events.emit(AiRobotEvent.Error("Initialization failed: ${e.message}"))
+                }
+            } catch (e: Exception) {
+                _state.value = NetworkState.ERROR
+                _events.emit(AiRobotEvent.Error(e.message ?: "Unknown error"))
+            }
+        }
+    }
+
+    override fun disconnect() {
+        webSocketManager.disableReconnect()
+        webSocketManager.disconnect()
+        _state.value = NetworkState.IDLE
+    }
+
+    override fun onActivationConfirmed() {
+        Log.d(TAG, "Activation confirmed by user, retrying connect")
+        connect()
+    }
+
+    private fun connectInternal(url: String, deviceId: String, token: String) {
+        webSocketManager.enableReconnect()
+        webSocketManager.connect(
+            url = url,
+            deviceId = deviceId,
+            token = token
+        )
+    }
+
+    override fun startListening(mode: String) = protocol.startListening(mode)
+    override fun stopListening() = protocol.stopListening()
+    override fun sendAudio(data: ByteArray) = webSocketManager.sendBinaryMessage(data)
+    override fun sendText(text: String) = protocol.sendText(text)
+    override fun abort(reason: String) = protocol.abort(reason)
+}
