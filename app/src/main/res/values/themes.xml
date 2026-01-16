@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.AiRobot" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/robot_background_dark</item>
+        <item name="android:navigationBarColor">@color/robot_background_dark</item>
+        <item name="android:windowBackground">@color/robot_background_dark</item>
+    </style>
+</resources>
