@@ -36,7 +36,7 @@ private fun handleHelloResponse(json: JsonObject) {
 ```kotlin
 fun sendTextMessage(text: String) {
     // 发送唤醒词检测消息
-    webSocketManager.sendWakeWordDetected(text)
+    singletonWebSocket.sendWakeWordDetected(text)
     _state.value = ConversationState.PROCESSING
 }
 
@@ -68,7 +68,7 @@ fun startListening() {
     isAutoMode = false
     _state.value = ConversationState.LISTENING
     audioManager.startRecording()
-    webSocketManager.sendStartListening("manual")
+    singletonWebSocket.sendStartListening("manual")
 }
 ```
 
@@ -88,7 +88,7 @@ fun startAutoConversation() {
     isAutoMode = true
     _state.value = ConversationState.LISTENING
     audioManager.startRecording()
-    webSocketManager.sendStartListening("auto")
+    singletonWebSocket.sendStartListening("auto")
 }
 
 private fun startNextRound() {
@@ -96,7 +96,7 @@ private fun startNextRound() {
         // TTS结束后自动开始下一轮
         _state.value = ConversationState.LISTENING
         audioManager.startRecording()
-        webSocketManager.sendStartListening("auto")
+        singletonWebSocket.sendStartListening("auto")
     }
 }
 ```
@@ -120,7 +120,7 @@ private fun handleAudioEvent(event: AudioEvent) {
         is AudioEvent.AudioData -> {
             // 只有在聆听状态才发送音频数据
             if (_state.value == ConversationState.LISTENING) {
-                webSocketManager.sendBinaryMessage(event.data)
+                singletonWebSocket.sendBinaryMessage(event.data)
             }
         }
     }
@@ -148,7 +148,7 @@ private fun handleBinaryMessage(data: ByteArray) {
 fun interrupt() {
     audioManager.stopPlaying()
     audioManager.stopRecording()
-    webSocketManager.sendAbort("user_interrupt")
+    singletonWebSocket.sendAbort("user_interrupt")
     isAutoMode = false
     _state.value = ConversationState.IDLE
 }

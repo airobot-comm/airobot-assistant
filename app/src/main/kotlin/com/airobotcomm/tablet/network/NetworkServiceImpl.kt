@@ -10,14 +10,14 @@ import kotlinx.coroutines.flow.*
 import com.airobotcomm.tablet.network.protocol.ProtocolAdapter
 import com.airobotcomm.tablet.network.transport.ConnectivityMonitor
 import com.airobotcomm.tablet.network.transport.WebSocketEvent
-import com.airobotcomm.tablet.network.transport.WebSocketManager
+import com.airobotcomm.tablet.network.transport.SingletonWebSocket
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class NetworkServiceImpl @Inject constructor(
     private val otaService: OtaService,
-    private val webSocketManager: WebSocketManager,
+    private val singletonWebSocket: SingletonWebSocket,
     private val configManager: ConfigManager,
     private val protocolAdapter: ProtocolAdapter,
     private val connectivityMonitor: ConnectivityMonitor,
@@ -37,17 +37,17 @@ class NetworkServiceImpl @Inject constructor(
     override val events: SharedFlow<AiRobotEvent> = _events.asSharedFlow()
 
     override val isConnected: Boolean
-        get() = webSocketManager.isConnected()
+        get() = singletonWebSocket.isConnected()
 
     init {
         // 配置协议层的发送回调
         protocol.setRawSender { text ->
-            webSocketManager.sendTextMessage(text)
+            singletonWebSocket.sendTextMessage(text)
         }
 
         // 桥接传输层事件
         scope.launch {
-            webSocketManager.events.collect { wsEvent ->
+            singletonWebSocket.events.collect { wsEvent ->
                 when (wsEvent) {
                     is WebSocketEvent.Connected -> {
                         _state.value = NetworkState.CONNECTING // 传输层 OK，进入协议握手
@@ -148,8 +148,7 @@ class NetworkServiceImpl @Inject constructor(
     }
 
     override fun disconnect() {
-        webSocketManager.disableReconnect()
-        webSocketManager.disconnect()
+        singletonWebSocket.disconnect()
         _state.value = NetworkState.IDLE
     }
 
@@ -158,9 +157,14 @@ class NetworkServiceImpl @Inject constructor(
         connect()
     }
 
+    override fun sendAudio(data: ByteArray) {
+        Log.d(TAG, "发送二进制消息，长度: ${data.size}")
+        // todo 发送语音数据需要优化，通过VAD检测减少发送数据，并做cache排队防止网络错误
+        singletonWebSocket.sendBinaryMessage(data)
+    }
+
     private fun connectInternal(url: String, deviceId: String, token: String) {
-        webSocketManager.enableReconnect()
-        webSocketManager.connect(
+        singletonWebSocket.connect(
             url = url,
             deviceId = deviceId,
             token = token
@@ -169,7 +173,6 @@ class NetworkServiceImpl @Inject constructor(
 
     override fun startListening(mode: String) = protocol.startListening(mode)
     override fun stopListening() = protocol.stopListening()
-    override fun sendAudio(data: ByteArray) = webSocketManager.sendBinaryMessage(data)
     override fun sendText(text: String) = protocol.sendText(text)
     override fun abort(reason: String) = protocol.abort(reason)
 }

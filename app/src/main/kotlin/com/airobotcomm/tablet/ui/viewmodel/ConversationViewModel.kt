@@ -394,14 +394,6 @@ class ConversationViewModel @Inject constructor(
     }
 
     /**
-     * 重新连接
-     */
-    fun reconnect() {
-        networkService.disconnect()
-        networkService.connect()
-    }
-
-    /**
      * 测试音频播放
      */
     fun testAudioPlayback() {

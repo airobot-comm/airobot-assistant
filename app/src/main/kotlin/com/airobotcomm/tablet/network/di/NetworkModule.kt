@@ -5,7 +5,7 @@ import com.airobotcomm.tablet.network.NetworkService
 import com.airobotcomm.tablet.network.NetworkServiceImpl
 import com.airobotcomm.tablet.network.protocol.OtaService
 import com.airobotcomm.tablet.network.protocol.ProtocolAdapter
-import com.airobotcomm.tablet.network.transport.WebSocketManager
+import com.airobotcomm.tablet.network.transport.SingletonWebSocket
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -33,8 +33,8 @@ abstract class NetworkModule {
 
         @Provides
         @Singleton
-        fun provideWebSocketManager(@ApplicationContext context: Context): WebSocketManager =
-            WebSocketManager(context)
+        fun provideWebSocketManager(@ApplicationContext context: Context): SingletonWebSocket =
+            SingletonWebSocket(context)
 
         @Provides
         @Singleton
