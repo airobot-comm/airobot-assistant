@@ -38,7 +38,7 @@ sealed class WebSocketEvent {
 }
 
 /**
- * 单例模式的WebSocket管理器
+ * 非静态的伪单例模式WebSocket管理器
  */
 class SingletonWebSocket(context: Context) {
     companion object {
@@ -57,7 +57,7 @@ class SingletonWebSocket(context: Context) {
         RECONNECTING // 重连等待中
     }
 
-    // 建立一个伪单例模式，设置连接状态确保同时只有一个连接，并启用Ping/Pong保持长连接
+    // 一个非静态伪单例ws，设置连接状态确保同时只有一个连接，并启用Ping/Pong保持长连接
     private var webSocketSingleton: WebSocket? = null
     private var currentState = SocketState.IDLE
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
