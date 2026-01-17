@@ -3,7 +3,7 @@ package com.airobotcomm.tablet.data
 /**
  * 配置数据类
  */
-data class XiaozhiConfig(
+data class DeviceConfig(
     val id: String,
     val name: String,
     val otaUrl: String,
@@ -18,8 +18,8 @@ data class XiaozhiConfig(
         /**
          * 创建默认配置
          */
-        fun createDefault(): XiaozhiConfig {
-            return XiaozhiConfig(
+        fun createDefault(): DeviceConfig {
+            return DeviceConfig(
                 id = "default",
                 name = "测试",
                 otaUrl = "",

@@ -1,29 +1,44 @@
 # AiRobot Android Tablet
 
-AiRobot tablet智能对话,场景服务应用。
+airobot tablet: 一个全语音交互、多IP角色型学习陪伴机器人服务系统
 
-## 📱 功能特性
+## 🔠 功能特性
+- **语音交互**: 全语音交互模式，支持语音唤醒，多轮对话，主动服务
+- **角色服务**: 支持基于动画，3D技术的IP型角色扮演，可角色选择
+- **智能推荐**: ai驱动的功能卡片推荐服务，更懂你，更主动满足服务
+- **功能卡片**: 按需服务功能卡片：AI闹钟/时钟，事务，多媒体播客
 
-- **文本交互**: 支持文本输入和显示
-- **多轮对话**: 支持自动和手动两种对话模式
-- **WebSocket通信**: 基于WebSocket的实时双向通信
-- **状态管理**: 完整的对话状态流转和错误处理
+## 📱 产品原型
+- "首页效果"
+![home_page](./doc/design/home_page.png)
+- "对话效果"
+![speak_bubble](./doc/design/speak_bubble.png)
+- "功能卡片"
+![function_card](./doc/design/function_card.png)
 
-## 使用说明
+---
+## 🔖 使用说明
+- **开发方法**
+  - 基于Kotion + AGP9，下载代码后配置Android Studio环境运行
 
-在设置中配置OTA地址，通过OTA下发的验证码与后端绑定激活，激活成功后，即可进行对话。
+- **使用方法**
+  - 启动后配置好网络，语音唤醒即可开始自由对话，功能服务卡片自动弹出
 
-OTA地址先使用小智官方地址：  
-https://api.tenclass.net/xiaozhi/ota/
+## 📚 文档参考
+- [项目架构]：./doc/architecture.md - 概要架构
+- [模块架构]：./doc/architect - 项目模块架构
+- [原型图片]：./doc/design - 系统原型设计图片
+- [原型设计]：./prototype  - 项目web原型开发 
+- [通信接口]：./doc/protocol - ws通信协议说明
+- [开发规则]：./doc/rule - 项目规则与Vibe规范
 
-也可自行搭建后端服务：  
-[https://github.com/xinnan-tech/xiaozhi-esp32-server](xiaozhi-esp32-server)
+## 🤝 社区合作
 
-## 📚 文档
+本项目是ai机器人社区产品，基于社区产品与行业伙伴合作，共同开发市场
+- 欢迎参与ai机器人社区开发，提供mcp功能服务
+- 欢迎硬件定制，硬件白牌机合作，生成供应合作
+- 欢迎儿童教育，门店服务及养老陪伴行业方案合作
+- 欢迎提交Issue和Pull Request来改进项目！
 
-- [详细介绍](./doc/description.md) - 项目的详细介绍
-- [API通信协议](./doc/api.md) - WebSocket通信协议详细说明
-- [对话流程](./doc/flow.md) - 对话流程实现和状态管理
-- [MCP协议](./doc/mcp.md) - MCP工具调用协议
-- [OTA接口文档](./doc/OTA%20接口文档.pdf) - OTA接口文档（[线上版](https://ccnphfhqs21z.feishu.cn/wiki/FjW6wZmisimNBBkov6OcmfvknVd)）
-- [通信协议：Websocket连接](./doc/通信协议：Websocket%20连接.pdf.pdf) - 通信协议：Websocket连接（[线上版](https://ccnphfhqs21z.feishu.cn/wiki/M0XiwldO9iJwHikpXD5cEx71nKh)）
+---
+

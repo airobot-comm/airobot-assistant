@@ -15,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobotcomm.tablet.data.ConfigManager
-import com.airobotcomm.tablet.data.XiaozhiConfig
+import com.airobotcomm.tablet.data.DeviceConfig
 import com.airobotcomm.tablet.ui.theme.RobotTextPrimary
 import com.airobotcomm.tablet.ui.theme.RobotTextSecondary
 import com.airobotcomm.tablet.ui.theme.RobotSurface
@@ -25,8 +25,8 @@ import com.airobotcomm.tablet.ui.theme.RobotPrimaryCyan
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    config: XiaozhiConfig,
-    onConfigChange: (XiaozhiConfig) -> Unit,
+    config: DeviceConfig,
+    onConfigChange: (DeviceConfig) -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current

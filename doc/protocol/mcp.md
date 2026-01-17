@@ -63,12 +63,12 @@ sequenceDiagram
                                 "sampling":     {
                                 },
                                 "vision":       {
-                                        "url":  "http://172.19.0.2:8003/mcp/vision/explain",
-                                        "token":        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoicTliVEhVVTVjTXVvcVY4dW5NazhqU1pYT2lpYW1rMWFNckZDYmVDWWZDV1dZV01maHZNWjY3RkxWWmYxMTlyQ0YyZHcwVHZtSWthaDhFQ3VhakJBUWdiUE5FNlpjMzd2TFVhVDhHZjdlb0R5RjlGdk81d0NCQT09In0.LednJ_rzkVP2EOn1ZB7tFQucmatFnaS9b84-KVErF4o"
+                                        "url": "http://172.19.0.2:8003/mcp/vision/explain",
+                                        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoicTliVEhVVTVjTXVvcVY4dW5NazhqU1pYT2lpYW1rMWFNckZDYmVDWWZDV1dZV01maHZNWjY3RkxWWmYxMTlyQ0YyZHcwVHZtSWthaDhFQ3VhakJBUWdiUE5FNlpjMzd2TFVhVDhHZjdlb0R5RjlGdk81d0NCQT09In0.LednJ_rzkVP2EOn1ZB7tFQucmatFnaS9b84-KVErF4o"
                                 }
                         },
                         "clientInfo":   {
-                                "name": "XiaozhiClient",
+                                "name": "AndroidClient",
                                 "version":      "1.0.0"
                         }
                 }

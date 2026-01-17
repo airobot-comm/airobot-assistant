@@ -13,7 +13,7 @@ import com.airobotcomm.tablet.audio.EnhancedAudioManager
 import com.airobotcomm.tablet.data.ConfigManager
 import com.airobotcomm.tablet.data.Message
 import com.airobotcomm.tablet.data.MessageRole
-import com.airobotcomm.tablet.data.XiaozhiConfig
+import com.airobotcomm.tablet.data.DeviceConfig
 import com.airobotcomm.tablet.network.NetworkService
 import com.airobotcomm.tablet.network.NetworkState
 import com.airobotcomm.tablet.network.protocol.AiRobotEvent
@@ -240,7 +240,7 @@ class ConversationViewModel @Inject constructor(
     /**
      * 更新配置
      */
-    fun updateConfig(newConfig: XiaozhiConfig) {
+    fun updateConfig(newConfig: DeviceConfig) {
         configManager.saveConfig(newConfig)
         networkService.disconnect()
         connectToServer()

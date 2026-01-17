@@ -30,10 +30,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.*
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobotcomm.tablet.R
-import com.airobotcomm.tablet.data.ConfigManager
 import com.airobotcomm.tablet.ui.components.dialogue.DialogueBubble
 import com.airobotcomm.tablet.ui.components.dialogue.TypewriterText
 import com.airobotcomm.tablet.ui.components.dialogue.UserMessageBubble
@@ -82,7 +80,7 @@ fun RobotConversationScreen(
     // 本地UI状态
     var showSettings by remember { mutableStateOf(false) }
     // 注意：我们将在此处使用一个简单的配置占位或通过 ViewModel 获取
-    var currentConfig by remember { mutableStateOf(com.airobotcomm.tablet.data.XiaozhiConfig.createDefault()) }
+    var currentConfig by remember { mutableStateOf(com.airobotcomm.tablet.data.DeviceConfig.createDefault()) }
     
     // 机器人UI状态
     var robotUiState by remember { mutableStateOf(RobotUiState()) }

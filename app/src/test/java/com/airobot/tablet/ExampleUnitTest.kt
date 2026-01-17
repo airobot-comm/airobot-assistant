@@ -1,4 +1,4 @@
-package com.xiaozhi.ai
+package com.airobot.tablet
 
 import org.junit.Test
 

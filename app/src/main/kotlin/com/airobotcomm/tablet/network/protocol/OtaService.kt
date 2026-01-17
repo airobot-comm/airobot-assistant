@@ -86,7 +86,7 @@ class OtaService {
     }
 
     /**
-     * 创建设备上报请求数据 - 针对非ESP32设备的最小请求
+     * 创建设备上报请求数据
      */
     private fun createDeviceReportRequest(clientId: String, deviceId: String): DeviceReportRequest {
         return DeviceReportRequest(
@@ -96,7 +96,7 @@ class OtaService {
             ),
             board = DeviceReportRequest.BoardInfo(
                 type = "wifi", // 标识为Wi-Fi设备类型
-                name = "xiaozhi-android",
+                name = "android-tablet",
                 ssid = "卧室", // Wi-Fi SSID，如需要可从系统获取
                 rssi = -55, // Wi-Fi信号强度，如需要可从系统获取
                 channel = 1, // Wi-Fi频道，如需要可从系统获取
