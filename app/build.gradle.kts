@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId = "com.airobotcomm.tablet"
         minSdk = 29
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 10020
         versionName = "1.2.0"
 
@@ -52,11 +52,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "21"
     }
     buildFeatures {
         compose = true
@@ -76,27 +76,17 @@ dependencies {
     implementation(libs.androidx.ui.icons.extended) // ADDED THIS LINE
     implementation(libs.opus.v131)
 
-    // WebSocket
-    implementation("com.squareup.okhttp3:okhttp:5.3.2")
-    
-    // JSON处理
-    implementation("com.google.code.gson:gson:2.13.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-    
-    // 协程
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
-    
-    // ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
-    
-    // 权限处理
-    implementation("com.google.accompanist:accompanist-permissions:0.37.3")
-    
-    // 音频处理和Opus编解码
-    implementation("com.github.paramsen:noise:2.0.0")
+    // WebSocket,JSON处理,协程,ViewModel,权限处理,音频处理和Opus编解码
+    implementation(libs.okhttp)
+    implementation(libs.gson)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.accompanist.permissions)
+    implementation(libs.noise)
     
     // 导航
-    implementation("androidx.navigation:navigation-compose:2.9.6")
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.constraintlayout.compose)
 
