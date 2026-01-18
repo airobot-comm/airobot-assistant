@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airobotcomm.tablet.ui.state.RobotVisualState
 
 /**
  * 机器人角色主组件 - 增强版
@@ -28,7 +29,7 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun RobotCharacter(
-    state: RobotVisualState,
+    state: com.airobotcomm.tablet.ui.state.RobotVisualState,
     statusTip: String? = null,
     ttsProgressNormalized: Float = 0f,
     audioLevel: Float = 0f, // 传入音频等级 0-1
@@ -145,7 +146,7 @@ fun RobotCharacter(
  */
 @Composable
 private fun RobotHead(
-    state: RobotVisualState,
+    state: com.airobotcomm.tablet.ui.state.RobotVisualState,
     isBlinking: Boolean,
     ttsProgressNormalized: Float,
     audioLevel: Float,
@@ -254,7 +255,7 @@ private fun BlinkingEye(size: Dp) {
  */
 @Composable
 private fun RobotAntennas(
-    state: RobotVisualState,
+    state: com.airobotcomm.tablet.ui.state.RobotVisualState,
     headSize: Dp,
     infiniteTransition: InfiniteTransition,
     modifier: Modifier = Modifier

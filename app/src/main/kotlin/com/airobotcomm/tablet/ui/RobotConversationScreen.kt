@@ -38,12 +38,21 @@ import com.airobotcomm.tablet.ui.components.dialogue.UserMessageBubble
 import com.airobotcomm.tablet.ui.components.robot.*
 import com.airobotcomm.tablet.ui.components.service.*
 import com.airobotcomm.tablet.ui.components.voice.RobotVoiceInputPanel
+import com.airobotcomm.tablet.ui.framework.RobotTopBar
 import com.airobotcomm.tablet.ui.framework.SettingsScreen
 import com.airobotcomm.tablet.ui.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.ui.theme.RobotSecondaryIndigo
 import com.airobotcomm.tablet.ui.theme.RobotTextPrimary
-import com.airobotcomm.tablet.ui.viewmodel.ConversationState
+import com.airobotcomm.tablet.ui.state.ConversationSubState
+import com.airobotcomm.tablet.ui.state.InteractionType
+import com.airobotcomm.tablet.ui.state.RobotState
+import com.airobotcomm.tablet.ui.state.RobotUiState
+import com.airobotcomm.tablet.ui.state.RobotVisualState
+import com.airobotcomm.tablet.ui.state.ServiceSubState
+import com.airobotcomm.tablet.ui.state.TimerStatus
+import com.airobotcomm.tablet.ui.viewmodel.MainViewModel
 import com.airobotcomm.tablet.ui.viewmodel.ConversationViewModel
+import com.airobotcomm.tablet.ui.viewmodel.ServiceViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
@@ -55,7 +64,9 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun RobotConversationScreen(
-    viewModel: ConversationViewModel = hiltViewModel()
+    mainViewModel: MainViewModel = hiltViewModel(),
+    conversationViewModel: ConversationViewModel = hiltViewModel(),
+    serviceViewModel: ServiceViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     
@@ -68,14 +79,23 @@ fun RobotConversationScreen(
     )
     
     // 从ViewModel收集状态
-    val conversationState by viewModel.state.collectAsState()
-    val isConnected by viewModel.isConnected.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
-    val audioLevel by viewModel.audioLevel.collectAsState()
-    val showActivationDialog by viewModel.showActivationDialog.collectAsState()
-    val activationCode by viewModel.activationCode.collectAsState()
-    val currentRoundUserText by viewModel.currentRoundUserText.collectAsState()
-    val currentRoundAiText by viewModel.currentRoundAiText.collectAsState()
+    // 从 MainViewModel 收集一级状态
+    val robotState by mainViewModel.robotState.collectAsState()
+    val errorMessage by mainViewModel.errorMessage.collectAsState()
+    val showActivationDialog by mainViewModel.showActivationDialog.collectAsState()
+    val activationCode by mainViewModel.activationCode.collectAsState()
+
+    // 从 ConversationViewModel 收集交互状态
+    val conversationSubState by conversationViewModel.subState.collectAsState()
+    val audioLevel by conversationViewModel.audioLevel.collectAsState()
+    val currentRoundUserText by conversationViewModel.currentRoundUserText.collectAsState()
+    val currentRoundAiText by conversationViewModel.currentRoundAiText.collectAsState()
+
+    // 从 ServiceViewModel 收集功能状态
+    val activeCard by serviceViewModel.activeCard.collectAsState()
+    val serviceSubState by serviceViewModel.serviceSubState.collectAsState()
+    val timerCommand by serviceViewModel.timerCommand.collectAsState()
+    val timerStatus by serviceViewModel.timerStatus.collectAsState()
     
     // 本地UI状态
     var showSettings by remember { mutableStateOf(false) }
@@ -86,18 +106,44 @@ fun RobotConversationScreen(
     var robotUiState by remember { mutableStateOf(RobotUiState()) }
     var currentCardIndex by remember { mutableIntStateOf(0) }
     
-    // 同步ViewModel状态到UI状态
-    LaunchedEffect(conversationState, isConnected) {
+    // 同步到 UI 状态
+    LaunchedEffect(robotState) {
+        val visualState = when (val s = robotState) {
+            is RobotState.Offline -> RobotVisualState.SLEEPING
+            is RobotState.Initializing -> RobotVisualState.THINKING
+            is RobotState.Connecting -> RobotVisualState.THINKING
+            is RobotState.Unauthorized -> RobotVisualState.IDLE
+            is RobotState.Ready -> RobotVisualState.IDLE
+            is RobotState.Conversation -> when (s.subState) {
+                ConversationSubState.LISTENING -> RobotVisualState.LISTENING
+                ConversationSubState.THINKING -> RobotVisualState.THINKING
+                ConversationSubState.SPEAKING -> RobotVisualState.SPEAKING
+            }
+            is RobotState.FunctionService -> when (s.subState) {
+                ServiceSubState.IDLE -> RobotVisualState.IDLE
+                ServiceSubState.RUNNING -> RobotVisualState.FOCUS
+                ServiceSubState.PAUSED -> RobotVisualState.IDLE
+            }
+        }
         robotUiState = robotUiState.copy(
-            visualState = conversationState.toRobotVisualState(),
-            isConnected = isConnected
+            visualState = visualState,
+            isConnected = robotState !is RobotState.Offline
         )
     }
-    
+
     LaunchedEffect(currentRoundUserText, currentRoundAiText) {
         robotUiState = robotUiState.copy(
             currentUserMsg = currentRoundUserText,
             currentAiMsg = currentRoundAiText
+        )
+    }
+
+    LaunchedEffect(activeCard, timerCommand, timerStatus) {
+        robotUiState = robotUiState.copy(
+            activeCard = activeCard,
+            timerCommand = timerCommand,
+            timerStatus = timerStatus,
+            interactionType = if (activeCard != null) InteractionType.CARD else InteractionType.CHAT
         )
     }
     
@@ -116,7 +162,7 @@ fun RobotConversationScreen(
     LaunchedEffect(currentCard, robotUiState.timerStatus, robotUiState.timerCommand) {
         val newStatusTip = when (robotUiState.timerStatus) {
             TimerStatus.RUNNING -> "正在专注: ${robotUiState.timerCommand?.task ?: "未知任务"}..."
-            TimerStatus.PAUSED -> "已暂停，休息一下..."
+            com.airobotcomm.tablet.ui.state.TimerStatus.PAUSED -> "已暂停，休息一下..."
             else -> currentCard.statusTip
         }
         robotUiState = robotUiState.copy(statusTip = newStatusTip)
@@ -127,7 +173,7 @@ fun RobotConversationScreen(
             config = currentConfig,
             onConfigChange = { newConfig ->
                 currentConfig = newConfig
-                viewModel.updateConfig(newConfig)
+                conversationViewModel.updateConfig(newConfig)
                 showSettings = false
             },
             onBack = { showSettings = false }
@@ -153,11 +199,9 @@ fun RobotConversationScreen(
                     .statusBarsPadding()
                     .navigationBarsPadding()
             ) {
-                TopBar(
-                    onShowSettings = { showSettings = true },
-                    isAutoMode = conversationState == ConversationState.LISTENING || 
-                                 conversationState == ConversationState.PROCESSING || 
-                                 conversationState == ConversationState.SPEAKING
+                RobotTopBar(
+                    robotState = robotState,
+                    onShowSettings = { showSettings = true }
                 )
                 
                 AnimatedVisibility(
@@ -167,7 +211,7 @@ fun RobotConversationScreen(
                 ) {
                     ErrorBanner(
                         message = errorMessage ?: "",
-                        onDismiss = { viewModel.clearError() }
+                        onDismiss = { mainViewModel.clearError() }
                     )
                 }
                 
@@ -194,15 +238,14 @@ fun RobotConversationScreen(
                     ) {
                         RobotCharacter(
                             state = robotUiState.visualState,
-                            statusTip = if (robotUiState.visualState == RobotVisualState.IDLE ||
-                                robotUiState.visualState == RobotVisualState.FOCUS
+                            statusTip = if (robotUiState.visualState == com.airobotcomm.tablet.ui.state.RobotVisualState.IDLE ||
+                                robotUiState.visualState == com.airobotcomm.tablet.ui.state.RobotVisualState.FOCUS
                             )
                                 robotUiState.statusTip else null,
                             audioLevel = audioLevel, // 传入音频等级用于微表情
                             headSize = 420.dp
                         )
                     }
-
                     // 2. 语音输入面板 (底部保持一定距离)
                     Box(
                         modifier = Modifier
@@ -214,44 +257,24 @@ fun RobotConversationScreen(
                     ) {
                         RobotVoiceInputPanel(
                             robotState = robotUiState.visualState,
-                            isConnected = isConnected,
+                            isConnected = robotUiState.isConnected,
                             timerStatus = robotUiState.timerStatus,
                             audioLevel = audioLevel,
                             onStartListening = {
                                 if (permissionsState.allPermissionsGranted) {
                                     robotUiState = robotUiState.copy(
-                                        interactionType = InteractionType.CHAT,
+                                        interactionType = com.airobotcomm.tablet.ui.state.InteractionType.CHAT,
                                         currentUserMsg = null,
                                         currentAiMsg = null
                                     )
-                                    viewModel.startAutoConversation()
+                                    conversationViewModel.startAutoConversation()
                                 }
                             },
                             onStopListening = {
-                                viewModel.stopAutoConversation()
+                                conversationViewModel.stopAutoConversation()
                             },
                             onTimerControl = { action ->
-                                when (action) {
-                                    "PAUSE" -> robotUiState = robotUiState.copy(
-                                        timerStatus = TimerStatus.PAUSED,
-                                        visualState = RobotVisualState.IDLE
-                                    )
-
-                                    "RESUME" -> robotUiState = robotUiState.copy(
-                                        timerStatus = TimerStatus.RUNNING,
-                                        visualState = RobotVisualState.FOCUS
-                                    )
-
-                                    "STOP" -> {
-                                        robotUiState = robotUiState.copy(
-                                            timerStatus = TimerStatus.IDLE,
-                                            timerCommand = null,
-                                            visualState = RobotVisualState.IDLE,
-                                            activeCard = null,
-                                            interactionType = InteractionType.CHAT
-                                        )
-                                    }
-                                }
+                                serviceViewModel.handleTimerAction(action)
                             }
                         )
                     }
@@ -266,36 +289,36 @@ fun RobotConversationScreen(
                     ) {
                         DialogueBubble(
                             robotState = robotUiState.visualState,
-                            aiMsg = if (robotUiState.interactionType == InteractionType.CHAT)
+                            aiMsg = if (robotUiState.interactionType == com.airobotcomm.tablet.ui.state.InteractionType.CHAT)
                                 robotUiState.currentAiMsg else null,
                             onAiSpeechComplete = {
                                 if (robotUiState.timerCommand != null &&
-                                    robotUiState.timerStatus == TimerStatus.IDLE
+                                    robotUiState.timerStatus == com.airobotcomm.tablet.ui.state.TimerStatus.IDLE
                                 ) {
                                     robotUiState = robotUiState.copy(
-                                        timerStatus = TimerStatus.RUNNING,
-                                        visualState = RobotVisualState.FOCUS
+                                        timerStatus = com.airobotcomm.tablet.ui.state.TimerStatus.RUNNING,
+                                        visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.FOCUS
                                     )
                                 }
                             },
                             onClose = {
                                 robotUiState = robotUiState.copy(
-                                    visualState = RobotVisualState.IDLE,
+                                    visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.IDLE,
                                     currentUserMsg = null,
                                     currentAiMsg = null,
-                                    timerStatus = TimerStatus.IDLE,
+                                    timerStatus = com.airobotcomm.tablet.ui.state.TimerStatus.IDLE,
                                     timerCommand = null,
                                     activeCard = null
                                 )
-                                viewModel.interrupt()
+                                conversationViewModel.interrupt()
                             }
                         )
                     }
 
                     // 4. 用户消息气泡 (位于语音面板左上方)
                     if (robotUiState.currentUserMsg != null &&
-                        (robotUiState.visualState == RobotVisualState.LISTENING ||
-                                robotUiState.visualState == RobotVisualState.THINKING)
+                        (robotUiState.visualState == com.airobotcomm.tablet.ui.state.RobotVisualState.LISTENING ||
+                                robotUiState.visualState == com.airobotcomm.tablet.ui.state.RobotVisualState.THINKING)
                     ) {
                         Box(
                             modifier = Modifier
@@ -327,14 +350,15 @@ fun RobotConversationScreen(
                                 onCardClick = { card ->
                                     currentCardIndex = serviceCards.indexOf(card)
                                     robotUiState = robotUiState.copy(
-                                        interactionType = InteractionType.CARD,
+                                        interactionType = com.airobotcomm.tablet.ui.state.InteractionType.CARD,
                                         activeCard = card,
-                                        visualState = RobotVisualState.LISTENING,
+                                        visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.LISTENING,
                                         currentUserMsg = null,
                                         currentAiMsg = null
                                     )
+                                    serviceViewModel.startService(card)
                                     if (permissionsState.allPermissionsGranted) {
-                                        viewModel.startAutoConversation()
+                                        conversationViewModel.startAutoConversation()
                                     }
                                 }
                             )
@@ -359,31 +383,32 @@ fun RobotConversationScreen(
                                     timerStatus = robotUiState.timerStatus,
                                     onAiSpeechComplete = {
                                         if (robotUiState.timerCommand != null && 
-                                            robotUiState.timerStatus == TimerStatus.IDLE) {
+                                            robotUiState.timerStatus == com.airobotcomm.tablet.ui.state.TimerStatus.IDLE) {
                                             robotUiState = robotUiState.copy(
-                                                timerStatus = TimerStatus.RUNNING,
-                                                visualState = RobotVisualState.FOCUS
+                                                timerStatus = com.airobotcomm.tablet.ui.state.TimerStatus.RUNNING,
+                                                visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.FOCUS
                                             )
                                         }
                                     },
                                     onTimerComplete = {
                                         robotUiState = robotUiState.copy(
-                                            timerStatus = TimerStatus.IDLE,
-                                            visualState = RobotVisualState.IDLE,
+                                            timerStatus = com.airobotcomm.tablet.ui.state.TimerStatus.IDLE,
+                                            visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.IDLE,
                                             timerCommand = null,
                                             activeCard = null,
-                                            interactionType = InteractionType.CHAT
+                                            interactionType = com.airobotcomm.tablet.ui.state.InteractionType.CHAT
                                         )
                                     },
                                     onClose = {
                                         robotUiState = robotUiState.copy(
-                                            visualState = RobotVisualState.IDLE,
-                                            interactionType = InteractionType.CHAT,
+                                            visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.IDLE,
+                                            interactionType = com.airobotcomm.tablet.ui.state.InteractionType.CHAT,
                                             activeCard = null,
-                                            timerStatus = TimerStatus.IDLE,
+                                            timerStatus = com.airobotcomm.tablet.ui.state.TimerStatus.IDLE,
                                             timerCommand = null
                                         )
-                                        viewModel.interrupt()
+                                        serviceViewModel.closeService()
+                                        conversationViewModel.interrupt()
                                     }
                                 )
                             }
@@ -402,7 +427,7 @@ fun RobotConversationScreen(
             if (showActivationDialog && activationCode != null) {
                 ActivationDialog(
                     activationCode = activationCode!!,
-                    onConfirm = { viewModel.onActivationConfirmed() }
+                    onConfirm = { mainViewModel.onActivationConfirmed() }
                 )
             }
         }
@@ -442,175 +467,6 @@ private fun BackgroundDecorations() {
                 .blur(100.dp)
         )
     }
-}
-
-@Composable
-private fun TopBar(
-    onShowSettings: () -> Unit,
-    isAutoMode: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 32.dp, vertical = 20.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(
-                                RobotPrimaryCyan,
-                                RobotSecondaryIndigo
-                            )
-                        )
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.cloud_on),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = RobotTextPrimary
-                )
-            }
-            
-            Text(
-                text = "AETHER",
-                color = RobotTextPrimary.copy(alpha = 0.9f),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 3.sp
-            )
-        }
-        
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                NetworkStatusIcon()
-                BatteryLevelIcon()
-                
-                AnimatedVisibility(
-                    visible = isAutoMode,
-                    enter = fadeIn() + scaleIn(),
-                    exit = fadeOut() + scaleOut()
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clip(CircleShape)
-                            .background(RobotPrimaryCyan.copy(alpha = 0.2f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.cloud_on),
-                            contentDescription = "自动模式",
-                            modifier = Modifier.size(12.dp),
-                            tint = RobotPrimaryCyan
-                        )
-                    }
-                }
-            }
-            
-            IconButton(
-                onClick = onShowSettings,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(RobotTextPrimary.copy(alpha = 0.05f))
-            ) {
-                Icon(
-                    Icons.Default.Settings,
-                    contentDescription = "设置",
-                    modifier = Modifier.size(20.dp),
-                    tint = RobotTextPrimary.copy(alpha = 0.3f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun NetworkStatusIcon() {
-    val context = LocalContext.current
-    var wifiConnected by remember { mutableStateOf(false) }
-    
-    LaunchedEffect(Unit) {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        connectivityManager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                wifiConnected = true
-            }
-            
-            override fun onLost(network: Network) {
-                wifiConnected = false
-            }
-        })
-    }
-    
-    Icon(
-        painter = painterResource(id = if (wifiConnected) R.drawable.wifi else R.drawable.wifi_off),
-        contentDescription = if (wifiConnected) "WiFi已连接" else "WiFi未连接",
-        modifier = Modifier.size(16.dp),
-        tint = if (wifiConnected) RobotTextPrimary.copy(alpha = 0.3f) else Color(0xFFEF4444).copy(alpha = 0.3f)
-    )
-}
-
-@Composable
-private fun BatteryLevelIcon() {
-    val context = LocalContext.current
-    var batteryLevel by remember { mutableIntStateOf(100) }
-    var batteryCharging by remember { mutableStateOf(false) }
-    
-    LaunchedEffect(Unit) {
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
-                val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
-                val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-                
-                batteryLevel = if (scale > 0) (level.toFloat() / scale.toFloat() * 100).toInt() else 0
-                batteryCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || 
-                                  status == BatteryManager.BATTERY_STATUS_FULL
-            }
-        }
-        
-        context.registerReceiver(receiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-    }
-    
-    val batteryIcon = when {
-        batteryCharging -> R.drawable.battery_charging
-        batteryLevel >= 80 -> R.drawable.battery_full
-        batteryLevel >= 50 -> R.drawable.battery_medium
-        batteryLevel >= 20 -> R.drawable.battery_low
-        else -> R.drawable.battery_alert
-    }
-    
-    val batteryColor = when {
-        batteryCharging -> Color(0xFF34D399)
-        batteryLevel >= 50 -> RobotTextPrimary.copy(alpha = 0.3f)
-        else -> Color(0xFFEF4444).copy(alpha = 0.3f)
-    }
-    
-    Icon(
-        painter = painterResource(id = batteryIcon),
-        contentDescription = "电池电量: $batteryLevel%",
-        modifier = Modifier.size(16.dp),
-        tint = batteryColor
-    )
 }
 
 @Composable
@@ -687,11 +543,11 @@ private fun BottomFooter(modifier: Modifier = Modifier) {
 
 @Composable
 private fun FunctionalModulePanel(
-    card: ServiceCard?,
+    card: com.airobotcomm.tablet.ui.state.ServiceCard?,
     aiMsg: String?,
-    robotState: RobotVisualState,
-    timerCommand: TimerCommand?,
-    timerStatus: TimerStatus,
+    robotState: com.airobotcomm.tablet.ui.state.RobotVisualState,
+    timerCommand: com.airobotcomm.tablet.ui.state.TimerCommand?,
+    timerStatus: com.airobotcomm.tablet.ui.state.TimerStatus,
     onAiSpeechComplete: () -> Unit,
     onTimerComplete: () -> Unit,
     onClose: () -> Unit,
@@ -722,7 +578,7 @@ private fun FunctionalModulePanel(
                             .clip(RoundedCornerShape(10.dp))
                             .background(
                                 brush = Brush.linearGradient(
-                                    colors = if (card.type == ServiceCardType.TIMER) {
+                                    colors = if (card.type == com.airobotcomm.tablet.ui.state.ServiceCardType.TIMER) {
                                         listOf(Color(0xFFEF4444), Color(0xFFF97316))
                                     } else {
                                         listOf(Color(0xFF22D3EE), Color(0xFF6366F1))
@@ -775,7 +631,7 @@ private fun FunctionalModulePanel(
             Spacer(modifier = Modifier.height(16.dp))
             
             AnimatedVisibility(
-                visible = aiMsg != null || robotState == RobotVisualState.THINKING,
+                visible = aiMsg != null || robotState == com.airobotcomm.tablet.ui.state.RobotVisualState.THINKING,
                 enter = fadeIn() + slideInVertically(),
                 exit = fadeOut() + slideOutVertically()
             ) {
@@ -786,7 +642,7 @@ private fun FunctionalModulePanel(
                         .background(Color(0xFF22D3EE).copy(alpha = 0.05f))
                         .padding(16.dp)
                 ) {
-                    if (robotState == RobotVisualState.THINKING) {
+                    if (robotState == com.airobotcomm.tablet.ui.state.RobotVisualState.THINKING) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -821,7 +677,7 @@ private fun FunctionalModulePanel(
                     .weight(1f)
                     .fillMaxWidth()
             ) {
-                if (card.type == ServiceCardType.TIMER) {
+                if (card.type == com.airobotcomm.tablet.ui.state.ServiceCardType.TIMER) {
                     FocusTimerWidget(
                         command = timerCommand,
                         timerStatus = timerStatus,

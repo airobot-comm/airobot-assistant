@@ -17,20 +17,14 @@ import com.airobotcomm.tablet.data.DeviceConfig
 import com.airobotcomm.tablet.network.NetworkService
 import com.airobotcomm.tablet.network.NetworkState
 import com.airobotcomm.tablet.network.protocol.AiRobotEvent
+import com.airobotcomm.tablet.ui.state.ConversationSubState
+import com.airobotcomm.tablet.ui.state.RobotState
+import com.airobotcomm.tablet.ui.state.RobotStateManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.delay
 
-/**
- * 对话状态
- */
-enum class ConversationState {
-    IDLE,           // 空闲
-    CONNECTING,     // 连接中
-    LISTENING,      // 聆听中
-    PROCESSING,     // 处理中
-    SPEAKING        // 说话中
-}
+// 移除旧的 enum class ConversationState
 
 /**
  * 对话ViewModel
@@ -40,7 +34,8 @@ class ConversationViewModel @Inject constructor(
     application: Application,
     private val networkService: NetworkService,
     private val configManager: ConfigManager,
-    private val audioManager: EnhancedAudioManager
+    private val audioManager: EnhancedAudioManager,
+    private val robotStateManager: RobotStateManager // 使用 RobotStateManager 替代 MainViewModel
 ) : AndroidViewModel(application) {
     companion object {
         private const val TAG = "ConversationViewModel"
@@ -48,12 +43,11 @@ class ConversationViewModel @Inject constructor(
 
     private val gson = Gson()
 
-    // 状态管理
-    private val _state = MutableStateFlow(ConversationState.IDLE)
-    val state: StateFlow<ConversationState> = _state.asStateFlow()
+    // 内部子状态管理
+    private val _subState = MutableStateFlow(ConversationSubState.LISTENING)
+    val subState: StateFlow<ConversationSubState> = _subState.asStateFlow()
 
-    private val _isConnected = MutableStateFlow(false)
-    val isConnected: StateFlow<Boolean> = _isConnected.asStateFlow()
+    // 移除旧的 _state 和 _isConnected，由 MainViewModel 管理
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages.asStateFlow()
@@ -144,18 +138,7 @@ class ConversationViewModel @Inject constructor(
      * 根据网络服务状态映射 UI 状态
      */
     private fun updateStateFromNetwork(networkState: NetworkState) {
-        _isConnected.value = networkService.isConnected
-        when (networkState) {
-            NetworkState.CONNECTING, NetworkState.INITIALIZING, NetworkState.RECONNECTING -> {
-                _state.value = ConversationState.CONNECTING
-            }
-            NetworkState.ERROR, NetworkState.IDLE -> {
-                _state.value = ConversationState.IDLE
-            }
-            NetworkState.CONNECTED -> {
-                // 已通过 AiRobotEvent.Connected 处理
-            }
-        }
+        // 一级状态由 MainViewModel 处理
     }
 
     /**
@@ -164,24 +147,20 @@ class ConversationViewModel @Inject constructor(
     private fun handleAiRobotEvent(event: AiRobotEvent) {
         when (event) {
             is AiRobotEvent.ActivationRequired -> {
-                _activationCode.value = event.code
-                _showActivationDialog.value = true
-                _state.value = ConversationState.IDLE
+                // 由 MainViewModel 处理
             }
             is AiRobotEvent.Connected -> {
-                _isConnected.value = true
-                _state.value = ConversationState.IDLE
+                // 由 MainViewModel 处理
                 _errorMessage.value = null
             }
             is AiRobotEvent.Disconnected -> {
-                _isConnected.value = false
-                _state.value = ConversationState.IDLE
+                // 由 MainViewModel 处理
                 audioManager.stopRecording()
                 audioManager.stopPlaying()
             }
             is AiRobotEvent.Error -> {
                 _errorMessage.value = event.message
-                _state.value = ConversationState.IDLE
+                robotStateManager.updateRobotState(RobotState.Ready)
             }
             is AiRobotEvent.STT -> {
                 handleSttResult(event.text)
@@ -190,7 +169,8 @@ class ConversationViewModel @Inject constructor(
                 handleTtsSentence(event.text)
             }
             is AiRobotEvent.TtsStart -> {
-                _state.value = ConversationState.SPEAKING
+                _subState.value = ConversationSubState.SPEAKING
+                syncToMainState()
             }
             is AiRobotEvent.TtsStop -> {
                 handleTtsStop()
@@ -199,12 +179,16 @@ class ConversationViewModel @Inject constructor(
                 if (!_isMuted.value) audioManager.playAudio(event.data)
             }
             is AiRobotEvent.DialogueEnd -> {
-                _state.value = ConversationState.IDLE
+                robotStateManager.updateRobotState(RobotState.Ready)
                 audioManager.stopRecording()
                 audioManager.stopPlaying()
             }
             else -> {}
         }
+    }
+
+    private fun syncToMainState() {
+        robotStateManager.updateRobotState(RobotState.Conversation(_subState.value))
     }
 
     private fun handleSttResult(text: String) {
@@ -213,7 +197,8 @@ class ConversationViewModel @Inject constructor(
             _currentRoundUserText.value = text
             addMessage(Message(role = MessageRole.USER, content = text))
             audioManager.stopRecording()
-            _state.value = ConversationState.PROCESSING
+            _subState.value = ConversationSubState.THINKING
+            syncToMainState()
         }
     }
 
@@ -226,7 +211,11 @@ class ConversationViewModel @Inject constructor(
         audioManager.stopPlaying()
         viewModelScope.launch {
             delay(500)
-            if (isAutoMode) startNextRound() else _state.value = ConversationState.IDLE
+            if (isAutoMode) {
+                startNextRound()
+            } else {
+                robotStateManager.updateRobotState(RobotState.Ready)
+            }
         }
     }
 
@@ -243,7 +232,8 @@ class ConversationViewModel @Inject constructor(
     fun updateConfig(newConfig: DeviceConfig) {
         configManager.saveConfig(newConfig)
         networkService.disconnect()
-        connectToServer()
+        robotStateManager.updateRobotState(RobotState.Offline)
+        networkService.connect()
     }
 
     /**
@@ -253,7 +243,7 @@ class ConversationViewModel @Inject constructor(
         when (event) {
             is AudioEvent.AudioData -> {
                 // 只有在聆听状态才发送音频数据
-                if (_state.value == ConversationState.LISTENING) {
+                if (_subState.value == ConversationSubState.LISTENING) {
                     networkService.sendAudio(event.data)
                 }
             }
@@ -282,10 +272,11 @@ class ConversationViewModel @Inject constructor(
      * 开始聆听（手动模式）
      */
     fun startListening() {
-        if (_state.value != ConversationState.IDLE || !networkService.isConnected) return
+        if (!networkService.isConnected) return
         isAutoMode = false
         resetRoundText()
-        _state.value = ConversationState.LISTENING
+        _subState.value = ConversationSubState.LISTENING
+        syncToMainState()
         audioManager.startRecording()
         networkService.startListening("manual")
     }
@@ -294,10 +285,11 @@ class ConversationViewModel @Inject constructor(
      * 开始自动对话模式
      */
     fun startAutoConversation() {
-        if (_state.value != ConversationState.IDLE || !networkService.isConnected) return
+        if (!networkService.isConnected) return
         isAutoMode = true
         resetRoundText()
-        _state.value = ConversationState.LISTENING
+        _subState.value = ConversationSubState.LISTENING
+        syncToMainState()
         audioManager.startRecording()
         networkService.startListening("auto")
     }
@@ -306,9 +298,9 @@ class ConversationViewModel @Inject constructor(
      * 停止聆听
      */
     fun stopListening() {
-        if (_state.value != ConversationState.LISTENING) return
         audioManager.stopRecording()
-        _state.value = ConversationState.PROCESSING
+        _subState.value = ConversationSubState.THINKING
+        syncToMainState()
         networkService.stopListening()
     }
 
@@ -316,9 +308,9 @@ class ConversationViewModel @Inject constructor(
      * 取消当前录音并发送中止信号
      */
     fun cancelListeningWithAbort(reason: String = "user_interrupt") {
-        if (_state.value == ConversationState.LISTENING) _state.value = ConversationState.IDLE
         audioManager.stopRecording()
         networkService.abort(reason)
+        robotStateManager.updateRobotState(RobotState.Ready)
     }
 
     /**
@@ -326,11 +318,12 @@ class ConversationViewModel @Inject constructor(
      */
     private fun startNextRound() {
         if (!isAutoMode || !networkService.isConnected) {
-            _state.value = ConversationState.IDLE
+            robotStateManager.updateRobotState(RobotState.Ready)
             return
         }
         resetRoundText()
-        _state.value = ConversationState.LISTENING
+        _subState.value = ConversationSubState.LISTENING
+        syncToMainState()
         audioManager.startRecording()
         networkService.startListening("auto")
     }
@@ -341,7 +334,8 @@ class ConversationViewModel @Inject constructor(
     fun sendTextMessage(text: String) {
         if (!networkService.isConnected || text.isBlank()) return
         networkService.sendText(text)
-        _state.value = ConversationState.PROCESSING
+        _subState.value = ConversationSubState.THINKING
+        syncToMainState()
     }
 
     /**
@@ -352,7 +346,7 @@ class ConversationViewModel @Inject constructor(
         audioManager.stopRecording()
         networkService.abort("user_interrupt")
         isAutoMode = false
-        _state.value = ConversationState.IDLE
+        robotStateManager.updateRobotState(RobotState.Ready)
     }
 
     /**
@@ -363,7 +357,7 @@ class ConversationViewModel @Inject constructor(
         audioManager.stopRecording()
         audioManager.stopPlaying()
         networkService.abort("stop_auto_mode")
-        _state.value = ConversationState.IDLE
+        robotStateManager.updateRobotState(RobotState.Ready)
     }
 
     private fun resetRoundText() {

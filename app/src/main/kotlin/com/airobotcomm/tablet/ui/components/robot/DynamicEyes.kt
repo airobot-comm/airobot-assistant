@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun DynamicEyes(
-    state: RobotVisualState,
+    state: com.airobotcomm.tablet.ui.state.RobotVisualState,
     highlightOffset: Offset = Offset.Zero,
     eyeSize: Dp = 48.dp,
     eyeGap: Dp = 56.dp,
@@ -61,7 +61,7 @@ fun DynamicEyes(
 
 @Composable
 private fun DynamicEye(
-    state: RobotVisualState,
+    state: com.airobotcomm.tablet.ui.state.RobotVisualState,
     highlightOffset: Offset,
     size: Dp,
     modifier: Modifier = Modifier
@@ -69,35 +69,35 @@ private fun DynamicEye(
     val infiniteTransition = rememberInfiniteTransition(label = "eyeAnimation")
     
     when (state) {
-        RobotVisualState.IDLE -> IdleEye(
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.IDLE -> IdleEye(
             highlightOffset = highlightOffset,
             size = size,
             modifier = modifier
         )
-        RobotVisualState.LISTENING -> ListeningEye(
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.LISTENING -> ListeningEye(
             infiniteTransition = infiniteTransition,
             size = size,
             modifier = modifier
         )
-        RobotVisualState.THINKING -> ThinkingEye(
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.THINKING -> ThinkingEye(
             infiniteTransition = infiniteTransition,
             size = size,
             modifier = modifier
         )
-        RobotVisualState.SPEAKING -> SpeakingEye(
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.SPEAKING -> SpeakingEye(
             infiniteTransition = infiniteTransition,
             size = size,
             modifier = modifier
         )
-        RobotVisualState.FOCUS -> FocusEye(
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.FOCUS -> FocusEye(
             size = size,
             modifier = modifier
         )
-        RobotVisualState.HAPPY -> HappyEye(
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.HAPPY -> HappyEye(
             size = size,
             modifier = modifier
         )
-        RobotVisualState.SLEEPING -> SleepingEye(
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.SLEEPING -> SleepingEye(
             size = size,
             modifier = modifier
         )

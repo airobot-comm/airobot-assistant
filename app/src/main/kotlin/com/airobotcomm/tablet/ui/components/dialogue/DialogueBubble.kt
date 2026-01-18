@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobotcomm.tablet.R
-import com.airobotcomm.tablet.ui.components.robot.RobotVisualState
+import com.airobotcomm.tablet.ui.state.RobotVisualState
 
 /**
  * AI对话气泡组件 - 增强设计版

@@ -1,10 +1,9 @@
-package com.airobotcomm.tablet.ui.components.robot
+package com.airobotcomm.tablet.ui.state
 
-import com.airobotcomm.tablet.ui.viewmodel.ConversationState
 
 /**
  * 机器人视觉状态 - 用于控制眼睛、天线等动画
- * 映射自 ConversationState，但专注于视觉表现
+ * 映射自 RobotState，专注于视觉表现
  */
 enum class RobotVisualState {
     IDLE,       // 空闲 - 渐变圆形眼睛 + 呼吸动画
@@ -16,18 +15,7 @@ enum class RobotVisualState {
     SLEEPING    // 睡眠 - 闭眼 + 缓慢呼吸
 }
 
-/**
- * 将 ConversationState 映射到 RobotVisualState
- */
-fun ConversationState.toRobotVisualState(): RobotVisualState {
-    return when (this) {
-        ConversationState.IDLE -> RobotVisualState.IDLE
-        ConversationState.CONNECTING -> RobotVisualState.THINKING
-        ConversationState.LISTENING -> RobotVisualState.LISTENING
-        ConversationState.PROCESSING -> RobotVisualState.THINKING
-        ConversationState.SPEAKING -> RobotVisualState.SPEAKING
-    }
-}
+// 已移除旧的 toRobotVisualState，由 RobotConversationScreen 统一映射
 
 /**
  * 交互类型

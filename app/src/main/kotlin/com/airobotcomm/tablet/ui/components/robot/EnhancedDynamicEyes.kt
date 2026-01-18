@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun EnhancedDynamicEyes(
-    state: RobotVisualState,
+    state: com.airobotcomm.tablet.ui.state.RobotVisualState,
     ttsProgressNormalized: Float = 0f, // 0-1, TTS播放进度
     audioLevel: Float = 0f, // 传入音频等级 0-1
     eyeSize: Dp = 48.dp,
@@ -65,13 +65,13 @@ fun EnhancedDynamicEyes(
 
     // 计算眼睛的实际偏移
     val eyeOffsetX = when (state) {
-        RobotVisualState.SPEAKING -> speakingEyeLookX.dp
-        RobotVisualState.THINKING -> thinkingEyeOffsetX.dp
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.SPEAKING -> speakingEyeLookX.dp
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.THINKING -> thinkingEyeOffsetX.dp
         else -> 0.dp
     }
 
     val eyeOffsetY = when (state) {
-        RobotVisualState.THINKING -> thinkingEyeOffsetY.dp
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.THINKING -> thinkingEyeOffsetY.dp
         else -> 0.dp
     }
 
@@ -101,7 +101,7 @@ fun EnhancedDynamicEyes(
  */
 @Composable
 private fun EnhancedDynamicEye(
-    state: RobotVisualState,
+    state: com.airobotcomm.tablet.ui.state.RobotVisualState,
     size: Dp,
     ttsProgressNormalized: Float = 0f,
     audioLevel: Float = 0f,
@@ -129,30 +129,30 @@ private fun EnhancedDynamicEye(
 
         // 核心眼睛组件
         when (state) {
-            RobotVisualState.IDLE -> IdleEyeEnhanced(size = size)
-            RobotVisualState.LISTENING -> ListeningEyeEnhanced(size = size, audioLevel = audioLevel)
-            RobotVisualState.THINKING -> ThinkingEyeEnhanced(size = size)
-            RobotVisualState.SPEAKING -> SpeakingEyeEnhanced(
+            _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.IDLE -> IdleEyeEnhanced(size = size)
+            _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.LISTENING -> ListeningEyeEnhanced(size = size, audioLevel = audioLevel)
+            _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.THINKING -> ThinkingEyeEnhanced(size = size)
+            _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.SPEAKING -> SpeakingEyeEnhanced(
                 size = size,
                 ttsProgressNormalized = ttsProgressNormalized,
                 audioLevel = audioLevel
             )
-            RobotVisualState.FOCUS -> FocusEyeEnhanced(size = size)
-            RobotVisualState.HAPPY -> HappyEyeEnhanced(size = size)
-            RobotVisualState.SLEEPING -> SleepingEyeEnhanced(size = size)
+            _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.FOCUS -> FocusEyeEnhanced(size = size)
+            _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.HAPPY -> HappyEyeEnhanced(size = size)
+            _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.SLEEPING -> SleepingEyeEnhanced(size = size)
         }
     }
 }
 
-private fun getEyeColor(state: RobotVisualState): Color {
+private fun getEyeColor(state: com.airobotcomm.tablet.ui.state.RobotVisualState): Color {
     return when (state) {
-        RobotVisualState.IDLE -> Color(0xFF6366F1)
-        RobotVisualState.LISTENING -> Color.White
-        RobotVisualState.THINKING -> Color(0xFF22D3EE)
-        RobotVisualState.SPEAKING -> Color.White
-        RobotVisualState.FOCUS -> Color(0xFF67E8F9)
-        RobotVisualState.HAPPY -> Color(0xFF10B981)
-        RobotVisualState.SLEEPING -> Color(0xFF94A3B8)
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.IDLE -> Color(0xFF6366F1)
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.LISTENING -> Color.White
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.THINKING -> Color(0xFF22D3EE)
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.SPEAKING -> Color.White
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.FOCUS -> Color(0xFF67E8F9)
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.HAPPY -> Color(0xFF10B981)
+        _root_ide_package_.com.airobotcomm.tablet.ui.state.RobotVisualState.SLEEPING -> Color(0xFF94A3B8)
     }
 }
 

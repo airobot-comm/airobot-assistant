@@ -21,8 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobotcomm.tablet.R
-import com.airobotcomm.tablet.ui.components.robot.ServiceCard
-import com.airobotcomm.tablet.ui.components.robot.ServiceCardType
+import com.airobotcomm.tablet.ui.state.ServiceCard
+import com.airobotcomm.tablet.ui.state.ServiceCardType
 
 /**
  * 服务卡片组件

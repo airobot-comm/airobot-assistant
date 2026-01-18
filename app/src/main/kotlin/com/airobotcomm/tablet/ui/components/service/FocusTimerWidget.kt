@@ -29,8 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobotcomm.tablet.R
-import com.airobotcomm.tablet.ui.components.robot.TimerCommand
-import com.airobotcomm.tablet.ui.components.robot.TimerStatus
+import com.airobotcomm.tablet.ui.state.TimerCommand
+import com.airobotcomm.tablet.ui.state.TimerStatus
 import kotlinx.coroutines.delay
 
 /**
