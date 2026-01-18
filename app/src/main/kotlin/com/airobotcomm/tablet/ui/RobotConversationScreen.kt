@@ -12,6 +12,8 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import com.airobotcomm.tablet.ui.theme.RobotPrimaryCyan
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,8 +41,9 @@ import com.airobotcomm.tablet.ui.components.robot.*
 import com.airobotcomm.tablet.ui.components.service.*
 import com.airobotcomm.tablet.ui.components.voice.RobotVoiceInputPanel
 import com.airobotcomm.tablet.ui.framework.RobotTopBar
-import com.airobotcomm.tablet.ui.framework.SettingsScreen
-import com.airobotcomm.tablet.ui.theme.RobotPrimaryCyan
+import com.airobotcomm.tablet.ui.framework.RobotDrawerContent
+import com.airobotcomm.tablet.ui.theme.RobotBackgroundDark
+import com.airobotcomm.tablet.ui.theme.RobotSurface
 import com.airobotcomm.tablet.ui.theme.RobotSecondaryIndigo
 import com.airobotcomm.tablet.ui.theme.RobotTextPrimary
 import com.airobotcomm.tablet.ui.state.ConversationSubState
@@ -98,7 +101,9 @@ fun RobotConversationScreen(
     val timerStatus by serviceViewModel.timerStatus.collectAsState()
     
     // 本地UI状态
-    var showSettings by remember { mutableStateOf(false) }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    
     // 注意：我们将在此处使用一个简单的配置占位或通过 ViewModel 获取
     var currentConfig by remember { mutableStateOf(com.airobotcomm.tablet.data.DeviceConfig.createDefault()) }
     
@@ -168,17 +173,21 @@ fun RobotConversationScreen(
         robotUiState = robotUiState.copy(statusTip = newStatusTip)
     }
     
-    if (showSettings) {
-        SettingsScreen(
-            config = currentConfig,
-            onConfigChange = { newConfig ->
-                currentConfig = newConfig
-                conversationViewModel.updateConfig(newConfig)
-                showSettings = false
-            },
-            onBack = { showSettings = false }
-        )
-    } else {
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            RobotDrawerContent(
+                currentConfig = currentConfig,
+                onConfigChange = { newConfig ->
+                    currentConfig = newConfig
+                    conversationViewModel.updateConfig(newConfig)
+                    scope.launch { drawerState.close() }
+                },
+                onClose = { scope.launch { drawerState.close() } }
+            )
+        },
+        gesturesEnabled = drawerState.isOpen
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -201,19 +210,11 @@ fun RobotConversationScreen(
             ) {
                 RobotTopBar(
                     robotState = robotState,
-                    onShowSettings = { showSettings = true }
+                    errorMessage = errorMessage,
+                    onLogoClick = { scope.launch { drawerState.open() } }
                 )
                 
-                AnimatedVisibility(
-                    visible = errorMessage != null,
-                    enter = slideInVertically() + fadeIn(),
-                    exit = slideOutVertically() + fadeOut()
-                ) {
-                    ErrorBanner(
-                        message = errorMessage ?: "",
-                        onDismiss = { mainViewModel.clearError() }
-                    )
-                }
+                // ErrorBanner 迁移到 TopBar 中，此处移除
                 
                 // 中心内容区域 - 使用 ConstraintLayout 精确控制相对位置
                 ConstraintLayout(

@@ -7,8 +7,15 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.BatteryManager
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,8 +29,10 @@ import com.airobotcomm.tablet.ui.theme.RobotTextPrimary
 /**
  * 系统状态栏组件 - 负责网络、电量等基础状态展示
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SystemStatusBar(
+    errorMessage: String? = null,
     modifier: Modifier = Modifier,
     tint: Color = RobotTextPrimary.copy(alpha = 0.3f)
 ) {
@@ -32,6 +41,29 @@ fun SystemStatusBar(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        AnimatedVisibility(
+            visible = errorMessage != null,
+            enter = fadeIn() + expandHorizontally(),
+            exit = fadeOut() + shrinkHorizontally()
+        ) {
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(errorMessage ?: "")
+                    }
+                },
+                state = rememberTooltipState()
+            ) {
+                Icon(
+                    Icons.Default.Warning,
+                    contentDescription = "网络错误",
+                    modifier = Modifier.size(18.dp),
+                    tint = Color(0xFFEF4444)
+                )
+            }
+        }
+        
         NetworkStatusIcon(tint = tint)
         BatteryLevelIcon(tint = tint)
     }

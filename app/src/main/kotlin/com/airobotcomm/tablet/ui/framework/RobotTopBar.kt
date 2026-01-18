@@ -4,10 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,7 +29,8 @@ import com.airobotcomm.tablet.ui.theme.RobotTextPrimary
 @Composable
 fun RobotTopBar(
     robotState: RobotState,
-    onShowSettings: () -> Unit,
+    errorMessage: String?,
+    onLogoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -56,12 +57,13 @@ fun RobotTopBar(
                                 RobotSecondaryIndigo
                             )
                         )
-                    ),
+                    )
+                    .clickable(onClick = onLogoClick),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.cloud_on),
-                    contentDescription = null,
+                    contentDescription = "菜单",
                     modifier = Modifier.size(18.dp),
                     tint = RobotTextPrimary
                 )
@@ -84,22 +86,7 @@ fun RobotTopBar(
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SystemStatusBar()
-            
-            IconButton(
-                onClick = onShowSettings,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(RobotTextPrimary.copy(alpha = 0.05f))
-            ) {
-                Icon(
-                    Icons.Default.Settings,
-                    contentDescription = "设置",
-                    modifier = Modifier.size(20.dp),
-                    tint = RobotTextPrimary.copy(alpha = 0.3f)
-                )
-            }
+            SystemStatusBar(errorMessage = errorMessage)
         }
     }
 }
