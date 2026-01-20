@@ -1,7 +1,6 @@
 package com.airobotcomm.tablet.audio
 
 import android.Manifest
-import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.*
@@ -22,24 +21,15 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 音频事件
- */
-sealed class AudioEvent {
-    data class AudioData(val data: ByteArray) : AudioEvent()
-    data class AudioLevel(val level: Float) : AudioEvent()
-    data class Error(val message: String) : AudioEvent()
-}
-
-/**
- * 增强版音频管理器
- * 使用真正的Opus编解码器和流式播放
+ * 增强版音频管理器实现类
+ * 使用真正的Opus编解码器和流式播放，实现了 AudioService 接口
  */
 @Singleton
-class EnhancedAudioManager @Inject constructor(
+class AudioServiceImpl @Inject constructor(
     @ApplicationContext private val context: Context
-) {
+) : AudioService {
     companion object {
-        private const val TAG = "EnhancedAudioManager"
+        private const val TAG = "AudioServiceImpl"
         private const val RECORD_SAMPLE_RATE = 16000
         private const val PLAY_SAMPLE_RATE = 24000
         private const val CHANNELS = AudioFormat.CHANNEL_IN_MONO
@@ -54,7 +44,7 @@ class EnhancedAudioManager @Inject constructor(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     
     private val _audioEvents = MutableSharedFlow<AudioEvent>()
-    val audioEvents: SharedFlow<AudioEvent> = _audioEvents
+    override val audioEvents: SharedFlow<AudioEvent> = _audioEvents
 
     // AEC和NS处理器
     private var acousticEchoCanceler: AcousticEchoCanceler? = null
@@ -74,7 +64,7 @@ class EnhancedAudioManager @Inject constructor(
      * 初始化音频系统
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    fun initialize(): Boolean {
+    override fun initialize(): Boolean {
         return try {
             // 初始化Opus编解码器
             opusEncoder = OpusEncoder(RECORD_SAMPLE_RATE, 1, FRAME_DURATION_MS)
@@ -82,7 +72,6 @@ class EnhancedAudioManager @Inject constructor(
             streamPlayer = OpusStreamPlayer(PLAY_SAMPLE_RATE, 1, FRAME_DURATION_MS, context)
             
             setupAudioRecord()
-            // 不在初始化时启动播放流，而是在需要时启动
             Log.d(TAG, "增强版音频系统初始化成功")
             true
         } catch (e: Exception) {
@@ -147,25 +136,16 @@ class EnhancedAudioManager @Inject constructor(
      * 设置音频播放流
      */
     private fun setupAudioPlayback() {
-        // 防止重复设置播放流
-        if (isPlaybackSetup) {
-            Log.d(TAG, "播放流已经设置，跳过重复设置")
-            return
-        }
+        if (isPlaybackSetup) return
         
         isPlaybackSetup = true
-        Log.d(TAG, "首次设置音频播放流")
         
-        // 创建持续的PCM数据流
         val pcmFlow = flow {
             _audioPlaybackFlow.collect { opusData ->
                 try {
                     opusDecoder?.let { decoder ->
                         val pcmData = decoder.decode(opusData)
-                        pcmData?.let { 
-                            emit(it)
-                            Log.d(TAG, "解码音频数据，PCM大小: ${it.size}")
-                        }
+                        pcmData?.let { emit(it) }
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "解码音频数据失败", e)
@@ -173,47 +153,38 @@ class EnhancedAudioManager @Inject constructor(
             }
         }
         
-        // 启动播放器
         streamPlayer?.start(pcmFlow)
-        Log.d(TAG, "音频播放流已设置并启动")
     }
 
     /**
      * 开始录音
      */
-    fun startRecording() {
+    override fun startRecording() {
         if (isRecording) return
 
         audioRecord?.let { record ->
             try {
                 record.startRecording()
                 isRecording = true
-                Log.d(TAG, "开始录音")
 
                 scope.launch {
                     val buffer = ByteArray(FRAME_SIZE)
                     while (isRecording) {
                         val bytesRead = record.read(buffer, 0, buffer.size)
                         if (bytesRead > 0) {
-                            // 计算音频强度 (RMS)
                             val audioLevel = calculateRmsLevel(buffer, bytesRead)
                             _audioEvents.emit(AudioEvent.AudioLevel(audioLevel))
                             
-                            // 使用真正的Opus编码器
                             opusEncoder?.let { encoder ->
                                 val opusData = encoder.encode(buffer.copyOf(bytesRead))
-                                opusData?.let { 
-                                    _audioEvents.emit(AudioEvent.AudioData(it))
-                                }
+                                opusData?.let { _audioEvents.emit(AudioEvent.AudioData(it)) }
                             }
                         }
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "录音失败", e)
-                scope.launch {
-                    _audioEvents.emit(AudioEvent.Error("录音失败: ${e.message}"))
-                }
+                scope.launch { _audioEvents.emit(AudioEvent.Error("录音失败: ${e.message}")) }
             }
         }
     }
@@ -221,30 +192,23 @@ class EnhancedAudioManager @Inject constructor(
     /**
      * 停止录音
      */
-    fun stopRecording() {
+    override fun stopRecording() {
         if (!isRecording) return
-
         isRecording = false
         audioRecord?.stop()
-        Log.d(TAG, "停止录音")
     }
 
     /**
      * 播放音频数据（单次播放）
      */
-    fun playAudio(audioData: ByteArray) {
+    override fun playAudio(audioData: ByteArray) {
         scope.launch {
             try {
-                // 确保播放器已经启动
                 if (!isPlayingState) {
                     isPlayingState = true
-                    Log.d(TAG, "首次播放音频，设置播放流")
                     setupAudioPlayback()
                 }
-                
-                // 直接发送到播放流
                 _audioPlaybackFlow.emit(audioData)
-                Log.d(TAG, "发送音频数据到播放流，长度: ${audioData.size}")
             } catch (e: Exception) {
                 Log.e(TAG, "播放音频失败", e)
             }
@@ -254,18 +218,16 @@ class EnhancedAudioManager @Inject constructor(
     /**
      * 停止播放
      */
-    fun stopPlaying() {
+    override fun stopPlaying() {
         isPlayingState = false
         isPlaybackSetup = false
         streamPlayer?.stop()
-        
-        Log.d(TAG, "停止播放并重置状态")
     }
 
     /**
      * 开始流式播放
      */
-    fun startStreamPlayback(opusDataFlow: SharedFlow<ByteArray>) {
+    override fun startStreamPlayback(opusDataFlow: SharedFlow<ByteArray>) {
         playbackJob?.cancel()
         playbackJob = scope.launch {
             isPlayingState = true
@@ -273,25 +235,22 @@ class EnhancedAudioManager @Inject constructor(
                 _audioPlaybackFlow.emit(opusData)
             }
         }
-        Log.d(TAG, "开始流式播放")
     }
 
     /**
      * 停止流式播放
      */
-    fun stopStreamPlayback() {
+    override fun stopStreamPlayback() {
         isPlayingState = false
         isPlaybackSetup = false
         playbackJob?.cancel()
         streamPlayer?.stop()
-        
-        Log.d(TAG, "停止流式播放并重置状态")
     }
 
     /**
      * 等待播放完成
      */
-    suspend fun waitForPlaybackCompletion() {
+    override suspend fun waitForPlaybackCompletion() {
         streamPlayer?.waitForPlaybackCompletion()
     }
 
@@ -308,73 +267,55 @@ class EnhancedAudioManager @Inject constructor(
     /**
      * 清理资源
      */
-    fun cleanup() {
+    override fun cleanup() {
         stopRecording()
         stopStreamPlayback()
         
         acousticEchoCanceler?.release()
         noiseSuppressor?.release()
-        
         audioRecord?.release()
         
-        // 释放Opus编解码器资源
         opusEncoder?.release()
         opusDecoder?.release()
         streamPlayer?.release()
         
         scope.cancel()
-        Log.d(TAG, "增强版音频资源已清理")
     }
 
-    /**
-     * 获取录音状态
-     */
-    fun isRecording(): Boolean = isRecording
+    override fun isRecording(): Boolean = isRecording
+    override fun isPlaying(): Boolean = isPlayingState
 
     /**
-     * 计算音频强度 (RMS - Root Mean Square)
+     * 计算音频强度 (RMS)
      */
     private fun calculateRmsLevel(buffer: ByteArray, bytesRead: Int): Float {
-        // 将byte数组转换为short数组（16位PCM）
         val shorts = ShortArray(bytesRead / 2)
         for (i in 0 until bytesRead step 2) {
             shorts[i / 2] = ((buffer[i + 1].toInt() and 0xFF) shl 8 or (buffer[i].toInt() and 0xFF)).toShort()
         }
         
-        // 计算平方和
         var sumOfSquares = 0.0
         for (sample in shorts) {
-            val normalizedSample = sample / 32768.0 // 归一化到[-1, 1]
+            val normalizedSample = sample / 32768.0
             sumOfSquares += normalizedSample * normalizedSample
         }
         
-        // 计算平均值和平方根
         val rms = Math.sqrt(sumOfSquares / shorts.size)
-        
-        // 映射到[0, 1]范围，增强小音量的显示效果
-        return Math.min(1.0, rms * 3.0).toFloat() // 放大3倍，让波形更明显
+        return Math.min(1.0, rms * 3.0).toFloat()
     }
-
-    /**
-     * 获取播放状态
-     */
-    fun isPlaying(): Boolean = isPlayingState
     
     /**
-     * 测试音频播放（生成一个简单的测试音调）
+     * 测试音频播放
      */
-    fun testAudioPlayback() {
+    override fun testAudioPlayback() {
         scope.launch {
             try {
-                // 创建一个独立的测试播放器
                 val testPlayer = OpusStreamPlayer(PLAY_SAMPLE_RATE, 1, FRAME_DURATION_MS, context)
-                
-                // 生成一个440Hz的测试音调（A4音符）
                 val sampleRate = PLAY_SAMPLE_RATE
-                val duration = 1.0 // 1秒
+                val duration = 1.0
                 val frequency = 440.0
                 val samples = (sampleRate * duration).toInt()
-                val pcmData = ByteArray(samples * 2) // 16-bit = 2 bytes per sample
+                val pcmData = ByteArray(samples * 2)
                 
                 for (i in 0 until samples) {
                     val sample = (32767 * kotlin.math.sin(2 * kotlin.math.PI * frequency * i / sampleRate)).toInt().toShort()
@@ -382,20 +323,11 @@ class EnhancedAudioManager @Inject constructor(
                     pcmData[i * 2 + 1] = ((sample.toInt() shr 8) and 0xFF).toByte()
                 }
                 
-                // 直接发送PCM数据到测试播放器
-                val testFlow = flow {
-                    emit(pcmData)
-                }
-                
+                val testFlow = flow { emit(pcmData) }
                 testPlayer.start(testFlow)
-                Log.d(TAG, "开始播放测试音调")
-                
-                // 等待播放完成
                 delay(1500)
                 testPlayer.stop()
                 testPlayer.release()
-                Log.d(TAG, "测试音调播放完成")
-                
             } catch (e: Exception) {
                 Log.e(TAG, "测试音频播放失败", e)
             }

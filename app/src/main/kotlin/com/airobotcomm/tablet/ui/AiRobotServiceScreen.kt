@@ -1,13 +1,6 @@
 package com.airobotcomm.tablet.ui
 
 import android.Manifest
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.net.ConnectivityManager
-import android.net.Network
-import android.os.BatteryManager
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -16,8 +9,6 @@ import com.airobotcomm.tablet.ui.theme.RobotPrimaryCyan
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -42,9 +33,6 @@ import com.airobotcomm.tablet.ui.components.service.*
 import com.airobotcomm.tablet.ui.components.voice.RobotVoiceInputPanel
 import com.airobotcomm.tablet.ui.framework.RobotTopBar
 import com.airobotcomm.tablet.ui.framework.RobotDrawerContent
-import com.airobotcomm.tablet.ui.theme.RobotBackgroundDark
-import com.airobotcomm.tablet.ui.theme.RobotSurface
-import com.airobotcomm.tablet.ui.theme.RobotSecondaryIndigo
 import com.airobotcomm.tablet.ui.theme.RobotTextPrimary
 import com.airobotcomm.tablet.ui.state.ConversationSubState
 import com.airobotcomm.tablet.ui.state.InteractionType
@@ -60,13 +48,13 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 /**
- * 机器人对话主屏幕
+ * 机器人服务主屏幕
  * 
  * Web原型对应: App.tsx
  */
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun RobotConversationScreen(
+fun AiRobotServiceScreen(
     mainViewModel: MainViewModel = hiltViewModel(),
     conversationViewModel: ConversationViewModel = hiltViewModel(),
     serviceViewModel: ServiceViewModel = hiltViewModel()

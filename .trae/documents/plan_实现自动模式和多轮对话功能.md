@@ -41,7 +41,7 @@
 
 ### 具体实现步骤
 
-1. **修改`RobotConversationScreen.kt`**：
+1. **修改`AiRobotServiceScreen.kt`**：
 
    * 添加`ConversationState`与`RobotVisualState`的映射逻辑
 

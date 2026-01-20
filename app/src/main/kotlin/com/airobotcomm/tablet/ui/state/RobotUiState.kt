@@ -15,8 +15,6 @@ enum class RobotVisualState {
     SLEEPING    // 睡眠 - 闭眼 + 缓慢呼吸
 }
 
-// 已移除旧的 toRobotVisualState，由 RobotConversationScreen 统一映射
-
 /**
  * 交互类型
  */

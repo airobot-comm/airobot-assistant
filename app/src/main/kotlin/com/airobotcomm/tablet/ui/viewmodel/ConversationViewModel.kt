@@ -9,7 +9,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import com.airobotcomm.tablet.audio.AudioEvent
-import com.airobotcomm.tablet.audio.EnhancedAudioManager
+import com.airobotcomm.tablet.audio.AudioServiceImpl
 import com.airobotcomm.tablet.data.ConfigManager
 import com.airobotcomm.tablet.data.Message
 import com.airobotcomm.tablet.data.MessageRole
@@ -33,8 +33,8 @@ import kotlinx.coroutines.delay
 class ConversationViewModel @Inject constructor(
     application: Application,
     private val networkService: NetworkService,
+    private val audioService: AudioServiceImpl,
     private val configManager: ConfigManager,
-    private val audioManager: EnhancedAudioManager,
     private val robotStateManager: RobotStateManager // 使用 RobotStateManager 替代 MainViewModel
 ) : AndroidViewModel(application) {
     companion object {
@@ -98,7 +98,7 @@ class ConversationViewModel @Inject constructor(
         startEventListening()
         
         // 初始化音频管理器
-        if (!audioManager.initialize()) {
+        if (!audioService.initialize()) {
             _errorMessage.value = "音频系统初始化失败"
             return
         }
@@ -128,7 +128,7 @@ class ConversationViewModel @Inject constructor(
 
         // 监听音频事件
         viewModelScope.launch {
-            audioManager.audioEvents.collect { event ->
+            audioService.audioEvents.collect { event ->
                 handleAudioEvent(event)
             }
         }
@@ -155,8 +155,8 @@ class ConversationViewModel @Inject constructor(
             }
             is AiRobotEvent.Disconnected -> {
                 // 由 MainViewModel 处理
-                audioManager.stopRecording()
-                audioManager.stopPlaying()
+                audioService.stopRecording()
+                audioService.stopPlaying()
             }
             is AiRobotEvent.Error -> {
                 _errorMessage.value = event.message
@@ -176,12 +176,12 @@ class ConversationViewModel @Inject constructor(
                 handleTtsStop()
             }
             is AiRobotEvent.AudioFrame -> {
-                if (!_isMuted.value) audioManager.playAudio(event.data)
+                if (!_isMuted.value) audioService.playAudio(event.data)
             }
             is AiRobotEvent.DialogueEnd -> {
                 robotStateManager.updateRobotState(RobotState.Ready)
-                audioManager.stopRecording()
-                audioManager.stopPlaying()
+                audioService.stopRecording()
+                audioService.stopPlaying()
             }
             else -> {}
         }
@@ -196,7 +196,7 @@ class ConversationViewModel @Inject constructor(
             currentUserMessage = text
             _currentRoundUserText.value = text
             addMessage(Message(role = MessageRole.USER, content = text))
-            audioManager.stopRecording()
+            audioService.stopRecording()
             _subState.value = ConversationSubState.THINKING
             syncToMainState()
         }
@@ -208,7 +208,7 @@ class ConversationViewModel @Inject constructor(
     }
 
     private fun handleTtsStop() {
-        audioManager.stopPlaying()
+        audioService.stopPlaying()
         viewModelScope.launch {
             delay(500)
             if (isAutoMode) {
@@ -277,7 +277,7 @@ class ConversationViewModel @Inject constructor(
         resetRoundText()
         _subState.value = ConversationSubState.LISTENING
         syncToMainState()
-        audioManager.startRecording()
+        audioService.startRecording()
         networkService.startListening("manual")
     }
 
@@ -290,7 +290,7 @@ class ConversationViewModel @Inject constructor(
         resetRoundText()
         _subState.value = ConversationSubState.LISTENING
         syncToMainState()
-        audioManager.startRecording()
+        audioService.startRecording()
         networkService.startListening("auto")
     }
 
@@ -298,7 +298,7 @@ class ConversationViewModel @Inject constructor(
      * 停止聆听
      */
     fun stopListening() {
-        audioManager.stopRecording()
+        audioService.stopRecording()
         _subState.value = ConversationSubState.THINKING
         syncToMainState()
         networkService.stopListening()
@@ -308,7 +308,7 @@ class ConversationViewModel @Inject constructor(
      * 取消当前录音并发送中止信号
      */
     fun cancelListeningWithAbort(reason: String = "user_interrupt") {
-        audioManager.stopRecording()
+        audioService.stopRecording()
         networkService.abort(reason)
         robotStateManager.updateRobotState(RobotState.Ready)
     }
@@ -324,7 +324,7 @@ class ConversationViewModel @Inject constructor(
         resetRoundText()
         _subState.value = ConversationSubState.LISTENING
         syncToMainState()
-        audioManager.startRecording()
+        audioService.startRecording()
         networkService.startListening("auto")
     }
 
@@ -342,8 +342,8 @@ class ConversationViewModel @Inject constructor(
      * 打断当前对话
      */
     fun interrupt() {
-        audioManager.stopPlaying()
-        audioManager.stopRecording()
+        audioService.stopPlaying()
+        audioService.stopRecording()
         networkService.abort("user_interrupt")
         isAutoMode = false
         robotStateManager.updateRobotState(RobotState.Ready)
@@ -354,8 +354,8 @@ class ConversationViewModel @Inject constructor(
      */
     fun stopAutoConversation() {
         isAutoMode = false
-        audioManager.stopRecording()
-        audioManager.stopPlaying()
+        audioService.stopRecording()
+        audioService.stopPlaying()
         networkService.abort("stop_auto_mode")
         robotStateManager.updateRobotState(RobotState.Ready)
     }
@@ -391,7 +391,7 @@ class ConversationViewModel @Inject constructor(
      * 测试音频播放
      */
     fun testAudioPlayback() {
-        audioManager.testAudioPlayback()
+        audioService.testAudioPlayback()
     }
 
     /**
@@ -403,7 +403,7 @@ class ConversationViewModel @Inject constructor(
         
         // 如果切换到静音状态，停止当前播放
         if (_isMuted.value) {
-            audioManager.stopPlaying()
+            audioService.stopPlaying()
         }
     }
 
@@ -422,7 +422,7 @@ class ConversationViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        audioManager.cleanup()
+        audioService.cleanup()
         networkService.disconnect()
     }
 }
