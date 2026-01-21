@@ -66,6 +66,9 @@ android {
 }
 
 dependencies {
+    // sherpa-onnx语音模型库
+    implementation(name: 'sherpa-onnx-1.12.23', ext: 'aar')
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -96,6 +99,7 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
+    // test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
