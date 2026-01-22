@@ -13,9 +13,10 @@ static OpusEncoder *encoderHandle = nullptr;
 extern "C" {
 
 JNIEXPORT jlong JNICALL
-Java_com_airobotcomm_tablet_audio_utils_OpusEncoder_nativeInitEncoder(JNIEnv *env, jobject thiz,
-                                                        jint sample_rate, jint channels,
-                                                        jint application) {
+Java_com_airobotcomm_tablet_audio_tools_codec_OpusEncoder_nativeInitEncoder(
+        JNIEnv *env, jobject thiz,
+        jint sample_rate, jint channels,
+        jint application) {
     int error;
     OpusEncoder *encoder = opus_encoder_create(sample_rate, channels, application, &error);
 
@@ -32,12 +33,13 @@ Java_com_airobotcomm_tablet_audio_utils_OpusEncoder_nativeInitEncoder(JNIEnv *en
 }
 
 JNIEXPORT jint JNICALL
-Java_com_airobotcomm_tablet_audio_utils_OpusEncoder_nativeEncodeBytes(JNIEnv *env, jobject thiz,
-                                                        jlong encoder_handle,
-                                                        jbyteArray input_buffer,
-                                                        jint input_size,
-                                                        jbyteArray output_buffer,
-                                                        jint max_output_size) {
+Java_com_airobotcomm_tablet_audio_tools_codec_OpusEncoder_nativeEncodeBytes(
+        JNIEnv *env, jobject thiz,
+        jlong encoder_handle,
+        jbyteArray input_buffer,
+        jint input_size,
+        jbyteArray output_buffer,
+        jint max_output_size) {
     OpusEncoder *encoder = (OpusEncoder *) (intptr_t) encoder_handle;
     if (encoder == nullptr) {
         LOGE("Encoder handle is null");
@@ -65,8 +67,9 @@ Java_com_airobotcomm_tablet_audio_utils_OpusEncoder_nativeEncodeBytes(JNIEnv *en
 }
 
 JNIEXPORT void JNICALL
-Java_com_airobotcomm_tablet_audio_utils_OpusEncoder_nativeReleaseEncoder(JNIEnv *env, jobject thiz,
-                                                           jlong encoder_handle) {
+Java_com_airobotcomm_tablet_audio_tools_codec_OpusEncoder_nativeReleaseEncoder(
+        JNIEnv *env, jobject thiz,
+        jlong encoder_handle) {
     OpusEncoder *encoder = (OpusEncoder *) (intptr_t) encoder_handle;
     if (encoder != nullptr) {
         opus_encoder_destroy(encoder);

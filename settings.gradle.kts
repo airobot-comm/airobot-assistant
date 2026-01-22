@@ -20,7 +20,7 @@ dependencyResolutionManagement {
     repositories {
         // 本地lib库
         flatDir {
-            dirs 'libs'
+            dirs("libs")
         }
 
         // 阿里云镜像

@@ -12,13 +12,26 @@ sealed class AudioEvent {
 }
 
 /**
+ * 音频配置
+ */
+data class AudioConfig(
+    val recordSampleRate: Int = 16000,
+    val playSampleRate: Int = 24000,
+    val channels: Int = 1,
+    val audioFormat: Int = android.media.AudioFormat.ENCODING_PCM_16BIT,
+    val frameDurationMs: Int = 60,
+    val enableAec: Boolean = true,
+    val enableNs: Boolean = true
+)
+
+/**
  * 音频管理器接口，定义音频核心功能
  */
 interface AudioService {
     /**
      * 初始化音频系统
      */
-    fun initialize(): Boolean
+    fun initialize(config: AudioConfig = AudioConfig()): Boolean
 
     /**
      * 开始录音

@@ -2,6 +2,7 @@ package com.airobotcomm.tablet.audio.di
 
 import com.airobotcomm.tablet.audio.AudioService
 import com.airobotcomm.tablet.audio.AudioServiceImpl
+import com.airobotcomm.tablet.audio.AudioManager
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
