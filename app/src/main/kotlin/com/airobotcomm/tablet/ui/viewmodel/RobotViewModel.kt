@@ -17,7 +17,7 @@ import javax.inject.Inject
  * 负责机器人一级状态的管理与分发
  */
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class RobotViewModel @Inject constructor(
     private val networkService: NetworkService,
     private val robotStateManager: RobotStateManager
 ) : ViewModel() {

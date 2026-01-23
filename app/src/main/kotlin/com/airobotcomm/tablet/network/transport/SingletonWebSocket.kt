@@ -37,6 +37,13 @@ sealed class WebSocketEvent {
     data class Error(val error: String) : WebSocketEvent()
 }
 
+enum class SocketState {
+    IDLE,        // 无连接
+    CONNECTING,  // 连接中
+    CONNECTED,   // 已连接
+    RECONNECTING // 重连等待中
+}
+
 /**
  * 非静态的伪单例模式WebSocket管理器
  */
@@ -48,13 +55,6 @@ class SingletonWebSocket(context: Context) {
         private const val MAX_RECONNECT_DELAY = 60000L // 最大重连延迟60秒
         private const val CONNECT_TIMEOUT = 15L 
         private const val WRITE_TIMEOUT = 15L 
-    }
-
-    enum class SocketState {
-        IDLE,        // 无连接
-        CONNECTING,  // 连接中
-        CONNECTED,   // 已连接
-        RECONNECTING // 重连等待中
     }
 
     // 一个非静态伪单例ws，设置连接状态确保同时只有一个连接，并启用Ping/Pong保持长连接
@@ -153,7 +153,6 @@ class SingletonWebSocket(context: Context) {
                 // 如果正常关闭连接，不用强制重连，等待上层重连
                 if (NORMAL_CLOSE_CODE == code) {
                     currentState = SocketState.IDLE
-                    scope.cancel()
                 }
 
                 // 作单例模式长连接，立即触发“指数退避重连”逻辑
@@ -179,7 +178,7 @@ class SingletonWebSocket(context: Context) {
      * 指数避退重连
      */
     private fun reconnectWithBackoff() {
-        // 如果已有重连任务在跑，就不要再启动新的了，确保不能并发
+        // 如果已有重连任务在跑，就不要再启动新的了，确保不并发
         if (!reconnectModel || lastUrl == null
             || lastDeviceId == null || lastToken == null
             || reconnectJob?.isActive == true) {

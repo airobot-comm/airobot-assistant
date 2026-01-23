@@ -1,6 +1,6 @@
 # AIRobot Android Tablet
 
-AIRobot Android Tablet vibe_code规则
+AIRobot Tablet vibe_code规则
 
 ## 编程规范
 - 遵循java以及kotlin编程规范，严格类型检查
@@ -14,8 +14,8 @@ AIRobot Android Tablet vibe_code规则
 ## 技术要求
 - 代码架构遵循分层设计，参考MVVM要求
 - ui组件设计使用jetpack compose
-- 语音与网络服务独立，高内聚，低耦合
-- 通过Hilt DI机制解耦ui与服务调用
+- 语音与网络服务，高内聚，内建高性能，自恢复机制
+- 语音，网络等服务通过Hilt DI机制解耦ui服务调用
 - 技术选型参考：architect/architecture.md
 
 ## 质量要求

@@ -41,7 +41,7 @@ import com.airobotcomm.tablet.ui.state.RobotUiState
 import com.airobotcomm.tablet.ui.state.RobotVisualState
 import com.airobotcomm.tablet.ui.state.ServiceSubState
 import com.airobotcomm.tablet.ui.state.TimerStatus
-import com.airobotcomm.tablet.ui.viewmodel.MainViewModel
+import com.airobotcomm.tablet.ui.viewmodel.RobotViewModel
 import com.airobotcomm.tablet.ui.viewmodel.ConversationViewModel
 import com.airobotcomm.tablet.ui.viewmodel.ServiceViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -55,7 +55,7 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun AiRobotServiceScreen(
-    mainViewModel: MainViewModel = hiltViewModel(),
+    robotViewModel: RobotViewModel = hiltViewModel(),
     conversationViewModel: ConversationViewModel = hiltViewModel(),
     serviceViewModel: ServiceViewModel = hiltViewModel()
 ) {
@@ -70,11 +70,11 @@ fun AiRobotServiceScreen(
     )
     
     // 从ViewModel收集状态
-    // 从 MainViewModel 收集一级状态
-    val robotState by mainViewModel.robotState.collectAsState()
-    val errorMessage by mainViewModel.errorMessage.collectAsState()
-    val showActivationDialog by mainViewModel.showActivationDialog.collectAsState()
-    val activationCode by mainViewModel.activationCode.collectAsState()
+    // 从 RobotViewModel 收集一级状态
+    val robotState by robotViewModel.robotState.collectAsState()
+    val errorMessage by robotViewModel.errorMessage.collectAsState()
+    val showActivationDialog by robotViewModel.showActivationDialog.collectAsState()
+    val activationCode by robotViewModel.activationCode.collectAsState()
 
     // 从 ConversationViewModel 收集交互状态
     val conversationSubState by conversationViewModel.subState.collectAsState()
@@ -354,54 +354,53 @@ fun AiRobotServiceScreen(
                         }
                     }
                 }
-                    
-                    // 功能卡片模式 - 右侧面板
-                    if (robotUiState.isCardMode) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(end = 64.dp),
-                            contentAlignment = Alignment.CenterEnd
-                        ) {
-                            Box(modifier = Modifier.width(420.dp)) {
-                                FunctionalModulePanel(
-                                    card = robotUiState.activeCard,
-                                    aiMsg = robotUiState.currentAiMsg,
-                                    robotState = robotUiState.visualState,
-                                    timerCommand = robotUiState.timerCommand,
-                                    timerStatus = robotUiState.timerStatus,
-                                    onAiSpeechComplete = {
-                                        if (robotUiState.timerCommand != null && 
-                                            robotUiState.timerStatus == com.airobotcomm.tablet.ui.state.TimerStatus.IDLE) {
-                                            robotUiState = robotUiState.copy(
-                                                timerStatus = com.airobotcomm.tablet.ui.state.TimerStatus.RUNNING,
-                                                visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.FOCUS
-                                            )
-                                        }
-                                    },
-                                    onTimerComplete = {
+
+                // 功能卡片模式 - 右侧面板
+                if (robotUiState.isCardMode) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(end = 64.dp),
+                            contentAlignment = Alignment.CenterEnd) {
+                        Box(modifier = Modifier.width(420.dp)) {
+                            FunctionalModulePanel(
+                                card = robotUiState.activeCard,
+                                aiMsg = robotUiState.currentAiMsg,
+                                robotState = robotUiState.visualState,
+                                timerCommand = robotUiState.timerCommand,
+                                timerStatus = robotUiState.timerStatus,
+                                onAiSpeechComplete = {
+                                    if (robotUiState.timerCommand != null &&
+                                        robotUiState.timerStatus == com.airobotcomm.tablet.ui.state.TimerStatus.IDLE) {
                                         robotUiState = robotUiState.copy(
-                                            timerStatus = com.airobotcomm.tablet.ui.state.TimerStatus.IDLE,
-                                            visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.IDLE,
-                                            timerCommand = null,
-                                            activeCard = null,
-                                            interactionType = com.airobotcomm.tablet.ui.state.InteractionType.CHAT
+                                            timerStatus = com.airobotcomm.tablet.ui.state.TimerStatus.RUNNING,
+                                            visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.FOCUS
                                         )
-                                    },
-                                    onClose = {
-                                        robotUiState = robotUiState.copy(
-                                            visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.IDLE,
-                                            interactionType = com.airobotcomm.tablet.ui.state.InteractionType.CHAT,
-                                            activeCard = null,
-                                            timerStatus = com.airobotcomm.tablet.ui.state.TimerStatus.IDLE,
-                                            timerCommand = null
-                                        )
-                                        serviceViewModel.closeService()
-                                        conversationViewModel.interrupt()
                                     }
-                                )
-                            }
+                                },
+                                onTimerComplete = {
+                                    robotUiState = robotUiState.copy(
+                                        timerStatus = com.airobotcomm.tablet.ui.state.TimerStatus.IDLE,
+                                        visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.IDLE,
+                                        timerCommand = null,
+                                        activeCard = null,
+                                        interactionType = com.airobotcomm.tablet.ui.state.InteractionType.CHAT
+                                    )
+                                },
+                                onClose = {
+                                    robotUiState = robotUiState.copy(
+                                        visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.IDLE,
+                                        interactionType = com.airobotcomm.tablet.ui.state.InteractionType.CHAT,
+                                        activeCard = null,
+                                        timerStatus = com.airobotcomm.tablet.ui.state.TimerStatus.IDLE,
+                                        timerCommand = null
+                                    )
+                                    serviceViewModel.closeService()
+                                    conversationViewModel.interrupt()
+                                }
+                            )
                         }
+                    }
                 }
             }
             
@@ -416,7 +415,7 @@ fun AiRobotServiceScreen(
             if (showActivationDialog && activationCode != null) {
                 ActivationDialog(
                     activationCode = activationCode!!,
-                    onConfirm = { mainViewModel.onActivationConfirmed() }
+                    onConfirm = { robotViewModel.onActivationConfirmed() }
                 )
             }
         }

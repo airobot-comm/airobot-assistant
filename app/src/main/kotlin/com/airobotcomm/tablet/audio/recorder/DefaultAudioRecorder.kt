@@ -49,7 +49,8 @@ class DefaultAudioRecorder(private val context: Context) : AudioRecorder {
         this.config = config
         return try {
             // 初始化Opus编码器
-            opusEncoder = OpusEncoder(config.recordSampleRate, config.channels, config.frameDurationMs)
+            opusEncoder = OpusEncoder(config.recordSampleRate, config.channels,
+                config.frameDurationMs)
 
             setupAudioRecord()
             Log.d(TAG, "音频录制器初始化成功")

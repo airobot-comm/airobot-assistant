@@ -35,7 +35,7 @@ class ConversationViewModel @Inject constructor(
     private val networkService: NetworkService,
     private val audioService: AudioServiceImpl,
     private val configManager: ConfigManager,
-    private val robotStateManager: RobotStateManager // 使用 RobotStateManager 替代 MainViewModel
+    private val robotStateManager: RobotStateManager // 使用 RobotStateManager 替代 RobotViewModel
 ) : AndroidViewModel(application) {
     companion object {
         private const val TAG = "ConversationViewModel"
@@ -47,7 +47,7 @@ class ConversationViewModel @Inject constructor(
     private val _subState = MutableStateFlow(ConversationSubState.LISTENING)
     val subState: StateFlow<ConversationSubState> = _subState.asStateFlow()
 
-    // 移除旧的 _state 和 _isConnected，由 MainViewModel 管理
+    // 移除旧的 _state 和 _isConnected，由 RobotViewModel 管理
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages.asStateFlow()
@@ -138,7 +138,7 @@ class ConversationViewModel @Inject constructor(
      * 根据网络服务状态映射 UI 状态
      */
     private fun updateStateFromNetwork(networkState: NetworkState) {
-        // 一级状态由 MainViewModel 处理
+        // 一级状态由 RobotViewModel 处理
     }
 
     /**
@@ -147,14 +147,14 @@ class ConversationViewModel @Inject constructor(
     private fun handleAiRobotEvent(event: AiRobotEvent) {
         when (event) {
             is AiRobotEvent.ActivationRequired -> {
-                // 由 MainViewModel 处理
+                // 由 RobotViewModel 处理
             }
             is AiRobotEvent.Connected -> {
-                // 由 MainViewModel 处理
+                // 由 RobotViewModel 处理
                 _errorMessage.value = null
             }
             is AiRobotEvent.Disconnected -> {
-                // 由 MainViewModel 处理
+                // 由 RobotViewModel 处理
                 audioService.stopRecording()
                 audioService.stopPlaying()
             }
@@ -257,15 +257,6 @@ class ConversationViewModel @Inject constructor(
                 stopListening()
             }
         }
-    }
-
-    /**
-     * 用户确认激活
-     */
-    fun onActivationConfirmed() {
-        _showActivationDialog.value = false
-        _activationCode.value = null
-        networkService.onActivationConfirmed()
     }
 
     /**
