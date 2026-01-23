@@ -5,6 +5,7 @@ AIRobot Tablet vibe_code规则
 ## 编程规范
 - 遵循java以及kotlin编程规范，严格类型检查
 - 类及复杂方法需要简短注释：功能概要、关键点
+- 关键方法调用与事务通知节点增加调试日志log
 - MD文档与及Ai编程Artifact产出要求中文输出
 
 ## 交互要求
