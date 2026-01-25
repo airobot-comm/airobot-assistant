@@ -34,10 +34,10 @@ app/src/main/kotlin/com/airobotcomm/tablet/
 │   ├── utils/                     # 音频基础功能
 │   ├── EnhancedAudioManager.kt    # 增强音频管理器
 │   └── OpusCodec.kt               # Opus编解码器
-├── commhub/                  # 协议通信（communication hub）
+├── comm/                    # 协议通信模块（多协议，多传输方式，自身维护）
 │   ├── di/                        # 网络hilt di服务
-│   ├── protocol/                  # ota，机器人交互协议
-│   ├── transport/                 # 底层ws长连接传输服务
+│   ├── protocol/                  # 机器人交互协议
+│   ├── transport/                 # 底层ws，mqtt传输服务
 │   └── CommService.kt             # 通信服务接口
 │   └── commServiceImpl.kt         # 网络服务接口实现 
 ├──domain/                    # 业务逻辑层 (Domain Layer)

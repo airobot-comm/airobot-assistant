@@ -1,6 +1,7 @@
 package com.airobotcomm.tablet.airobotui
 
 import android.Manifest
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -97,13 +98,17 @@ fun AiRobotServiceScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     
-    // 注意：我们将在此处使用一个简单的配置占位或通过 ViewModel 获取
+    // 从配置管理器加载配置
     var currentConfig by remember { mutableStateOf(DeviceConfig.createDefault()) }
     
-    // 从配置管理器加载配置
-    LaunchedEffect(Unit) {
-        // 从conversationViewModel获取配置管理器，然后加载配置
-        // 但现在我们使用默认值，因为需要在UI中处理配置加载
+    // 从ConversationViewModel加载当前配置
+    LaunchedEffect(conversationViewModel) {
+        try {
+            val loadedConfig = conversationViewModel.getCurrentConfig()
+            currentConfig = loadedConfig
+        } catch (e: Exception) {
+            Log.e("AiRobotServiceScreen", "Failed to load config", e)
+        }
     }
     
     // 机器人UI状态

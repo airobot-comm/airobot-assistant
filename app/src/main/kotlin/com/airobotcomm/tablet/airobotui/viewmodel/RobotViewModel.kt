@@ -2,9 +2,9 @@ package com.airobotcomm.tablet.airobotui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.airobotcomm.tablet.commhub.NetworkService
-import com.airobotcomm.tablet.commhub.NetworkState
-import com.airobotcomm.tablet.commhub.protocol.AiRobotEvent
+import com.airobotcomm.tablet.comm.NetworkService
+import com.airobotcomm.tablet.comm.NetworkState
+import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
 import com.airobotcomm.tablet.airobotui.state.RobotState
 import com.airobotcomm.tablet.airobotui.state.RobotStateManager
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.commhub.protocol
+package com.airobotcomm.tablet.comm.protocol
 
 import kotlinx.coroutines.flow.SharedFlow
 

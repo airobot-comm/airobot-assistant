@@ -14,9 +14,9 @@ import com.airobotcomm.tablet.domain.config.ConfigManager
 import com.airobotcomm.tablet.domain.model.Message
 import com.airobotcomm.tablet.domain.model.MessageRole
 import com.airobotcomm.tablet.domain.model.DeviceConfig
-import com.airobotcomm.tablet.commhub.NetworkService
-import com.airobotcomm.tablet.commhub.NetworkState
-import com.airobotcomm.tablet.commhub.protocol.AiRobotEvent
+import com.airobotcomm.tablet.comm.NetworkService
+import com.airobotcomm.tablet.comm.NetworkState
+import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
 import com.airobotcomm.tablet.airobotui.state.ConversationSubState
 import com.airobotcomm.tablet.airobotui.state.RobotState
 import com.airobotcomm.tablet.airobotui.state.RobotStateManager
@@ -411,6 +411,13 @@ class ConversationViewModel @Inject constructor(
             role = MessageRole.SYSTEM,
             content = "MCP: $message"
         ))
+    }
+
+    /**
+     * 获取当前配置
+     */
+    suspend fun getCurrentConfig(): DeviceConfig {
+        return configManager.loadConfig()
     }
 
     override fun onCleared() {

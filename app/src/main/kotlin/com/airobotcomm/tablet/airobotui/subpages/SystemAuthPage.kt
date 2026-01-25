@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airobotcomm.tablet.airobotui.framework.ConfigTextField
 import com.airobotcomm.tablet.domain.model.DeviceConfig
 import com.airobotcomm.tablet.airobotui.theme.*
 

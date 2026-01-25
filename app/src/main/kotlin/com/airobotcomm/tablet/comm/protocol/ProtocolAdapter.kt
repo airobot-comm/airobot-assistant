@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.commhub.protocol
+package com.airobotcomm.tablet.comm.protocol
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject

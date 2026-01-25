@@ -1,10 +1,10 @@
-package com.airobotcomm.tablet.commhub.di
+package com.airobotcomm.tablet.comm.di
 
 import android.content.Context
-import com.airobotcomm.tablet.commhub.NetworkService
-import com.airobotcomm.tablet.commhub.NetworkServiceImpl
-import com.airobotcomm.tablet.commhub.protocol.ProtocolAdapter
-import com.airobotcomm.tablet.commhub.transport.SingletonWebSocket
+import com.airobotcomm.tablet.comm.NetworkService
+import com.airobotcomm.tablet.comm.NetworkServiceImpl
+import com.airobotcomm.tablet.comm.protocol.ProtocolAdapter
+import com.airobotcomm.tablet.comm.transport.SingletonWebSocket
 import com.airobotcomm.tablet.domain.config.ConfigManager
 import com.airobotcomm.tablet.domain.ota.OtaManager
 import com.airobotcomm.tablet.infra.remote.OtaRepositoryImpl
@@ -27,7 +27,7 @@ abstract class NetworkModule {
 
     @Binds
     @Singleton
-    abstract fun bindAiRobotProtocol(impl: com.airobotcomm.tablet.commhub.protocol.AiRobotProtocolImpl): com.airobotcomm.tablet.commhub.protocol.AiRobotProtocol
+    abstract fun bindAiRobotProtocol(impl: com.airobotcomm.tablet.comm.protocol.AiRobotProtocolImpl): com.airobotcomm.tablet.comm.protocol.AiRobotProtocol
 
     companion object {
         @Provides

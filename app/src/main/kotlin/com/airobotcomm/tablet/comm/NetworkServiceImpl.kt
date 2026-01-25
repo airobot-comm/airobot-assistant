@@ -1,16 +1,16 @@
-package com.airobotcomm.tablet.commhub
+package com.airobotcomm.tablet.comm
 
 import android.util.Log
 import com.airobotcomm.tablet.domain.config.ConfigManager
-import com.airobotcomm.tablet.commhub.protocol.AiRobotEvent
-import com.airobotcomm.tablet.commhub.protocol.AiRobotProtocol
+import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
+import com.airobotcomm.tablet.comm.protocol.AiRobotProtocol
 import com.airobotcomm.tablet.domain.ota.OtaManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import com.airobotcomm.tablet.commhub.protocol.ProtocolAdapter
-import com.airobotcomm.tablet.commhub.transport.ConnectivityMonitor
-import com.airobotcomm.tablet.commhub.transport.WebSocketEvent
-import com.airobotcomm.tablet.commhub.transport.SingletonWebSocket
+import com.airobotcomm.tablet.comm.protocol.ProtocolAdapter
+import com.airobotcomm.tablet.comm.transport.ConnectivityMonitor
+import com.airobotcomm.tablet.comm.transport.WebSocketEvent
+import com.airobotcomm.tablet.comm.transport.SingletonWebSocket
 import javax.inject.Inject
 import javax.inject.Singleton
 

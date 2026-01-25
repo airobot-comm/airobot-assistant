@@ -1,6 +1,6 @@
-package com.airobotcomm.tablet.commhub
+package com.airobotcomm.tablet.comm
 
-import com.airobotcomm.tablet.commhub.protocol.AiRobotEvent
+import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
 import kotlinx.coroutines.flow.StateFlow
 
 /**
