@@ -47,8 +47,12 @@ app/src/main/kotlin/com/airobotcomm/tablet/
 │   └── OpusCodec.kt               # Opus编解码器
 ├── data/                     # 数据层 (Repository, Models)
 │   ├── repository/                # Repository服务
-│   ├── ConfigManager.kt           # 配置管理服务
-│   └── DeviceConfig.kt            # 设备配置服务
+│   ├── remote/                    # 远程数据仓库
+│   └── model/                     # 数据模型  
+├──domain/                    # 业务逻辑层 (Domain Layer)
+│   ├── config/                   # 数据模型
+│   ├── ota/                      # 数据仓库
+│   └── robot/                    # 机器人管理
 ├── network/                  # 网络通信模块
 │   ├── di/                        # 网络hilt di服务
 │   ├── protocol/                  # ota，机器人交互协议
@@ -58,8 +62,10 @@ app/src/main/kotlin/com/airobotcomm/tablet/
 ├── ui/                       # UI界面模块 (Presentation Layer)
 │   ├── components/                # 可重用子模块组件
 │   ├── framework/                 # ui框架如topbar，menu菜单...
+│   ├── subpages/                  # 界面模块
 │   ├── theme/                     # 主题配置
-│   └── viewmodel/                 # 视图模型
+│   ├── viewmodel/                 # airobot viewmodel协调各业务状态
+│   └── x/                 
 ├── utils/                    # 通用工具类
 ├── MainActivity.kt           # 主活动 (Activity)
 └── RobotApplication.kt       # Hilt Application 入口

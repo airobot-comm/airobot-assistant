@@ -6,17 +6,17 @@ AIRobot Tablet vibe_code规则
 - 遵循java以及kotlin编程规范，严格类型检查
 - 类及复杂方法需要简短注释：功能概要、关键点
 - 关键方法调用与事务通知节点增加调试日志log
-- MD文档与及Ai编程Artifact产出要求中文输出
 
 ## 交互要求
 - 交互设计的原型参考：./doc/design/**
 - ui开发见原型设计：../prototype/**
 
 ## 技术要求
-- 代码架构遵循分层设计，参考MVVM要求
-- ui组件设计使用jetpack compose
-- 语音与网络服务，高内聚，内建高性能，自恢复机制
-- 语音，网络等服务通过Hilt DI机制解耦ui服务调用
+- 分层架构，遵循clearArchitecture + MVVM要求
+- ui要求组件化设计，并使用jetpack compose开发
+- 语音与通信模块独立，设计要高性能，自愈合、高可靠
+- domain层负责ota认证，系统与ai机器人等的配置
+- 各个业务模块通过Hilt DI机制解耦，ui服务调用
 - 技术选型参考：architect/architecture.md
 
 ## 质量要求

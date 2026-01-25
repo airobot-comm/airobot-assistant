@@ -1,7 +1,7 @@
 package com.airobotcomm.tablet.network
 
 import android.util.Log
-import com.airobotcomm.tablet.data.ConfigManager
+import com.airobotcomm.tablet.domain.config.ConfigManager
 import com.airobotcomm.tablet.network.protocol.AiRobotEvent
 import com.airobotcomm.tablet.network.protocol.AiRobotProtocol
 import com.airobotcomm.tablet.network.protocol.OtaService
@@ -54,13 +54,10 @@ class NetworkServiceImpl @Inject constructor(
                         val config = configManager.loadConfig()
                         protocol.open("", config.macAddress, config.token)
                     }
-                    is WebSocketEvent.Disconnected -> {
+                    is WebSocketEvent.Reconnecting -> {
                         _state.value = NetworkState.RECONNECTING
                         protocol.close()
                         _events.emit(AiRobotEvent.Disconnected)
-                    }
-                    is WebSocketEvent.Error -> {
-                        _events.emit(AiRobotEvent.Error(wsEvent.error))
                     }
                     is WebSocketEvent.TextMessage -> {
                         // 1. 交给协议层处理握手等控制逻辑
@@ -89,13 +86,12 @@ class NetworkServiceImpl @Inject constructor(
 
         // 监听系统网络变化并尝试自动恢复
         scope.launch {
-            connectivityMonitor.isNetworkAvailable
-                .collect { isAvailable ->
-                    if (isAvailable && !isConnected && _state.value != NetworkState.IDLE) {
-                        Log.d(TAG, "检测到网络恢复，触发自动连接恢复")
-                        connect()
-                    }
+            connectivityMonitor.isNetworkAvailable.collect { isAvailable ->
+                if (isAvailable && !isConnected && _state.value != NetworkState.IDLE) {
+                    Log.d(TAG, "检测到网络恢复，触发自动连接恢复")
+                    connect()
                 }
+            }
         }
     }
 
@@ -148,7 +144,7 @@ class NetworkServiceImpl @Inject constructor(
     }
 
     override fun disconnect() {
-        singletonWebSocket.disconnect()
+        singletonWebSocket.close()
         _state.value = NetworkState.IDLE
     }
 

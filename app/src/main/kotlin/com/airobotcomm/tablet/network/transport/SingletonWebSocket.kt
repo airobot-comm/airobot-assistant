@@ -15,7 +15,7 @@ import kotlin.math.pow
  */
 sealed class WebSocketEvent {
     object Connected : WebSocketEvent()
-    object Disconnected : WebSocketEvent()
+    object Reconnecting : WebSocketEvent()
     data class TextMessage(val message: String) : WebSocketEvent()
     data class BinaryMessage(val data: ByteArray) : WebSocketEvent() {
         override fun equals(other: Any?): Boolean {
@@ -33,8 +33,6 @@ sealed class WebSocketEvent {
             return data.contentHashCode()
         }
     }
-
-    data class Error(val error: String) : WebSocketEvent()
 }
 
 enum class SocketState {
@@ -143,7 +141,7 @@ class SingletonWebSocket(context: Context) {
                 webSocket.cancel()
                 reconnectWithBackoff() // 作单例长连接模式，立即触发“指数退避重连”逻辑
                 scope.launch {
-                    _events.emit(WebSocketEvent.Disconnected)
+                    _events.emit(WebSocketEvent.Reconnecting)
                 }
             }
 
@@ -158,18 +156,18 @@ class SingletonWebSocket(context: Context) {
                 // 作单例模式长连接，立即触发“指数退避重连”逻辑
                 reconnectWithBackoff()
                 scope.launch {
-                    _events.emit(WebSocketEvent.Disconnected)
+                    _events.emit(WebSocketEvent.Reconnecting)
                 }
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 Log.e(TAG, "WebSocket连接失败：抛出异常", t)
-                scope.launch {
-                    _events.emit(WebSocketEvent.Error("连接失败"))
-                }
 
                 // 连接失败情况下，需要立即避退重连
                 reconnectWithBackoff()
+                scope.launch {
+                    _events.emit(WebSocketEvent.Reconnecting)
+                }
             }
         })
     }
@@ -250,13 +248,12 @@ class SingletonWebSocket(context: Context) {
     /**
      * 断开连接
      */
-    fun disconnect() {
+    fun close() {
         Log.d(TAG, "websocket断开清除")
 
         //清理连接资源
         webSocketSingleton?.cancel()
         reconnectJob?.cancel()
-        scope.cancel()
 
         // 重置连接参数
         lastUrl = null

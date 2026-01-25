@@ -18,10 +18,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airobotcomm.tablet.data.DeviceConfig
+import com.airobotcomm.tablet.domain.config.DeviceConfig
 import com.airobotcomm.tablet.ui.theme.*
-import com.airobotcomm.tablet.ui.framework.subpages.ServiceConfigPage
-import com.airobotcomm.tablet.ui.framework.subpages.SystemAuthPage
+import com.airobotcomm.tablet.ui.subpages.ServiceConfigPage
+import com.airobotcomm.tablet.ui.subpages.SystemAuthPage
 
 /**
  * 侧边栏菜单内容

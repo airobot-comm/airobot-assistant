@@ -1,4 +1,7 @@
-package com.airobotcomm.tablet.data
+package com.airobotcomm.tablet.domain.config
+
+import java.util.Random
+import java.util.UUID
 
 /**
  * 配置数据类
@@ -38,7 +41,7 @@ data class DeviceConfig(
          * 生成随机MAC地址
          */
         private fun generateRandomMacAddress(): String {
-            val random = java.util.Random()
+            val random = Random()
             val mac = ByteArray(6)
             random.nextBytes(mac)
             return mac.joinToString(":") { "%02X".format(it) }
@@ -48,7 +51,7 @@ data class DeviceConfig(
          * 生成随机UUID
          */
         fun generateRandomUuid(): String {
-            return java.util.UUID.randomUUID().toString()
+            return UUID.randomUUID().toString()
         }
     }
 }

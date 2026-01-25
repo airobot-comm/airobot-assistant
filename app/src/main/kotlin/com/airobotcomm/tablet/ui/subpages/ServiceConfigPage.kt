@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.ui.framework.subpages
+package com.airobotcomm.tablet.ui.subpages
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.airobotcomm.tablet.data.DeviceConfig
+import com.airobotcomm.tablet.domain.config.DeviceConfig
 import com.airobotcomm.tablet.ui.theme.*
 
 @Composable

@@ -1,12 +1,8 @@
-package com.airobotcomm.tablet.data
+package com.airobotcomm.tablet.domain.config
 
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
-
-/**
- * 配置管理器，负责配置的存储和读取
- */
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,15 +11,15 @@ import javax.inject.Singleton
 class ConfigManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val sharedPreferences: SharedPreferences = 
+    private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val gson = Gson()
-    
+
     companion object {
         private const val PREFS_NAME = "device_config"
         private const val KEY_CONFIG = "config"
     }
-    
+
     /**
      * 保存配置
      */
@@ -33,7 +29,7 @@ class ConfigManager @Inject constructor(
             .putString(KEY_CONFIG, configJson)
             .apply()
     }
-    
+
     /**
      * 读取配置
      */
@@ -43,13 +39,13 @@ class ConfigManager @Inject constructor(
             try {
                 gson.fromJson(configJson, DeviceConfig::class.java)
             } catch (e: Exception) {
-                DeviceConfig.createDefault()
+                DeviceConfig.Companion.createDefault()
             }
         } else {
-            DeviceConfig.createDefault()
+            DeviceConfig.Companion.createDefault()
         }
     }
-    
+
     /**
      * 检查配置是否完整
      */
@@ -59,18 +55,18 @@ class ConfigManager @Inject constructor(
                config.macAddress.isNotBlank() &&
                config.token.isNotBlank()
     }
-    
+
     /**
      * 获取缺失的配置项
      */
     fun getMissingFields(config: DeviceConfig): List<String> {
         val missingFields = mutableListOf<String>()
-        
+
         if (config.name.isBlank()) missingFields.add("设备名称")
         if (config.otaUrl.isBlank() && config.websocketUrl.isBlank()) missingFields.add("OTA地址或WSS地址(至少填一个)")
         if (config.macAddress.isBlank()) missingFields.add("MAC地址")
         if (config.token.isBlank()) missingFields.add("Token")
-        
+
         return missingFields
     }
 }

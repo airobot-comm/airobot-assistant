@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.ui.components.service
+package com.airobotcomm.tablet.ui.service
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -202,8 +204,8 @@ fun FocusTimerWidget(
                             sweepAngle = 360f * (1 - progress),
                             useCenter = false,
                             style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
-                            topLeft = center - androidx.compose.ui.geometry.Offset(radius, radius),
-                            size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2)
+                            topLeft = center - Offset(radius, radius),
+                            size = Size(radius * 2, radius * 2)
                         )
                     }
                 }

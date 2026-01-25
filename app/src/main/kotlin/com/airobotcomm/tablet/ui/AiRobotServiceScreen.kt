@@ -25,14 +25,18 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobotcomm.tablet.R
+import com.airobotcomm.tablet.domain.config.DeviceConfig
 import com.airobotcomm.tablet.ui.components.dialogue.DialogueBubble
 import com.airobotcomm.tablet.ui.components.dialogue.TypewriterText
 import com.airobotcomm.tablet.ui.components.dialogue.UserMessageBubble
 import com.airobotcomm.tablet.ui.components.robot.*
-import com.airobotcomm.tablet.ui.components.service.*
 import com.airobotcomm.tablet.ui.components.voice.RobotVoiceInputPanel
 import com.airobotcomm.tablet.ui.framework.RobotTopBar
 import com.airobotcomm.tablet.ui.framework.RobotDrawerContent
+import com.airobotcomm.tablet.ui.service.DEFAULT_SERVICE_CARDS
+import com.airobotcomm.tablet.ui.service.FocusTimerWidget
+import com.airobotcomm.tablet.ui.service.ServiceCardCarousel
+import com.airobotcomm.tablet.ui.service.getServiceCardIcon
 import com.airobotcomm.tablet.ui.theme.RobotTextPrimary
 import com.airobotcomm.tablet.ui.state.ConversationSubState
 import com.airobotcomm.tablet.ui.state.InteractionType
@@ -93,7 +97,7 @@ fun AiRobotServiceScreen(
     val scope = rememberCoroutineScope()
     
     // 注意：我们将在此处使用一个简单的配置占位或通过 ViewModel 获取
-    var currentConfig by remember { mutableStateOf(com.airobotcomm.tablet.data.DeviceConfig.createDefault()) }
+    var currentConfig by remember { mutableStateOf(DeviceConfig.createDefault()) }
     
     // 机器人UI状态
     var robotUiState by remember { mutableStateOf(RobotUiState()) }
@@ -339,9 +343,9 @@ fun AiRobotServiceScreen(
                                 onCardClick = { card ->
                                     currentCardIndex = serviceCards.indexOf(card)
                                     robotUiState = robotUiState.copy(
-                                        interactionType = com.airobotcomm.tablet.ui.state.InteractionType.CARD,
+                                        interactionType = InteractionType.CARD,
                                         activeCard = card,
-                                        visualState = com.airobotcomm.tablet.ui.state.RobotVisualState.LISTENING,
+                                        visualState = RobotVisualState.LISTENING,
                                         currentUserMsg = null,
                                         currentAiMsg = null
                                     )

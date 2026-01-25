@@ -1,14 +1,13 @@
-package com.airobotcomm.tablet.utils
+package com.airobotcomm.tablet.domain.config
 
 import android.content.Context
-import com.airobotcomm.tablet.data.ConfigManager
 
 /**
  * 配置验证工具类
  */
 class ConfigValidator(private val context: Context) {
     private val configManager = ConfigManager(context)
-    
+
     /**
      * 检查是否需要跳转到设置页面
      * @return true 如果需要跳转到设置页面，false 如果配置完整可以继续
@@ -17,7 +16,7 @@ class ConfigValidator(private val context: Context) {
         val config = configManager.loadConfig()
         return config.otaUrl.isBlank() || config.websocketUrl.isBlank()
     }
-    
+
     /**
      * 检查配置是否完整
      */
@@ -25,7 +24,7 @@ class ConfigValidator(private val context: Context) {
         val config = configManager.loadConfig()
         return configManager.isConfigComplete(config)
     }
-    
+
     /**
      * 获取当前配置
      */

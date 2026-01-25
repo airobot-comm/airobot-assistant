@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.data
+package com.airobotcomm.tablet.data.model
 
 import java.util.*
 

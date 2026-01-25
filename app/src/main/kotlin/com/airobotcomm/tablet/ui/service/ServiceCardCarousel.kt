@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.ui.components.service
+package com.airobotcomm.tablet.ui.service
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
