@@ -10,6 +10,57 @@ ai机器人项目Android版系统架构，技术设计等概要说明
 - **状态管理**: 完整的对话状态流转和错误处理
 - **WSocket**: 基于WebSocket的实时双向通信
 
+## 架构设计
+
+### 设计原则
+
+- 分层架构，遵循clearArchitecture + MVVM要求
+- ui要求组件化设计，并使用jetpack compose开发
+- 语音与通信模块独立，设计要高性能，自愈合、高可靠
+- domain层负责ota认证，系统与ai机器人等的配置
+- 各个业务模块通过Hilt DI机制解耦，ui服务调用
+
+### 项目架构
+```
+app/src/main/kotlin/com/airobotcomm/tablet/
+├── airobotui/                     # airobot单页模块 (Presentation Layer)
+│   ├── components/                # 可重用子模块组件
+│   ├── framework/                 # ui框架如topbar，menu菜单...
+│   ├── subpages/                  # 界面模块
+│   ├── theme/                     # 主题配置
+│   ├── viewmodel/                 # airobot viewmodel协调各业务状态
+│   └── x/       
+├── audio/                    # 音频处理模块
+│   ├── utils/                     # 音频基础功能
+│   ├── EnhancedAudioManager.kt    # 增强音频管理器
+│   └── OpusCodec.kt               # Opus编解码器
+├── commhub/                  # 协议通信（communication hub）
+│   ├── di/                        # 网络hilt di服务
+│   ├── protocol/                  # ota，机器人交互协议
+│   ├── transport/                 # 底层ws长连接传输服务
+│   └── CommService.kt             # 通信服务接口
+│   └── commServiceImpl.kt         # 网络服务接口实现
+├── data/                     # 数据层 (Repository, Models)
+│   ├── repository/                # Repository服务
+│   ├── remote/                    # 远程数据仓库
+│   └── model/                     # 数据模型  
+├──domain/                    # 业务逻辑层 (Domain Layer)
+│   ├── config/                   # 数据模型
+│   ├── ota/                      # 数据仓库
+│   └── robot/                    # 机器人管理          
+├── utils/                    # 通用工具类
+├── MainActivity.kt           # 主活动 (Activity)
+└── RobotApplication.kt       # Hilt Application 入口
+```
+
+### Native模块
+```
+app/src/main/cpp/
+├── opus_encoder.cpp         # Opus编码器JNI
+├── opus_decoder.cpp         # Opus解码器JNI
+└── CMakeLists.txt          # CMake构建配置
+```
+
 ## 🛠️ 技术设计
 
 ### 核心框架
@@ -36,48 +87,6 @@ ai机器人项目Android版系统架构，技术设计等概要说明
 
 ### 导航
 - **Navigation Compose**: 2.9.6 - 声明式导航
-
-## 🏗️ 项目架构
-
-```
-app/src/main/kotlin/com/airobotcomm/tablet/
-├── audio/                    # 音频处理模块
-│   ├── utils/                     # 音频基础功能
-│   ├── EnhancedAudioManager.kt    # 增强音频管理器
-│   └── OpusCodec.kt               # Opus编解码器
-├── data/                     # 数据层 (Repository, Models)
-│   ├── repository/                # Repository服务
-│   ├── remote/                    # 远程数据仓库
-│   └── model/                     # 数据模型  
-├──domain/                    # 业务逻辑层 (Domain Layer)
-│   ├── config/                   # 数据模型
-│   ├── ota/                      # 数据仓库
-│   └── robot/                    # 机器人管理
-├── network/                  # 网络通信模块
-│   ├── di/                        # 网络hilt di服务
-│   ├── protocol/                  # ota，机器人交互协议
-│   ├── transport/                 # 底层ws长连接传输服务
-│   └── NetworkService.kt          # 网络服务接口
-│   └── NetworkServiceImpl.kt      # 网络服务接口实现
-├── ui/                       # UI界面模块 (Presentation Layer)
-│   ├── components/                # 可重用子模块组件
-│   ├── framework/                 # ui框架如topbar，menu菜单...
-│   ├── subpages/                  # 界面模块
-│   ├── theme/                     # 主题配置
-│   ├── viewmodel/                 # airobot viewmodel协调各业务状态
-│   └── x/                 
-├── utils/                    # 通用工具类
-├── MainActivity.kt           # 主活动 (Activity)
-└── RobotApplication.kt       # Hilt Application 入口
-```
-
-### Native模块
-```
-app/src/main/cpp/
-├── opus_encoder.cpp         # Opus编码器JNI
-├── opus_decoder.cpp         # Opus解码器JNI
-└── CMakeLists.txt          # CMake构建配置
-```
 
 ## 📋 系统要求
 

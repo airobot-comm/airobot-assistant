@@ -10,9 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.airobotcomm.tablet.ui.AiRobotServiceScreen
-import com.airobotcomm.tablet.ui.theme.DarkColorScheme
-import com.airobotcomm.tablet.ui.theme.YTheme
+import com.airobotcomm.tablet.airobotui.AiRobotServiceScreen
+import com.airobotcomm.tablet.airobotui.theme.DarkColorScheme
+import com.airobotcomm.tablet.airobotui.theme.YTheme
 
 import dagger.hilt.android.AndroidEntryPoint
 
