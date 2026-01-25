@@ -11,9 +11,9 @@ import kotlinx.coroutines.launch
 import com.airobotcomm.tablet.audio.AudioEvent
 import com.airobotcomm.tablet.audio.AudioServiceImpl
 import com.airobotcomm.tablet.domain.config.ConfigManager
-import com.airobotcomm.tablet.data.model.Message
-import com.airobotcomm.tablet.data.model.MessageRole
-import com.airobotcomm.tablet.domain.config.DeviceConfig
+import com.airobotcomm.tablet.domain.model.Message
+import com.airobotcomm.tablet.domain.model.MessageRole
+import com.airobotcomm.tablet.domain.model.DeviceConfig
 import com.airobotcomm.tablet.commhub.NetworkService
 import com.airobotcomm.tablet.commhub.NetworkState
 import com.airobotcomm.tablet.commhub.protocol.AiRobotEvent
@@ -230,7 +230,9 @@ class ConversationViewModel @Inject constructor(
      * 更新配置
      */
     fun updateConfig(newConfig: DeviceConfig) {
-        configManager.saveConfig(newConfig)
+        viewModelScope.launch {
+            configManager.saveConfig(newConfig)
+        }
         networkService.disconnect()
         robotStateManager.updateRobotState(RobotState.Offline)
         networkService.connect()

@@ -37,4 +37,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "airobot-assistant"
 include(":app")
- 

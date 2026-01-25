@@ -1,6 +1,9 @@
-package com.airobotcomm.tablet.commhub.protocol
+package com.airobotcomm.tablet.infra.remote
 
 import android.util.Log
+import com.airobotcomm.tablet.domain.model.OtaResponse
+import com.airobotcomm.tablet.domain.model.DeviceReportRequest
+import com.airobotcomm.tablet.domain.repository.OtaRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -9,13 +12,13 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
 
-/**
- * OTA服务类，负责处理设备上报和获取OTA信息
- */
-class OtaService {
+@Singleton
+class OtaRepositoryImpl @Inject constructor() : OtaRepository {
     companion object {
-        private const val TAG = "OtaService"
+        private const val TAG = "OtaRepositoryImpl"
         private const val TIMEOUT_SECONDS = 30L
     }
 
@@ -30,10 +33,7 @@ class OtaService {
         .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .build()
 
-    /**
-     * 向服务器上报设备信息并获取OTA响应
-     */
-    suspend fun reportDeviceAndGetOta(clientId: String, deviceId: String, otaUrl: String? = null): Result<OtaResponse> {
+    override suspend fun reportDeviceAndGetOta(clientId: String, deviceId: String, otaUrl: String?): Result<OtaResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 val url = otaUrl?.takeIf { it.isNotBlank() } ?: ""
@@ -85,10 +85,7 @@ class OtaService {
         }
     }
 
-    /**
-     * 创建设备上报请求数据
-     */
-    private fun createDeviceReportRequest(clientId: String, deviceId: String): DeviceReportRequest {
+    override fun createDeviceReportRequest(clientId: String, deviceId: String): DeviceReportRequest {
         return DeviceReportRequest(
             application = DeviceReportRequest.Application(
                 version = "2.0.0",

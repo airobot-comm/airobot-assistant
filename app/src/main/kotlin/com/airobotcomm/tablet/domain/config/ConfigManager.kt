@@ -1,72 +1,32 @@
 package com.airobotcomm.tablet.domain.config
 
-import android.content.Context
-import android.content.SharedPreferences
-import com.google.gson.Gson
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.airobotcomm.tablet.domain.model.DeviceConfig
+import com.airobotcomm.tablet.domain.repository.ConfigRepository
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
+/**
+ * 配置业务逻辑类 - 处理配置相关的业务规则
+ */
 class ConfigManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    private val configRepository: ConfigRepository
 ) {
-    private val sharedPreferences: SharedPreferences =
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    private val gson = Gson()
-
-    companion object {
-        private const val PREFS_NAME = "device_config"
-        private const val KEY_CONFIG = "config"
-    }
-
     /**
      * 保存配置
      */
-    fun saveConfig(config: DeviceConfig) {
-        val configJson = gson.toJson(config)
-        sharedPreferences.edit()
-            .putString(KEY_CONFIG, configJson)
-            .apply()
-    }
-
+    suspend fun saveConfig(config: DeviceConfig) = configRepository.saveConfig(config)
+    
     /**
-     * 读取配置
+     * 加载配置
      */
-    fun loadConfig(): DeviceConfig {
-        val configJson = sharedPreferences.getString(KEY_CONFIG, null)
-        return if (configJson != null) {
-            try {
-                gson.fromJson(configJson, DeviceConfig::class.java)
-            } catch (e: Exception) {
-                DeviceConfig.Companion.createDefault()
-            }
-        } else {
-            DeviceConfig.Companion.createDefault()
-        }
-    }
-
+    suspend fun loadConfig(): DeviceConfig = configRepository.loadConfig()
+    
     /**
      * 检查配置是否完整
      */
-    fun isConfigComplete(config: DeviceConfig): Boolean {
-        return config.name.isNotBlank() &&
-               (config.otaUrl.isNotBlank() || config.websocketUrl.isNotBlank()) &&
-               config.macAddress.isNotBlank() &&
-               config.token.isNotBlank()
-    }
-
+    fun isConfigComplete(config: DeviceConfig): Boolean = configRepository.isConfigComplete(config)
+    
     /**
      * 获取缺失的配置项
      */
-    fun getMissingFields(config: DeviceConfig): List<String> {
-        val missingFields = mutableListOf<String>()
-
-        if (config.name.isBlank()) missingFields.add("设备名称")
-        if (config.otaUrl.isBlank() && config.websocketUrl.isBlank()) missingFields.add("OTA地址或WSS地址(至少填一个)")
-        if (config.macAddress.isBlank()) missingFields.add("MAC地址")
-        if (config.token.isBlank()) missingFields.add("Token")
-
-        return missingFields
-    }
+    fun getMissingFields(config: DeviceConfig): List<String> = configRepository.getMissingFields(config)
 }

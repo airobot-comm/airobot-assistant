@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.commhub.protocol
+package com.airobotcomm.tablet.domain.model
 
 import android.annotation.SuppressLint
 import kotlinx.serialization.SerialName

@@ -3,9 +3,12 @@ package com.airobotcomm.tablet.commhub.di
 import android.content.Context
 import com.airobotcomm.tablet.commhub.NetworkService
 import com.airobotcomm.tablet.commhub.NetworkServiceImpl
-import com.airobotcomm.tablet.commhub.protocol.OtaService
 import com.airobotcomm.tablet.commhub.protocol.ProtocolAdapter
 import com.airobotcomm.tablet.commhub.transport.SingletonWebSocket
+import com.airobotcomm.tablet.domain.config.ConfigManager
+import com.airobotcomm.tablet.domain.ota.OtaManager
+import com.airobotcomm.tablet.infra.remote.OtaRepositoryImpl
+import com.airobotcomm.tablet.infra.repository.ConfigRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -29,7 +32,11 @@ abstract class NetworkModule {
     companion object {
         @Provides
         @Singleton
-        fun provideOtaService(): OtaService = OtaService()
+        fun provideOtaManager(otaRepositoryImpl: OtaRepositoryImpl): OtaManager = OtaManager(otaRepositoryImpl)
+
+        @Provides
+        @Singleton
+        fun provideConfigManager(configRepositoryImpl: ConfigRepositoryImpl): ConfigManager = ConfigManager(configRepositoryImpl)
 
         @Provides
         @Singleton

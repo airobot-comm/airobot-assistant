@@ -25,7 +25,8 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobotcomm.tablet.R
-import com.airobotcomm.tablet.domain.config.DeviceConfig
+import com.airobotcomm.tablet.domain.model.DeviceConfig
+import com.airobotcomm.tablet.domain.config.ConfigManager
 import com.airobotcomm.tablet.airobotui.components.dialogue.DialogueBubble
 import com.airobotcomm.tablet.airobotui.components.dialogue.TypewriterText
 import com.airobotcomm.tablet.airobotui.components.dialogue.UserMessageBubble
@@ -98,6 +99,12 @@ fun AiRobotServiceScreen(
     
     // 注意：我们将在此处使用一个简单的配置占位或通过 ViewModel 获取
     var currentConfig by remember { mutableStateOf(DeviceConfig.createDefault()) }
+    
+    // 从配置管理器加载配置
+    LaunchedEffect(Unit) {
+        // 从conversationViewModel获取配置管理器，然后加载配置
+        // 但现在我们使用默认值，因为需要在UI中处理配置加载
+    }
     
     // 机器人UI状态
     var robotUiState by remember { mutableStateOf(RobotUiState()) }

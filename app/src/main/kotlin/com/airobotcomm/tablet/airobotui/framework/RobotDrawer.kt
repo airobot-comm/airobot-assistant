@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airobotcomm.tablet.domain.config.DeviceConfig
+import com.airobotcomm.tablet.domain.model.DeviceConfig
 import com.airobotcomm.tablet.airobotui.theme.*
 import com.airobotcomm.tablet.airobotui.subpages.ServiceConfigPage
 import com.airobotcomm.tablet.airobotui.subpages.SystemAuthPage

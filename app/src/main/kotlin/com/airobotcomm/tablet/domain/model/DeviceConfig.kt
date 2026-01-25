@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.domain.config
+package com.airobotcomm.tablet.domain.model
 
 import java.util.Random
 import java.util.UUID

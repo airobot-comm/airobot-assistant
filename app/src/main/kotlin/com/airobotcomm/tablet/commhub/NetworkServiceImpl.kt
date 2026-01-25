@@ -4,7 +4,7 @@ import android.util.Log
 import com.airobotcomm.tablet.domain.config.ConfigManager
 import com.airobotcomm.tablet.commhub.protocol.AiRobotEvent
 import com.airobotcomm.tablet.commhub.protocol.AiRobotProtocol
-import com.airobotcomm.tablet.commhub.protocol.OtaService
+import com.airobotcomm.tablet.domain.ota.OtaManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import com.airobotcomm.tablet.commhub.protocol.ProtocolAdapter
@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 @Singleton
 class NetworkServiceImpl @Inject constructor(
-    private val otaService: OtaService,
+    private val otaManager: OtaManager,
     private val singletonWebSocket: SingletonWebSocket,
     private val configManager: ConfigManager,
     private val protocolAdapter: ProtocolAdapter,
@@ -51,8 +51,10 @@ class NetworkServiceImpl @Inject constructor(
                 when (wsEvent) {
                     is WebSocketEvent.Connected -> {
                         _state.value = NetworkState.CONNECTING // 传输层 OK，进入协议握手
-                        val config = configManager.loadConfig()
-                        protocol.open("", config.macAddress, config.token)
+                        runBlocking { // 使用runBlocking来处理挂起函数调用
+                            val config = configManager.loadConfig()
+                            protocol.open("", config.macAddress, config.token)
+                        }
                     }
                     is WebSocketEvent.Reconnecting -> {
                         _state.value = NetworkState.RECONNECTING
@@ -96,49 +98,44 @@ class NetworkServiceImpl @Inject constructor(
     }
 
     override fun connect() {
-        val config = configManager.loadConfig()
-        if (config.otaUrl.isBlank()) {
-            _state.value = NetworkState.ERROR
-            scope.launch { _events.emit(AiRobotEvent.Error("OTA URL is empty")) }
-            return
-        }
-
-        _state.value = NetworkState.INITIALIZING
         scope.launch {
+            val config = configManager.loadConfig()
+            if (config.otaUrl.isBlank()) {
+                _state.value = NetworkState.ERROR
+                _events.tryEmit(AiRobotEvent.Error("OTA URL is empty"))
+                return@launch
+            }
+
+            _state.value = NetworkState.INITIALIZING
             try {
-                // 1. 执行 OTA 获取 WS URL (兼具报备功能)
-                val result = otaService.reportDeviceAndGetOta(
+                // 1. 执行 OTA 获取 WS URL (兼具报防功能)
+                val result = otaManager.reportDeviceAndGetOta(
                     clientId = config.uuid,
                     deviceId = config.macAddress,
                     otaUrl = config.otaUrl
                 )
 
                 result.onSuccess { otaResponse ->
-                    Log.d(TAG, "OTA Success")
-                    
                     // 检查激活信息
                     otaResponse.activation?.let { activation ->
                         if (activation.code.isNotEmpty()) {
-                            Log.d(TAG, "Device needs activation: ${activation.code}")
-                            _events.emit(AiRobotEvent.ActivationRequired(activation.code))
+                            _events.tryEmit(AiRobotEvent.ActivationRequired(activation.code))
                             _state.value = NetworkState.IDLE
                             return@onSuccess
                         }
                     }
 
-                    Log.d(TAG, "Connecting to WS: ${otaResponse.websocket.url}")
                     _state.value = NetworkState.CONNECTING
                     
                     // 2. 连接 WebSocket (继续之前的逻辑)
                     connectInternal(otaResponse.websocket.url, config.macAddress, config.token)
                 }.onFailure { e ->
-                    Log.e(TAG, "OTA Failed", e)
                     _state.value = NetworkState.ERROR
-                    _events.emit(AiRobotEvent.Error("Initialization failed: ${e.message}"))
+                    _events.tryEmit(AiRobotEvent.Error("Initialization failed: ${e.message}"))
                 }
             } catch (e: Exception) {
                 _state.value = NetworkState.ERROR
-                _events.emit(AiRobotEvent.Error(e.message ?: "Unknown error"))
+                _events.tryEmit(AiRobotEvent.Error(e.message ?: "Unknown error"))
             }
         }
     }
