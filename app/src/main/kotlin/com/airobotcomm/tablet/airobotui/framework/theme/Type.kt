@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.airobotui.theme
+package com.airobotcomm.tablet.airobotui.framework.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

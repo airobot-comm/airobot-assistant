@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.airobotui.components.dialogue
+package com.airobotcomm.tablet.airobotui.robotcomp.dialogue
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*

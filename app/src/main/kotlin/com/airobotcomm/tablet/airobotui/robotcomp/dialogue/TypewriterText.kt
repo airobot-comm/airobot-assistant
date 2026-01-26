@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.airobotui.components.dialogue
+package com.airobotcomm.tablet.airobotui.robotcomp.dialogue
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*

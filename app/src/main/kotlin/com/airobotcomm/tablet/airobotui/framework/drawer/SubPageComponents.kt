@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.airobotui.framework
+package com.airobotcomm.tablet.airobotui.framework.drawer
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -7,7 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airobotcomm.tablet.airobotui.theme.*
+import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
+import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextPrimary
+import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextSecondary
 
 @Composable
 fun ConfigTextField(

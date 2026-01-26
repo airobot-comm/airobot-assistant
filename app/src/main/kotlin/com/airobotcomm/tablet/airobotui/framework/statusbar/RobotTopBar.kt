@@ -1,5 +1,6 @@
-package com.airobotcomm.tablet.airobotui.framework
+package com.airobotcomm.tablet.airobotui.framework.statusbar
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -18,9 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobotcomm.tablet.R
 import com.airobotcomm.tablet.airobotui.state.RobotState
-import com.airobotcomm.tablet.airobotui.theme.RobotPrimaryCyan
-import com.airobotcomm.tablet.airobotui.theme.RobotSecondaryIndigo
-import com.airobotcomm.tablet.airobotui.theme.RobotTextPrimary
+import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
+import com.airobotcomm.tablet.airobotui.framework.theme.RobotSecondaryIndigo
+import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextPrimary
 
 /**
  * 集中化 TopBar 组件
@@ -117,7 +118,7 @@ private fun RobotStateBadge(robotState: RobotState) {
     Surface(
         color = stateColor.copy(alpha = 0.1f),
         shape = RoundedCornerShape(4.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, stateColor.copy(alpha = 0.3f))
+        border = BorderStroke(1.dp, stateColor.copy(alpha = 0.3f))
     ) {
         Text(
             text = stateText,

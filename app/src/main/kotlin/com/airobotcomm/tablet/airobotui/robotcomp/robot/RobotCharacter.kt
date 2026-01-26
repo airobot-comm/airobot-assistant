@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.airobotui.components.robot
+package com.airobotcomm.tablet.airobotui.robotcomp.robot
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*

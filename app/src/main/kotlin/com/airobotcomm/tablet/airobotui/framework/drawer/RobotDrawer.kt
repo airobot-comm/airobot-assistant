@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.airobotui.framework
+package com.airobotcomm.tablet.airobotui.framework.drawer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,10 +16,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airobotcomm.tablet.airobotui.framework.theme.RobotBackgroundDark
+import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
+import com.airobotcomm.tablet.airobotui.framework.theme.RobotSurface
+import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextPrimary
 import com.airobotcomm.tablet.domain.model.DeviceConfig
-import com.airobotcomm.tablet.airobotui.theme.*
 import com.airobotcomm.tablet.airobotui.subpages.ServiceConfigPage
 import com.airobotcomm.tablet.airobotui.subpages.SystemAuthPage
 
@@ -166,7 +170,7 @@ private fun DrawerMenuItem(
             fontSize = 11.sp,
             color = contentColor,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            textAlign = TextAlign.Center
         )
     }
 }

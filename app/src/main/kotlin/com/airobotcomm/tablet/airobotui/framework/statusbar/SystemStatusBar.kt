@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.airobotui.framework
+package com.airobotcomm.tablet.airobotui.framework.statusbar
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.airobotcomm.tablet.R
-import com.airobotcomm.tablet.airobotui.theme.RobotTextPrimary
+import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextPrimary
 
 /**
  * 系统状态栏组件 - 负责网络、电量等基础状态展示
