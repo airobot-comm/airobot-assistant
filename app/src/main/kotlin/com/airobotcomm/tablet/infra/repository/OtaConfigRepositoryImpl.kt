@@ -6,10 +6,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.airobotcomm.tablet.domain.model.DeviceConfig
-import com.airobotcomm.tablet.domain.repository.ConfigRepository
+import com.airobotcomm.tablet.domain.ota.model.DeviceConfig
+import com.airobotcomm.tablet.domain.ota.repository.OtaConfigRepository
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -20,9 +19,9 @@ import javax.inject.Singleton
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "device_config")
 
 @Singleton
-class ConfigRepositoryImpl @Inject constructor(
+class OtaConfigRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context
-) : ConfigRepository {
+) : OtaConfigRepository {
     
     private val gson = Gson()
     

@@ -1,11 +1,11 @@
-package com.airobotcomm.tablet.domain.repository
+package com.airobotcomm.tablet.domain.ota.repository
 
-import com.airobotcomm.tablet.domain.model.DeviceConfig
+import com.airobotcomm.tablet.domain.ota.model.DeviceConfig
 
 /**
  * 配置仓库接口 - 定义配置管理的契约
  */
-interface ConfigRepository {
+interface OtaConfigRepository {
     /**
      * 保存配置
      */

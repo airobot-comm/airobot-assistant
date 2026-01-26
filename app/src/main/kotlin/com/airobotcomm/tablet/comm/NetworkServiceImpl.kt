@@ -1,7 +1,7 @@
 package com.airobotcomm.tablet.comm
 
 import android.util.Log
-import com.airobotcomm.tablet.domain.config.ConfigManager
+import com.airobotcomm.tablet.domain.ota.ConfigManager
 import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
 import com.airobotcomm.tablet.comm.protocol.AiRobotProtocol
 import kotlinx.coroutines.*

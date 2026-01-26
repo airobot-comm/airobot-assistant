@@ -1,11 +1,9 @@
 package com.airobotcomm.tablet.domain.di
 
-import com.airobotcomm.tablet.domain.config.ConfigManager
-import com.airobotcomm.tablet.domain.ota.OtaManager
-import com.airobotcomm.tablet.domain.repository.ConfigRepository
-import com.airobotcomm.tablet.domain.repository.OtaRepository
-import com.airobotcomm.tablet.infra.remote.OtaRepositoryImpl
-import com.airobotcomm.tablet.infra.repository.ConfigRepositoryImpl
+import com.airobotcomm.tablet.domain.ota.repository.OtaConfigRepository
+import com.airobotcomm.tablet.domain.ota.repository.OtaNetRepository
+import com.airobotcomm.tablet.infra.remote.OtaNetRepositoryImpl
+import com.airobotcomm.tablet.infra.repository.OtaConfigRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -18,9 +16,9 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindConfigRepository(impl: ConfigRepositoryImpl): ConfigRepository
+    abstract fun bindConfigRepository(impl: OtaConfigRepositoryImpl): OtaConfigRepository
 
     @Binds
     @Singleton
-    abstract fun bindOtaRepository(impl: OtaRepositoryImpl): OtaRepository
+    abstract fun bindOtaRepository(impl: OtaNetRepositoryImpl): OtaNetRepository
 }

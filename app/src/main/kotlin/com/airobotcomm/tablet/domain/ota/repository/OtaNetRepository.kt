@@ -1,12 +1,12 @@
-package com.airobotcomm.tablet.domain.repository
+package com.airobotcomm.tablet.domain.ota.repository
 
-import com.airobotcomm.tablet.domain.model.OtaResponse
-import com.airobotcomm.tablet.domain.model.DeviceReportRequest
+import com.airobotcomm.tablet.domain.ota.model.OtaResponse
+import com.airobotcomm.tablet.domain.ota.model.DeviceReportRequest
 
 /**
  * OTA仓库接口 - 定义OTA相关操作的契约
  */
-interface OtaRepository {
+interface OtaNetRepository {
     /**
      * 向服务器上报设备信息并获取OTA响应
      */

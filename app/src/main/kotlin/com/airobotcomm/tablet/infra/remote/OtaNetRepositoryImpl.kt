@@ -1,9 +1,9 @@
 package com.airobotcomm.tablet.infra.remote
 
 import android.util.Log
-import com.airobotcomm.tablet.domain.model.OtaResponse
-import com.airobotcomm.tablet.domain.model.DeviceReportRequest
-import com.airobotcomm.tablet.domain.repository.OtaRepository
+import com.airobotcomm.tablet.domain.ota.model.OtaResponse
+import com.airobotcomm.tablet.domain.ota.model.DeviceReportRequest
+import com.airobotcomm.tablet.domain.ota.repository.OtaNetRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -16,9 +16,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class OtaRepositoryImpl @Inject constructor() : OtaRepository {
+class OtaNetRepositoryImpl @Inject constructor() : OtaNetRepository {
     companion object {
-        private const val TAG = "OtaRepositoryImpl"
+        private const val TAG = "OtaNetRepositoryImpl"
         private const val TIMEOUT_SECONDS = 30L
     }
 

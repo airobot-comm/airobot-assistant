@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.domain.model
+package com.airobotcomm.tablet.domain.ota.model
 
 import java.util.Random
 import java.util.UUID
@@ -25,10 +25,10 @@ data class DeviceConfig(
         fun createDefault(): DeviceConfig {
             return DeviceConfig(
                 id = "default",
-                name = "测试",
+                name = "airobot-tablet",
                 otaUrl = "",
                 websocketUrl = "",
-                macAddress = "",
+                macAddress = generateRandomMacAddress(),
                 uuid = generateRandomUuid(),
                 token = "test-token",
                 activationCode = "",

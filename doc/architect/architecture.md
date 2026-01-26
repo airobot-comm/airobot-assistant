@@ -4,11 +4,10 @@ ai机器人项目Android版系统架构，技术设计等概要说明
 
 ## 📱 功能特性
 
+- **角色管理**: airobot角色形象，支持微表情互动
 - **实时语音**: 支持语音录制、实时传输和TTS播放
-- **多轮对话**: 支持自动和手动两种对话模式
-- **音频处理**: 集成Opus编解码、回声消除和降噪
-- **状态管理**: 完整的对话状态流转和错误处理
-- **WSocket**: 基于WebSocket的实时双向通信
+- **多轮对话**: 基于ai-Agent的自动语音对话模式
+- **功能卡片**: 基于ai意图理解的功能卡片主动服务
 
 ## 架构设计
 
@@ -16,35 +15,36 @@ ai机器人项目Android版系统架构，技术设计等概要说明
 
 - 分层架构，遵循clearArchitecture + MVVM要求
 - ui要求组件化设计，并使用jetpack compose开发
-- 语音与通信模块独立，设计要高性能，自愈合、高可靠
-- domain层负责ota认证，系统与ai机器人等的配置管理
-- infra基础设施层提供网络、音频、数据库、文件存储等
-- 各个业务模块通过Hilt DI机制解耦，ui服务调用
+- domain层采用模块化设计，模块内采用MVVM设计模式
+- infra基础层提供网络API、数据库、音频/文件存储等
+- 语音与协议通信模块独立，设计高性能，自愈合、高可靠
+- 分层、业务模块间通过Hilt DI机制解耦，ui服务调用
 
 ### 项目架构
 ```
 app/src/main/kotlin/com/airobotcomm/tablet/
-├── airobotui/                     # airobot单页模块 (Presentation Layer)
+├── airobotui/                # airobot单页UI层 (Presentation Layer)
 │   ├── components/                # 可重用子模块组件
 │   ├── framework/                 # ui框架如topbar，menu菜单...
 │   ├── subpages/                  # 界面模块
 │   ├── theme/                     # 主题配置
 │   ├── viewmodel/                 # airobot viewmodel协调各业务状态    
 ├── audio/                    # 音频处理模块
+│   ├── di/                        # audio模块hilt di服务
 │   ├── utils/                     # 音频基础功能
 │   ├── EnhancedAudioManager.kt    # 增强音频管理器
 │   └── OpusCodec.kt               # Opus编解码器
 ├── comm/                    # 协议通信模块（多协议，多传输方式，自身维护）
-│   ├── di/                        # 网络hilt di服务
+│   ├── di/                        # comm通信模块hilt di服务
 │   ├── protocol/                  # 机器人交互协议
 │   ├── transport/                 # 底层ws，mqtt传输服务
 │   └── CommService.kt             # 通信服务接口
 │   └── commServiceImpl.kt         # 网络服务接口实现 
 ├──domain/                    # 业务逻辑层 (Domain Layer)
-│   ├── config/                   # 数据模型
-│   ├── ota/                      # 数据仓库
-│   └── robot/                    # 机器人管理   
-├── infra/                     # infracture层 (Repository, network等)
+│   ├── di/                        # domain层hilt di服务
+│   ├── ota/                      # ota激活与升级管理
+│   └── robot/                    # 机器人配置管理   
+├── infra/                    # infracture层 (Repository, network等)
 │   ├── repository/                # Repository服务
 │   ├── remote/                    # 远程数据仓库
 │   └── model/                     # 数据模型 

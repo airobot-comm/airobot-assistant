@@ -1,9 +1,8 @@
 package com.airobotcomm.tablet.domain.ota
 
-import com.airobotcomm.tablet.domain.config.ConfigManager
-import com.airobotcomm.tablet.domain.model.OtaResponse
-import com.airobotcomm.tablet.domain.model.DeviceReportRequest
-import com.airobotcomm.tablet.domain.repository.OtaRepository
+import com.airobotcomm.tablet.domain.ota.model.DeviceReportRequest
+import com.airobotcomm.tablet.domain.ota.model.OtaResponse
+import com.airobotcomm.tablet.domain.ota.repository.OtaNetRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,7 +27,7 @@ sealed class OtaState {
  */
 @Singleton
 class OtaManager @Inject constructor(
-    private val otaRepository: OtaRepository,
+    private val otaNetRepository: OtaNetRepository,
     private val configManager: ConfigManager
 ) {
     private val _state = MutableStateFlow<OtaState>(OtaState.Idle)
@@ -46,7 +45,7 @@ class OtaManager @Inject constructor(
             return
         }
 
-        val result = otaRepository.reportDeviceAndGetOta(
+        val result = otaNetRepository.reportDeviceAndGetOta(
             clientId = config.uuid,
             deviceId = config.macAddress,
             otaUrl = config.otaUrl
@@ -82,12 +81,12 @@ class OtaManager @Inject constructor(
     /**
      * 向服务器上报设备信息并获取OTA响应 (保留原接口供以后可能的直接调用)
      */
-    suspend fun reportDeviceAndGetOta(clientId: String, deviceId: String, otaUrl: String?): Result<OtaResponse> = 
-        otaRepository.reportDeviceAndGetOta(clientId, deviceId, otaUrl)
+    suspend fun reportDeviceAndGetOta(clientId: String, deviceId: String, otaUrl: String?): Result<OtaResponse> =
+        otaNetRepository.reportDeviceAndGetOta(clientId, deviceId, otaUrl)
     
     /**
      * 创建设备上报请求数据
      */
-    fun createDeviceReportRequest(clientId: String, deviceId: String): DeviceReportRequest = 
-        otaRepository.createDeviceReportRequest(clientId, deviceId)
+    fun createDeviceReportRequest(clientId: String, deviceId: String): DeviceReportRequest =
+        otaNetRepository.createDeviceReportRequest(clientId, deviceId)
 }
