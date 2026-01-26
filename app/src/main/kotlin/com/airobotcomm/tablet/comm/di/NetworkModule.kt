@@ -32,10 +32,6 @@ abstract class NetworkModule {
     companion object {
         @Provides
         @Singleton
-        fun provideOtaManager(otaRepositoryImpl: OtaRepositoryImpl): OtaManager = OtaManager(otaRepositoryImpl)
-
-        @Provides
-        @Singleton
         fun provideConfigManager(configRepositoryImpl: ConfigRepositoryImpl): ConfigManager = ConfigManager(configRepositoryImpl)
 
         @Provides

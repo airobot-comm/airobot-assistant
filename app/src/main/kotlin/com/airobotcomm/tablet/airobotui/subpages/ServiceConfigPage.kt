@@ -22,25 +22,25 @@ fun ServiceConfigPage(
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         ConfigTextField(
             label = "设备名称",
-            value = editedConfig.name,
+            value = (editedConfig.name as String?).orEmpty(),
             onValueChange = { editedConfig = editedConfig.copy(name = it) }
         )
 
         ConfigTextField(
             label = "OTA 地址",
-            value = editedConfig.otaUrl,
+            value = (editedConfig.otaUrl as String?).orEmpty(),
             onValueChange = { editedConfig = editedConfig.copy(otaUrl = it) }
         )
 
         ConfigTextField(
             label = "WSS 地址",
-            value = editedConfig.websocketUrl,
+            value = (editedConfig.websocketUrl as String?).orEmpty(),
             onValueChange = { editedConfig = editedConfig.copy(websocketUrl = it) }
         )
 
         ConfigTextField(
             label = "Token",
-            value = editedConfig.token,
+            value = (editedConfig.token as String?).orEmpty(),
             onValueChange = { editedConfig = editedConfig.copy(token = it) }
         )
 

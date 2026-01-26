@@ -32,13 +32,14 @@ fun SystemAuthPage(
 
         ConfigTextField(
             label = "设备 ID (UUID)",
-            value = editedConfig.uuid,
+            // 使用 orEmpty() 防御式编程，防止反序列化产生的 null
+            value = (editedConfig.uuid as String?).orEmpty(),
             onValueChange = { editedConfig = editedConfig.copy(uuid = it) }
         )
 
         ConfigTextField(
             label = "MAC 地址",
-            value = editedConfig.macAddress,
+            value = (editedConfig.macAddress as String?).orEmpty(),
             onValueChange = { editedConfig = editedConfig.copy(macAddress = it) },
             trailingIcon = {
                 IconButton(onClick = {
@@ -48,6 +49,12 @@ fun SystemAuthPage(
                     Icon(Icons.Default.Refresh, "生成", tint = RobotPrimaryCyan)
                 }
             }
+        )
+
+        ConfigTextField(
+            label = "激活码",
+            value = (editedConfig.activationCode as String?).orEmpty(),
+            onValueChange = { editedConfig = editedConfig.copy(activationCode = it) },
         )
 
         Spacer(modifier = Modifier.height(16.dp))

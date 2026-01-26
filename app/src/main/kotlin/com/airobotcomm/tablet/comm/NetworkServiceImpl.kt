@@ -4,7 +4,6 @@ import android.util.Log
 import com.airobotcomm.tablet.domain.config.ConfigManager
 import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
 import com.airobotcomm.tablet.comm.protocol.AiRobotProtocol
-import com.airobotcomm.tablet.domain.ota.OtaManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import com.airobotcomm.tablet.comm.protocol.ProtocolAdapter
@@ -16,7 +15,6 @@ import javax.inject.Singleton
 
 @Singleton
 class NetworkServiceImpl @Inject constructor(
-    private val otaManager: OtaManager,
     private val singletonWebSocket: SingletonWebSocket,
     private val configManager: ConfigManager,
     private val protocolAdapter: ProtocolAdapter,
@@ -100,42 +98,18 @@ class NetworkServiceImpl @Inject constructor(
     override fun connect() {
         scope.launch {
             val config = configManager.loadConfig()
-            if (config.otaUrl.isBlank()) {
+            if (config.websocketUrl.isBlank()) {
                 _state.value = NetworkState.ERROR
-                _events.tryEmit(AiRobotEvent.Error("OTA URL is empty"))
+                _events.tryEmit(AiRobotEvent.Error("WebSocket URL is empty. Please check OTA/Activation."))
                 return@launch
             }
 
-            _state.value = NetworkState.INITIALIZING
+            _state.value = NetworkState.CONNECTING
             try {
-                // 1. 执行 OTA 获取 WS URL (兼具报防功能)
-                val result = otaManager.reportDeviceAndGetOta(
-                    clientId = config.uuid,
-                    deviceId = config.macAddress,
-                    otaUrl = config.otaUrl
-                )
-
-                result.onSuccess { otaResponse ->
-                    // 检查激活信息
-                    otaResponse.activation?.let { activation ->
-                        if (activation.code.isNotEmpty()) {
-                            _events.tryEmit(AiRobotEvent.ActivationRequired(activation.code))
-                            _state.value = NetworkState.IDLE
-                            return@onSuccess
-                        }
-                    }
-
-                    _state.value = NetworkState.CONNECTING
-                    
-                    // 2. 连接 WebSocket (继续之前的逻辑)
-                    connectInternal(otaResponse.websocket.url, config.macAddress, config.token)
-                }.onFailure { e ->
-                    _state.value = NetworkState.ERROR
-                    _events.tryEmit(AiRobotEvent.Error("Initialization failed: ${e.message}"))
-                }
+                connectInternal(config.websocketUrl, config.macAddress, config.token)
             } catch (e: Exception) {
                 _state.value = NetworkState.ERROR
-                _events.tryEmit(AiRobotEvent.Error(e.message ?: "Unknown error"))
+                _events.tryEmit(AiRobotEvent.Error(e.message ?: "Connection failed"))
             }
         }
     }
@@ -145,10 +119,6 @@ class NetworkServiceImpl @Inject constructor(
         _state.value = NetworkState.IDLE
     }
 
-    override fun onActivationConfirmed() {
-        Log.d(TAG, "Activation confirmed by user, retrying connect")
-        connect()
-    }
 
     override fun sendAudio(data: ByteArray) {
         Log.d(TAG, "发送二进制消息，长度: ${data.size}")

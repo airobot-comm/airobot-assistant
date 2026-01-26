@@ -14,6 +14,7 @@ data class DeviceConfig(
     val macAddress: String,
     val uuid: String,
     val token: String,
+    val activationCode: String = "",
     val mcpEnabled: Boolean = false,
     val mcpServers: List<McpServer> = emptyList()
 ) {
@@ -30,6 +31,7 @@ data class DeviceConfig(
                 macAddress = "",
                 uuid = generateRandomUuid(),
                 token = "test-token",
+                activationCode = "",
                 mcpEnabled = false,
                 mcpServers = listOf(
                     McpServer("示例MCP服务器", "ws://example.com/mcp", false)

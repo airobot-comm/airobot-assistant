@@ -44,7 +44,7 @@ class ConfigRepositoryImpl @Inject constructor(
             val preferences = context.dataStore.data.first()
             val configJson = preferences[PreferencesKeys.CONFIG_DATA]
             
-            if (configJson != null) {
+            val config = if (configJson != null) {
                 try {
                     gson.fromJson(configJson, DeviceConfig::class.java)
                 } catch (e: Exception) {
@@ -53,6 +53,19 @@ class ConfigRepositoryImpl @Inject constructor(
             } else {
                 DeviceConfig.createDefault()
             }
+            
+            // 确保字段不为 null (防御 Gson 反序列化时由于字段缺失导致的 null 注入)
+            config.copy(
+                id = (config.id as String?) ?: "default",
+                name = (config.name as String?) ?: "测试",
+                otaUrl = (config.otaUrl as String?) ?: "",
+                websocketUrl = (config.websocketUrl as String?) ?: "",
+                macAddress = (config.macAddress as String?) ?: "",
+                uuid = (config.uuid as String?) ?: DeviceConfig.generateRandomUuid(),
+                token = (config.token as String?) ?: "test-token",
+                activationCode = (config.activationCode as String?) ?: "",
+                mcpServers = config.mcpServers ?: emptyList()
+            )
         }
     }
 
