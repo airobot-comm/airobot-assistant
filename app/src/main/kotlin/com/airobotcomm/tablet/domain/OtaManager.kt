@@ -1,7 +1,6 @@
 package com.airobotcomm.tablet.domain
 
 import com.airobotcomm.tablet.domain.repository.OtaNetRepo
-import com.airobotcomm.tablet.domain.SystemConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,7 +45,7 @@ class OtaManager @Inject constructor(
 
         val result = otaNetRepo.reportDeviceAndGetOta(
             clientId = config.clientId,
-            deviceId = config.macAddress,
+            deviceId = config.deviceId,
             otaUrl = config.otaUrl
         )
 

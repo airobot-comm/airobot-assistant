@@ -39,12 +39,12 @@ fun SystemAuthPage(
 
         ConfigTextField(
             label = "MAC 地址",
-            value = (editedConfig.macAddress as String?).orEmpty(),
-            onValueChange = { editedConfig = editedConfig.copy(macAddress = it) },
+            value = (editedConfig.deviceId as String?).orEmpty(),
+            onValueChange = { editedConfig = editedConfig.copy(deviceId = it) },
             trailingIcon = {
                 IconButton(onClick = {
                     val newMac = (1..6).joinToString(":") { "%02x".format((0..255).random()) }
-                    editedConfig = editedConfig.copy(macAddress = newMac)
+                    editedConfig = editedConfig.copy(deviceId = newMac)
                 }) {
                     Icon(Icons.Default.Refresh, "生成", tint = RobotPrimaryCyan)
                 }

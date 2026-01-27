@@ -7,11 +7,11 @@ import java.util.UUID
  * 配置数据类
  */
 data class DeviceConfig(
-    val id: String,
+    val deviceModel: String,
     val name: String,
     val otaUrl: String,
     val websocketUrl: String = "",
-    val macAddress: String,
+    val deviceId: String,
     val clientId: String,
     val token: String,
     val activationCode: String = "",
@@ -23,12 +23,12 @@ data class DeviceConfig(
          */
         fun createDefault(): DeviceConfig {
             return DeviceConfig(
-                id = "default",
+                deviceModel = "airobot-tablet-V1",
                 name = "airobot-tablet",
                 otaUrl = "",
                 websocketUrl = "",
-                clientId = generateAndroidId(),
-                macAddress = generateMacAddress(),
+                deviceId = generateDeviceId(),
+                clientId = generateClientId(),
                 token = "test-token",
                 activationCode = "",
                 mcpEnabled = false
@@ -36,21 +36,27 @@ data class DeviceConfig(
         }
 
         /**
-         * 使用Android_ID（SSAID），作为设备uuid
-         */
-        fun generateAndroidId(): String {
-            //val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
-            return UUID.randomUUID().toString()
-        }
-
-        /**
+         * 目前的设备id本质是一个mac地址；
          * 基于Android_ID（SSAID），及device.name生成MAC地址，确保mac独特且唯一
          */
-        private fun generateMacAddress(): String {
+        private fun generateDeviceId(): String {
+            // todo 修改代码实现基于Android_ID（SSAID）的device-mac
             val random = Random()
             val mac = ByteArray(6)
             random.nextBytes(mac)
             return mac.joinToString(":") { "%02X".format(it) }
         }
+
+        /**
+         * 目前的client-id是一个UUID；
+         * 使用deviceId作为client-uuid参数，计算生成client uuid
+         */
+        fun generateClientId(): String {
+            // todo 修改代码实现基于deviceId的client-uuid
+            //val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+            return UUID.randomUUID().toString()
+        }
+
+
     }
 }

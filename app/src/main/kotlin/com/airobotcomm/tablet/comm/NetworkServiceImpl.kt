@@ -1,17 +1,17 @@
 package com.airobotcomm.tablet.comm
 
 import android.util.Log
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import com.airobotcomm.tablet.domain.SystemConfig
 import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
 import com.airobotcomm.tablet.comm.protocol.AiRobotProtocol
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
 import com.airobotcomm.tablet.comm.protocol.ProtocolAdapter
 import com.airobotcomm.tablet.comm.transport.ConnectivityMonitor
 import com.airobotcomm.tablet.comm.transport.WebSocketEvent
 import com.airobotcomm.tablet.comm.transport.SingletonWebSocket
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class NetworkServiceImpl @Inject constructor(
@@ -51,7 +51,7 @@ class NetworkServiceImpl @Inject constructor(
                         _state.value = NetworkState.CONNECTING // 传输层 OK，进入协议握手
                         runBlocking { // 使用runBlocking来处理挂起函数调用
                             val config = systemConfig.loadConfig()
-                            protocol.open("", config.macAddress, config.token)
+                            protocol.open("", config.deviceId, config.token)
                         }
                     }
                     is WebSocketEvent.Reconnecting -> {
@@ -106,7 +106,7 @@ class NetworkServiceImpl @Inject constructor(
 
             _state.value = NetworkState.CONNECTING
             try {
-                connectInternal(config.websocketUrl, config.macAddress, config.token)
+                connectInternal(config.websocketUrl, config.deviceId, config.token)
             } catch (e: Exception) {
                 _state.value = NetworkState.ERROR
                 _events.tryEmit(AiRobotEvent.Error(e.message ?: "Connection failed"))

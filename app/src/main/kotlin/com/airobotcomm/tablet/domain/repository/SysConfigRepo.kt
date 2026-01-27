@@ -5,7 +5,7 @@ import com.airobotcomm.tablet.domain.model.DeviceConfig
 /**
  * 配置仓库接口 - 定义配置管理的契约
  */
-interface OtaConfigRepo {
+interface SysConfigRepo {
     /**
      * 保存配置
      */
