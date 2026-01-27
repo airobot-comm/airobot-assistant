@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.domain.ota.model
+package com.airobotcomm.tablet.domain.model
 
 import java.util.Random
 import java.util.UUID
@@ -12,11 +12,10 @@ data class DeviceConfig(
     val otaUrl: String,
     val websocketUrl: String = "",
     val macAddress: String,
-    val uuid: String,
+    val clientId: String,
     val token: String,
     val activationCode: String = "",
-    val mcpEnabled: Boolean = false,
-    val mcpServers: List<McpServer> = emptyList()
+    val mcpEnabled: Boolean = false
 ) {
     companion object {
         /**
@@ -28,41 +27,30 @@ data class DeviceConfig(
                 name = "airobot-tablet",
                 otaUrl = "",
                 websocketUrl = "",
-                macAddress = generateRandomMacAddress(),
-                uuid = generateRandomUuid(),
+                clientId = generateAndroidId(),
+                macAddress = generateMacAddress(),
                 token = "test-token",
                 activationCode = "",
-                mcpEnabled = false,
-                mcpServers = listOf(
-                    McpServer("示例MCP服务器", "ws://example.com/mcp", false)
-                )
+                mcpEnabled = false
             )
         }
-        
+
         /**
-         * 生成随机MAC地址
+         * 使用Android_ID（SSAID），作为设备uuid
          */
-        private fun generateRandomMacAddress(): String {
+        fun generateAndroidId(): String {
+            //val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+            return UUID.randomUUID().toString()
+        }
+
+        /**
+         * 基于Android_ID（SSAID），及device.name生成MAC地址，确保mac独特且唯一
+         */
+        private fun generateMacAddress(): String {
             val random = Random()
             val mac = ByteArray(6)
             random.nextBytes(mac)
             return mac.joinToString(":") { "%02X".format(it) }
         }
-        
-        /**
-         * 生成随机UUID
-         */
-        fun generateRandomUuid(): String {
-            return UUID.randomUUID().toString()
-        }
     }
 }
-
-/**
- * MCP服务器配置
- */
-data class McpServer(
-    val name: String,
-    val url: String,
-    val enabled: Boolean = true
-)

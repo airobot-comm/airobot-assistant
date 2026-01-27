@@ -1,9 +1,9 @@
 package com.airobotcomm.tablet.infra.remote
 
 import android.util.Log
-import com.airobotcomm.tablet.domain.ota.model.OtaResponse
-import com.airobotcomm.tablet.domain.ota.model.DeviceReportRequest
-import com.airobotcomm.tablet.domain.ota.repository.OtaNetRepository
+import com.airobotcomm.tablet.domain.model.OtaResponse
+import com.airobotcomm.tablet.domain.model.DeviceReportRequest
+import com.airobotcomm.tablet.domain.repository.OtaNetRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -16,9 +16,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class OtaNetRepositoryImpl @Inject constructor() : OtaNetRepository {
+class OtaNetRepoImpl @Inject constructor() : OtaNetRepo {
     companion object {
-        private const val TAG = "OtaNetRepositoryImpl"
+        private const val TAG = "OtaNetRepoImpl"
         private const val TIMEOUT_SECONDS = 30L
     }
 
@@ -51,14 +51,8 @@ class OtaNetRepositoryImpl @Inject constructor() : OtaNetRepository {
                     .build()
 
                 Log.d(TAG, "发送OTA请求到: $url")
-                Log.d(TAG, "请求头 - Client-Id: $clientId, Device-Id: $deviceId")
-                Log.d(TAG, "请求体数据: $requestBodyString")
 
                 val response = client.newCall(request).execute()
-
-                Log.d(TAG, "收到响应 - 状态码: ${response.code}, 消息: ${response.message}")
-                Log.d(TAG, "响应头: ${response.headers}")
-
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
                     if (responseBody != null) {
@@ -94,7 +88,7 @@ class OtaNetRepositoryImpl @Inject constructor() : OtaNetRepository {
             board = DeviceReportRequest.BoardInfo(
                 type = "wifi", // 标识为Wi-Fi设备类型
                 name = "android-tablet",
-                ssid = "卧室", // Wi-Fi SSID，如需要可从系统获取
+                ssid = "test-ssid", // Wi-Fi SSID，如需要可从系统获取
                 rssi = -55, // Wi-Fi信号强度，如需要可从系统获取
                 channel = 1, // Wi-Fi频道，如需要可从系统获取
                 ip = "192.168.1.11", // IP地址，如需要可从系统获取

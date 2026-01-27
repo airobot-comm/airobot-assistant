@@ -1,8 +1,6 @@
-package com.airobotcomm.tablet.domain.ota
+package com.airobotcomm.tablet.domain.usecase
 
-import com.airobotcomm.tablet.domain.ota.model.DeviceReportRequest
-import com.airobotcomm.tablet.domain.ota.model.OtaResponse
-import com.airobotcomm.tablet.domain.ota.repository.OtaNetRepository
+import com.airobotcomm.tablet.domain.repository.OtaNetRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,8 +25,8 @@ sealed class OtaState {
  */
 @Singleton
 class OtaManager @Inject constructor(
-    private val otaNetRepository: OtaNetRepository,
-    private val configManager: ConfigManager
+    private val otaNetRepo: OtaNetRepo,
+    private val systemConfig: SystemConfig
 ) {
     private val _state = MutableStateFlow<OtaState>(OtaState.Idle)
     val state: StateFlow<OtaState> = _state.asStateFlow()
@@ -38,15 +36,15 @@ class OtaManager @Inject constructor(
      */
     suspend fun checkUpdateAndActivation() {
         _state.value = OtaState.Checking
-        val config = configManager.loadConfig()
+        val config = systemConfig.loadConfig()
         
         if (config.otaUrl.isBlank()) {
             _state.value = OtaState.Error("OTA URL is not configured")
             return
         }
 
-        val result = otaNetRepository.reportDeviceAndGetOta(
-            clientId = config.uuid,
+        val result = otaNetRepo.reportDeviceAndGetOta(
+            clientId = config.clientId,
             deviceId = config.macAddress,
             otaUrl = config.otaUrl
         )
@@ -73,20 +71,10 @@ class OtaManager @Inject constructor(
      * 确认激活
      */
     suspend fun confirmActivation(code: String) {
-        val currentConfig = configManager.loadConfig()
-        configManager.saveConfig(currentConfig.copy(activationCode = code))
+        val currentConfig = systemConfig.loadConfig()
+        systemConfig.saveConfig(currentConfig.copy(activationCode = code))
         _state.value = OtaState.Activated
-    }
 
-    /**
-     * 向服务器上报设备信息并获取OTA响应 (保留原接口供以后可能的直接调用)
-     */
-    suspend fun reportDeviceAndGetOta(clientId: String, deviceId: String, otaUrl: String?): Result<OtaResponse> =
-        otaNetRepository.reportDeviceAndGetOta(clientId, deviceId, otaUrl)
-    
-    /**
-     * 创建设备上报请求数据
-     */
-    fun createDeviceReportRequest(clientId: String, deviceId: String): DeviceReportRequest =
-        otaNetRepository.createDeviceReportRequest(clientId, deviceId)
+        // todo: 发送激活请求(目前服务器不支持，人工激活方式)
+    }
 }

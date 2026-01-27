@@ -27,7 +27,7 @@ import androidx.constraintlayout.compose.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobotcomm.tablet.R
 import com.airobotcomm.tablet.airobotui.framework.components.ActivationDialog
-import com.airobotcomm.tablet.domain.ota.model.DeviceConfig
+import com.airobotcomm.tablet.domain.model.DeviceConfig
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.DialogueBubble
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.TypewriterText
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.UserMessageBubble

@@ -15,7 +15,7 @@ ai机器人项目Android版系统架构，技术设计等概要说明
 
 - 分层架构，遵循clearArchitecture + MVVM要求
 - ui要求组件化设计，并使用jetpack compose开发
-- domain层采用模块化设计，模块内采用MVVM设计模式
+- domain层采用MVVM模式，数据模型与仓库业务共享
 - infra基础层提供网络API、数据库、音频/文件存储等
 - 语音与协议通信模块独立，设计高性能，自愈合、高可靠
 - 分层、业务模块间通过Hilt DI机制解耦，ui服务调用
@@ -38,12 +38,13 @@ app/src/main/kotlin/com/airobotcomm/tablet/
 │   ├── di/                        # comm通信模块hilt di服务
 │   ├── protocol/                  # 机器人交互协议
 │   ├── transport/                 # 底层ws，mqtt传输服务
-│   └── CommService.kt             # 通信服务接口
+│   ├── CommService.kt             # 通信服务接口
 │   └── commServiceImpl.kt         # 网络服务接口实现 
 ├──domain/                    # 业务逻辑层 (Domain Layer)
 │   ├── di/                        # domain层hilt di服务
-│   ├── ota/                      # ota激活与升级管理
-│   └── robot/                    # 机器人配置管理   
+│   ├── model/                     # 业务模型
+│   ├── repository/                # 仓库服务
+│   └── usecase/                   # 实例功能
 ├── infra/                    # infracture层 (Repository, network等)
 │   ├── repository/                # Repository服务
 │   ├── remote/                    # 远程数据仓库

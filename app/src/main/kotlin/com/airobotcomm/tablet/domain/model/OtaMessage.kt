@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.domain.ota.model
+package com.airobotcomm.tablet.domain.model
 
 import android.annotation.SuppressLint
 import kotlinx.serialization.SerialName

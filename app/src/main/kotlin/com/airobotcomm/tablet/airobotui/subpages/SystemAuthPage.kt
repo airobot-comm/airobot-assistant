@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.sp
 import com.airobotcomm.tablet.airobotui.framework.drawer.ConfigTextField
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextSecondary
-import com.airobotcomm.tablet.domain.ota.model.DeviceConfig
+import com.airobotcomm.tablet.domain.model.DeviceConfig
 
 @Composable
 fun SystemAuthPage(
@@ -33,8 +33,8 @@ fun SystemAuthPage(
         ConfigTextField(
             label = "设备 ID (UUID)",
             // 使用 orEmpty() 防御式编程，防止反序列化产生的 null
-            value = (editedConfig.uuid as String?).orEmpty(),
-            onValueChange = { editedConfig = editedConfig.copy(uuid = it) }
+            value = (editedConfig.clientId as String?).orEmpty(),
+            onValueChange = { editedConfig = editedConfig.copy(clientId = it) }
         )
 
         ConfigTextField(

@@ -11,8 +11,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.airobotcomm.tablet.domain.ota.OtaManager
-import com.airobotcomm.tablet.domain.ota.OtaState
+import com.airobotcomm.tablet.domain.usecase.OtaManager
+import com.airobotcomm.tablet.domain.usecase.OtaState
 
 /**
  * 主控制 ViewModel

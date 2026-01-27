@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.domain.dialogue.model
+package com.airobotcomm.tablet.domain.model
 
 import java.util.*
 
