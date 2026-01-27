@@ -1,6 +1,7 @@
-package com.airobotcomm.tablet.domain.usecase
+package com.airobotcomm.tablet.domain
 
 import com.airobotcomm.tablet.domain.repository.OtaNetRepo
+import com.airobotcomm.tablet.domain.usecase.SystemConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.domain.usecase
+package com.airobotcomm.tablet.domain
 
 import com.airobotcomm.tablet.domain.model.DeviceConfig
 import com.airobotcomm.tablet.domain.repository.OtaConfigRepo
