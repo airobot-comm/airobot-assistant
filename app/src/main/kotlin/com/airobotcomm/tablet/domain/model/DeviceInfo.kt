@@ -4,9 +4,9 @@ import java.util.Random
 import java.util.UUID
 
 /**
- * 配置数据类
+ * 设备基础数据类
  */
-data class DeviceConfig(
+data class DeviceInfo(
     val deviceModel: String,
     val name: String,
     val otaUrl: String,
@@ -21,8 +21,8 @@ data class DeviceConfig(
         /**
          * 创建默认配置
          */
-        fun createDefault(): DeviceConfig {
-            return DeviceConfig(
+        fun createDefault(): DeviceInfo {
+            return DeviceInfo(
                 deviceModel = "airobot-tablet-V1",
                 name = "airobot-tablet",
                 otaUrl = "",
@@ -56,7 +56,5 @@ data class DeviceConfig(
             //val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
             return UUID.randomUUID().toString()
         }
-
-
     }
 }

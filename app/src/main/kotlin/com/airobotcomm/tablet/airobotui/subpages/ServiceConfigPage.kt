@@ -10,12 +10,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.airobotcomm.tablet.airobotui.framework.drawer.ConfigTextField
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
-import com.airobotcomm.tablet.domain.model.DeviceConfig
+import com.airobotcomm.tablet.domain.model.DeviceInfo
 
 @Composable
 fun ServiceConfigPage(
-    config: DeviceConfig,
-    onConfigChange: (DeviceConfig) -> Unit
+    config: DeviceInfo,
+    onConfigChange: (DeviceInfo) -> Unit
 ) {
     var editedConfig by remember(config) { mutableStateOf(config) }
 

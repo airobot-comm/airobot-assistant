@@ -5,7 +5,7 @@ import com.airobotcomm.tablet.comm.NetworkService
 import com.airobotcomm.tablet.comm.NetworkServiceImpl
 import com.airobotcomm.tablet.comm.protocol.ProtocolAdapter
 import com.airobotcomm.tablet.comm.transport.SingletonWebSocket
-import com.airobotcomm.tablet.domain.SystemConfig
+import com.airobotcomm.tablet.domain.SystemManager
 import com.airobotcomm.tablet.infra.repository.SysConfigRepoImpl
 import dagger.Binds
 import dagger.Module
@@ -30,7 +30,7 @@ abstract class NetworkModule {
     companion object {
         @Provides
         @Singleton
-        fun provideConfigManager(configRepositoryImpl: SysConfigRepoImpl): SystemConfig = SystemConfig(configRepositoryImpl)
+        fun provideConfigManager(configRepositoryImpl: SysConfigRepoImpl): SystemManager = SystemManager(configRepositoryImpl)
 
         @Provides
         @Singleton

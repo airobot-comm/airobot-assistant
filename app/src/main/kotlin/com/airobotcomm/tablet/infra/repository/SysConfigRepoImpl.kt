@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.airobotcomm.tablet.domain.model.DeviceConfig
+import com.airobotcomm.tablet.domain.model.DeviceInfo
 import com.airobotcomm.tablet.domain.repository.SysConfigRepo
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -29,7 +29,7 @@ class SysConfigRepoImpl @Inject constructor(
         val CONFIG_DATA = stringPreferencesKey("config_data")
     }
 
-    override suspend fun saveConfig(config: DeviceConfig) {
+    override suspend fun saveConfig(config: DeviceInfo) {
         withContext(Dispatchers.IO) {
             context.dataStore.edit { preferences ->
                 val jsonString = gson.toJson(config)
@@ -38,19 +38,19 @@ class SysConfigRepoImpl @Inject constructor(
         }
     }
 
-    override suspend fun loadConfig(): DeviceConfig {
+    override suspend fun loadConfig(): DeviceInfo {
         return withContext(Dispatchers.IO) {
             val preferences = context.dataStore.data.first()
             val configJson = preferences[PreferencesKeys.CONFIG_DATA]
             
             val config = if (configJson != null) {
                 try {
-                    gson.fromJson(configJson, DeviceConfig::class.java)
+                    gson.fromJson(configJson, DeviceInfo::class.java)
                 } catch (e: Exception) {
-                    DeviceConfig.createDefault()
+                    DeviceInfo.createDefault()
                 }
             } else {
-                DeviceConfig.createDefault()
+                DeviceInfo.createDefault()
             }
             
             // 确保字段不为 null (防御 Gson 反序列化时由于字段缺失导致的 null 注入)
@@ -60,21 +60,21 @@ class SysConfigRepoImpl @Inject constructor(
                 otaUrl = (config.otaUrl as String?) ?: "",
                 websocketUrl = (config.websocketUrl as String?) ?: "",
                 deviceId = (config.deviceId as String?) ?: "",
-                clientId = (config.clientId as String?) ?: DeviceConfig.generateClientId(),
+                clientId = (config.clientId as String?) ?: DeviceInfo.generateClientId(),
                 token = (config.token as String?) ?: "test-token",
                 activationCode = (config.activationCode as String?) ?: "",
             )
         }
     }
 
-    override fun isConfigComplete(config: DeviceConfig): Boolean {
+    override fun isConfigComplete(config: DeviceInfo): Boolean {
         return config.name.isNotBlank() &&
                (config.otaUrl.isNotBlank() || config.websocketUrl.isNotBlank()) &&
                config.deviceId.isNotBlank() &&
                config.token.isNotBlank()
     }
 
-    override fun getMissingFields(config: DeviceConfig): List<String> {
+    override fun getMissingFields(config: DeviceInfo): List<String> {
         val missingFields = mutableListOf<String>()
 
         if (config.name.isBlank()) missingFields.add("设备名称")

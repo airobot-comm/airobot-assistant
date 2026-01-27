@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import com.airobotcomm.tablet.audio.AudioEvent
 import com.airobotcomm.tablet.audio.AudioServiceImpl
-import com.airobotcomm.tablet.domain.SystemConfig
+import com.airobotcomm.tablet.domain.SystemManager
 import com.airobotcomm.tablet.domain.model.Message
 import com.airobotcomm.tablet.domain.model.MessageRole
-import com.airobotcomm.tablet.domain.model.DeviceConfig
+import com.airobotcomm.tablet.domain.model.DeviceInfo
 import com.airobotcomm.tablet.comm.NetworkService
 import com.airobotcomm.tablet.comm.NetworkState
 import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
@@ -34,7 +34,7 @@ class ConversationViewModel @Inject constructor(
     application: Application,
     private val networkService: NetworkService,
     private val audioService: AudioServiceImpl,
-    private val systemConfig: SystemConfig,
+    private val systemManager: SystemManager,
     private val robotStateManager: RobotStateManager // 使用 RobotStateManager 替代 RobotMainViewModel
 ) : AndroidViewModel(application) {
     companion object {
@@ -229,9 +229,9 @@ class ConversationViewModel @Inject constructor(
     /**
      * 更新配置
      */
-    fun updateConfig(newConfig: DeviceConfig) {
+    fun updateConfig(newConfig: DeviceInfo) {
         viewModelScope.launch {
-            systemConfig.saveConfig(newConfig)
+            systemManager.saveConfig(newConfig)
         }
         networkService.disconnect()
         robotStateManager.updateRobotState(RobotState.Offline)
@@ -416,8 +416,8 @@ class ConversationViewModel @Inject constructor(
     /**
      * 获取当前配置
      */
-    suspend fun getCurrentConfig(): DeviceConfig {
-        return systemConfig.loadConfig()
+    suspend fun getCurrentConfig(): DeviceInfo {
+        return systemManager.loadConfig()
     }
 
     override fun onCleared() {

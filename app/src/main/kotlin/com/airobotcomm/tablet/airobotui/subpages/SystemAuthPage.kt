@@ -14,12 +14,12 @@ import androidx.compose.ui.unit.sp
 import com.airobotcomm.tablet.airobotui.framework.drawer.ConfigTextField
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextSecondary
-import com.airobotcomm.tablet.domain.model.DeviceConfig
+import com.airobotcomm.tablet.domain.model.DeviceInfo
 
 @Composable
 fun SystemAuthPage(
-    config: DeviceConfig,
-    onConfigChange: (DeviceConfig) -> Unit
+    config: DeviceInfo,
+    onConfigChange: (DeviceInfo) -> Unit
 ) {
     var editedConfig by remember(config) { mutableStateOf(config) }
 

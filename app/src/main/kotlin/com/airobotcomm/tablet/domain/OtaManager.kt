@@ -26,7 +26,7 @@ sealed class OtaState {
 @Singleton
 class OtaManager @Inject constructor(
     private val otaNetRepo: OtaNetRepo,
-    private val systemConfig: SystemConfig
+    private val systemManager: SystemManager
 ) {
     private val _state = MutableStateFlow<OtaState>(OtaState.Idle)
     val state: StateFlow<OtaState> = _state.asStateFlow()
@@ -36,7 +36,7 @@ class OtaManager @Inject constructor(
      */
     suspend fun checkUpdateAndActivation() {
         _state.value = OtaState.Checking
-        val config = systemConfig.loadConfig()
+        val config = systemManager.loadConfig()
         
         if (config.otaUrl.isBlank()) {
             _state.value = OtaState.Error("OTA URL is not configured")
@@ -71,8 +71,8 @@ class OtaManager @Inject constructor(
      * 确认激活
      */
     suspend fun confirmActivation(code: String) {
-        val currentConfig = systemConfig.loadConfig()
-        systemConfig.saveConfig(currentConfig.copy(activationCode = code))
+        val currentConfig = systemManager.loadConfig()
+        systemManager.saveConfig(currentConfig.copy(activationCode = code))
         _state.value = OtaState.Activated
 
         // todo: 发送激活请求(目前服务器不支持，人工激活方式)

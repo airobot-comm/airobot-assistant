@@ -27,7 +27,7 @@ import androidx.constraintlayout.compose.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobotcomm.tablet.R
 import com.airobotcomm.tablet.airobotui.framework.components.ActivationDialog
-import com.airobotcomm.tablet.domain.model.DeviceConfig
+import com.airobotcomm.tablet.domain.model.DeviceInfo
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.DialogueBubble
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.TypewriterText
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.UserMessageBubble
@@ -102,7 +102,7 @@ fun AiRobotServiceScreen(
     val scope = rememberCoroutineScope()
     
     // 从配置管理器加载配置
-    var currentConfig by remember { mutableStateOf(DeviceConfig.createDefault()) }
+    var currentConfig by remember { mutableStateOf(DeviceInfo.createDefault()) }
     
     // 从ConversationViewModel加载当前配置
     LaunchedEffect(conversationViewModel) {

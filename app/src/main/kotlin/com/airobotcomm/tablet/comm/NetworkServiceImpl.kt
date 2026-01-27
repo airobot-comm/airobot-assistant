@@ -5,7 +5,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import com.airobotcomm.tablet.domain.SystemConfig
+import com.airobotcomm.tablet.domain.SystemManager
 import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
 import com.airobotcomm.tablet.comm.protocol.AiRobotProtocol
 import com.airobotcomm.tablet.comm.protocol.ProtocolAdapter
@@ -16,7 +16,7 @@ import com.airobotcomm.tablet.comm.transport.SingletonWebSocket
 @Singleton
 class NetworkServiceImpl @Inject constructor(
     private val singletonWebSocket: SingletonWebSocket,
-    private val systemConfig: SystemConfig,
+    private val systemManager: SystemManager,
     private val protocolAdapter: ProtocolAdapter,
     private val connectivityMonitor: ConnectivityMonitor,
     private val protocol: AiRobotProtocol
@@ -50,7 +50,7 @@ class NetworkServiceImpl @Inject constructor(
                     is WebSocketEvent.Connected -> {
                         _state.value = NetworkState.CONNECTING // 传输层 OK，进入协议握手
                         runBlocking { // 使用runBlocking来处理挂起函数调用
-                            val config = systemConfig.loadConfig()
+                            val config = systemManager.loadConfig()
                             protocol.open("", config.deviceId, config.token)
                         }
                     }
@@ -97,7 +97,7 @@ class NetworkServiceImpl @Inject constructor(
 
     override fun connect() {
         scope.launch {
-            val config = systemConfig.loadConfig()
+            val config = systemManager.loadConfig()
             if (config.websocketUrl.isBlank()) {
                 _state.value = NetworkState.ERROR
                 _events.tryEmit(AiRobotEvent.Error("WebSocket URL is empty. Please check OTA/Activation."))
