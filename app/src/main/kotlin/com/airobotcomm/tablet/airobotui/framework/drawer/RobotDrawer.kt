@@ -23,7 +23,7 @@ import com.airobotcomm.tablet.airobotui.framework.theme.RobotBackgroundDark
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotSurface
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextPrimary
-import com.airobotcomm.tablet.domain.model.SystemConfig
+import com.airobotcomm.tablet.system.model.SystemConfig
 import com.airobotcomm.tablet.airobotui.subpages.ServiceConfigPage
 import com.airobotcomm.tablet.airobotui.subpages.SystemAuthPage
 

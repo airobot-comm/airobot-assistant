@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 import com.airobotcomm.tablet.airobotui.framework.drawer.ConfigTextField
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextSecondary
-import com.airobotcomm.tablet.domain.model.SystemConfig
+import com.airobotcomm.tablet.system.model.SystemConfig
 
 @Composable
 fun SystemAuthPage(

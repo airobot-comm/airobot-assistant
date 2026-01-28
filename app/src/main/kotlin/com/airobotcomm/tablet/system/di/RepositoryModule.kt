@@ -1,9 +1,9 @@
-package com.airobotcomm.tablet.domain.di
+package com.airobotcomm.tablet.system.di
 
-import com.airobotcomm.tablet.domain.repository.SysInfoRepo
-import com.airobotcomm.tablet.domain.repository.OtaNetRepo
-import com.airobotcomm.tablet.infra.remote.OtaNetRepoImpl
-import com.airobotcomm.tablet.infra.repository.SysInfoRepoImpl
+import com.airobotcomm.tablet.system.repository.SysInfoRepo
+import com.airobotcomm.tablet.system.remote.OtaNetRepo
+import com.airobotcomm.tablet.system.remote.OtaNetRepoImpl
+import com.airobotcomm.tablet.system.repository.SysInfoRepoImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

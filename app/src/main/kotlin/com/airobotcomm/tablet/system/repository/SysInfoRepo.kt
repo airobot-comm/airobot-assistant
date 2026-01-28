@@ -1,6 +1,6 @@
-package com.airobotcomm.tablet.domain.repository
+package com.airobotcomm.tablet.system.repository
 
-import com.airobotcomm.tablet.domain.model.SystemConfig
+import com.airobotcomm.tablet.system.model.SystemConfig
 
 /**
  * 配置仓库接口 - 定义系统配置管理的契约

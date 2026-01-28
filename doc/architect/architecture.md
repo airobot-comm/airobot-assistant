@@ -13,12 +13,11 @@ ai机器人项目Android版系统架构，技术设计等概要说明
 
 ### 设计原则
 
-- 分层架构，遵循clearArchitecture + MVVM要求
+- 模块化，分层 + MVVMM的clear Architecture
 - ui要求组件化设计，并使用jetpack compose开发
 - 语音与协议通信模块独立，设计高性能，自愈合、高可靠
-- domain层负责系统配置与ota等，数据模型与仓储共享
-- infra基础层提供网络API、数据库、音频/文件存储等
-- 分层、业务模块间通过Hilt DI机制解耦，ui服务调用
+- 系统管理模块负责系统配置与ota管理、角色配置等功能
+- UI分层、业务模块间通过Hilt DI机制解耦，服务调用
 
 ### 项目架构
 ```
@@ -29,7 +28,7 @@ app/src/main/kotlin/com/airobotcomm/tablet/
 │   ├── subpages/                  # 界面模块
 │   ├── theme/                     # 主题配置
 │   ├── viewmodel/                 # airobot viewmodel协调各业务状态    
-├── audio/                    # 音频处理模块
+├── audio/                    # 音频处理模块（集成asr，vod，播放等功能）
 │   ├── di/                        # audio模块hilt di服务
 │   ├── utils/                     # 音频基础功能
 │   ├── EnhancedAudioManager.kt    # 增强音频管理器
@@ -40,15 +39,12 @@ app/src/main/kotlin/com/airobotcomm/tablet/
 │   ├── transport/                 # 底层ws，mqtt传输服务
 │   ├── CommService.kt             # 通信服务接口
 │   └── commServiceImpl.kt         # 网络服务接口实现 
-├──domain/                    # 业务逻辑层，主要是系统管理与ota等功能模块
-│   ├── di/                        # domain层hilt di服务
+├──system/                    # 系统管理模块（系统配置、ota管理功能模块）
+│   ├── di/                        # 系统管理模块hilt di服务
 │   ├── model/                     # 业务模型
-│   ├── repository/                # 仓库服务
-│   └── usecase/                   # 实例功能
-├── infra/                    # infracture层 (Repository, network等)
-│   ├── repository/                # Repository服务
 │   ├── remote/                    # 远程数据仓库
-│   └── model/                     # 数据模型 
+│   ├── repository/                # 本地仓库服务
+│   └── usecase/                   # 实例功能
 ├── utils/                    # 通用工具类
 ├── MainActivity.kt           # 主活动 (Activity)
 └── RobotApplication.kt       # Hilt Application 入口

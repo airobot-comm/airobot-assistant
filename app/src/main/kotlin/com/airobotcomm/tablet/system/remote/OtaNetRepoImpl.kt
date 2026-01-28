@@ -1,9 +1,6 @@
-package com.airobotcomm.tablet.infra.remote
+package com.airobotcomm.tablet.system.remote
 
 import android.util.Log
-import com.airobotcomm.tablet.domain.model.OtaResponse
-import com.airobotcomm.tablet.domain.model.DeviceReportRequest
-import com.airobotcomm.tablet.domain.repository.OtaNetRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json

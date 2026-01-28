@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.domain.model
+package com.airobotcomm.tablet.system.model
 
 /**
  * 设备基础数据类 - 包含系统启动时确定的不可修改的基础信息

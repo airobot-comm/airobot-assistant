@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import com.airobotcomm.tablet.audio.AudioEvent
 import com.airobotcomm.tablet.audio.AudioServiceImpl
-import com.airobotcomm.tablet.domain.SystemManager
-import com.airobotcomm.tablet.domain.model.Message
-import com.airobotcomm.tablet.domain.model.MessageRole
-import com.airobotcomm.tablet.domain.model.SystemConfig
+import com.airobotcomm.tablet.system.SystemManager
+import com.airobotcomm.tablet.system.model.Message
+import com.airobotcomm.tablet.system.model.MessageRole
+import com.airobotcomm.tablet.system.model.SystemConfig
 import com.airobotcomm.tablet.comm.NetworkService
 import com.airobotcomm.tablet.comm.NetworkState
 import com.airobotcomm.tablet.comm.protocol.AiRobotEvent

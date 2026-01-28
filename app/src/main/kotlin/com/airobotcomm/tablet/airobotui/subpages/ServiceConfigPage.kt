@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.airobotcomm.tablet.airobotui.framework.drawer.ConfigTextField
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
-import com.airobotcomm.tablet.domain.model.SystemConfig
+import com.airobotcomm.tablet.system.model.SystemConfig
 
 @Composable
 fun ServiceConfigPage(

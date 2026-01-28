@@ -1,9 +1,7 @@
-package com.airobotcomm.tablet.domain
+package com.airobotcomm.tablet.system
 
-import com.airobotcomm.tablet.domain.model.OtaResponse
-import com.airobotcomm.tablet.domain.model.SystemConfig
-import com.airobotcomm.tablet.domain.model.WsParams
-import com.airobotcomm.tablet.domain.repository.OtaNetRepo
+import com.airobotcomm.tablet.system.model.WsParams
+import com.airobotcomm.tablet.system.remote.OtaNetRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

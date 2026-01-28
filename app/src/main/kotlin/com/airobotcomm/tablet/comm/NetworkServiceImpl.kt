@@ -5,8 +5,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import com.airobotcomm.tablet.domain.OtaManager
-import com.airobotcomm.tablet.domain.SystemManager
+import com.airobotcomm.tablet.system.OtaManager
 import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
 import com.airobotcomm.tablet.comm.protocol.AiRobotProtocol
 import com.airobotcomm.tablet.comm.protocol.ProtocolAdapter

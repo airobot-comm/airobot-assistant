@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.infra.repository
+package com.airobotcomm.tablet.system.repository
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -6,8 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.airobotcomm.tablet.domain.model.SystemConfig
-import com.airobotcomm.tablet.domain.repository.SysInfoRepo
+import com.airobotcomm.tablet.system.model.SystemConfig
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers

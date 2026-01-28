@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.domain.model
+package com.airobotcomm.tablet.system.model
 
 /**
  * WebSocket 连接参数类 - 由 OtaManager 提供给 NetworkService

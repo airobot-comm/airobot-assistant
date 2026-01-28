@@ -7,8 +7,8 @@
 -->
 <full-backup-content>
     <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
+   <include system="sharedpref" path="."/>
+   <exclude system="sharedpref" path="device.xml"/>
 -->
     <!-- Exclude specific shared preferences that contain GCM registration Id -->
 </full-backup-content>

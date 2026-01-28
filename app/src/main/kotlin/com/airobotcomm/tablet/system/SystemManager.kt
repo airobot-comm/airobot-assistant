@@ -1,10 +1,10 @@
-package com.airobotcomm.tablet.domain
+package com.airobotcomm.tablet.system
 
 import android.content.Context
 import android.provider.Settings
-import com.airobotcomm.tablet.domain.model.DeviceInfo
-import com.airobotcomm.tablet.domain.model.SystemConfig
-import com.airobotcomm.tablet.domain.repository.SysInfoRepo
+import com.airobotcomm.tablet.system.model.DeviceInfo
+import com.airobotcomm.tablet.system.model.SystemConfig
+import com.airobotcomm.tablet.system.repository.SysInfoRepo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
