@@ -105,6 +105,9 @@ data class OtaResponse(
     @Serializable
     data class WebSocket(
         @SerialName("url")
-        val url: String
+        val url: String,
+
+        @SerialName("token")
+       val token: String
     )
 }

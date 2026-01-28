@@ -23,7 +23,7 @@ import com.airobotcomm.tablet.airobotui.framework.theme.RobotBackgroundDark
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotSurface
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextPrimary
-import com.airobotcomm.tablet.domain.model.DeviceInfo
+import com.airobotcomm.tablet.domain.model.SystemConfig
 import com.airobotcomm.tablet.airobotui.subpages.ServiceConfigPage
 import com.airobotcomm.tablet.airobotui.subpages.SystemAuthPage
 
@@ -33,8 +33,10 @@ import com.airobotcomm.tablet.airobotui.subpages.SystemAuthPage
  */
 @Composable
 fun RobotDrawerContent(
-    currentConfig: DeviceInfo,
-    onConfigChange: (DeviceInfo) -> Unit,
+    deviceId: String,
+    macAddress: String,
+    currentConfig: SystemConfig,
+    onConfigChange: (SystemConfig) -> Unit,
     onClose: () -> Unit
 ) {
     var selectedTab by remember { mutableStateOf(0) } // 0: 服务配置, 1: 系统认证
@@ -128,6 +130,8 @@ fun RobotDrawerContent(
                         )
                     } else {
                         SystemAuthPage(
+                            deviceId = deviceId,
+                            macAddress = macAddress,
                             config = currentConfig,
                             onConfigChange = onConfigChange
                         )

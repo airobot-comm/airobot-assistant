@@ -13,7 +13,7 @@ import com.airobotcomm.tablet.audio.AudioServiceImpl
 import com.airobotcomm.tablet.domain.SystemManager
 import com.airobotcomm.tablet.domain.model.Message
 import com.airobotcomm.tablet.domain.model.MessageRole
-import com.airobotcomm.tablet.domain.model.DeviceInfo
+import com.airobotcomm.tablet.domain.model.SystemConfig
 import com.airobotcomm.tablet.comm.NetworkService
 import com.airobotcomm.tablet.comm.NetworkState
 import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
@@ -229,14 +229,20 @@ class ConversationViewModel @Inject constructor(
     /**
      * 更新配置
      */
-    fun updateConfig(newConfig: DeviceInfo) {
+    fun updateConfig(newConfig: SystemConfig) {
         viewModelScope.launch {
-            systemManager.saveConfig(newConfig)
+            systemManager.updateConfig(newConfig)
         }
         networkService.disconnect()
         robotStateManager.updateRobotState(RobotState.Offline)
         networkService.connect()
     }
+
+    /**
+     * 基础设备信息展示
+     */
+    fun getDeviceId(): String = systemManager.getDeviceId()
+    fun getMacAddress(): String = systemManager.getMacAddress()
 
     /**
      * 处理音频事件
@@ -416,8 +422,8 @@ class ConversationViewModel @Inject constructor(
     /**
      * 获取当前配置
      */
-    suspend fun getCurrentConfig(): DeviceInfo {
-        return systemManager.loadConfig()
+    suspend fun getCurrentConfig(): SystemConfig {
+        return systemManager.getConfig()
     }
 
     override fun onCleared() {

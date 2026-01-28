@@ -74,12 +74,13 @@ class SingletonWebSocket(context: Context) {
     private var currentRetryAttempt = 0
     private var lastUrl: String? = null
     private var lastDeviceId: String? = null
+    private var lastClientId: String? = null
     private var lastToken: String? = null
 
     /**
      * 连接WebSocket
      */
-    fun connect(url: String, deviceId: String, token: String) {
+    fun connect(url: String, deviceId: String, clientId: String, token: String) {
         // 如果正在连接或连接正常工作，且是同一个连接，则不需要发起连接，直接返回
         if (webSocketSingleton != null
             && currentState == SocketState.CONNECTED
@@ -97,12 +98,13 @@ class SingletonWebSocket(context: Context) {
         // 保存新的连接参数，用于自动重连
         lastUrl = url
         lastDeviceId = deviceId
+        lastClientId = clientId
         lastToken = token
 
         val request = Request.Builder()
             .url(url)
             .addHeader("Device-Id", deviceId)
-            .addHeader("Client-Id", deviceId)
+            .addHeader("Client-Id", clientId)
             .addHeader("Protocol-Version", "1")
             .addHeader("Authorization", "Bearer $token")
             .build()
@@ -194,7 +196,8 @@ class SingletonWebSocket(context: Context) {
             currentRetryAttempt++ //在计算延时后再递增
             Log.d(TAG, "将在 ${delayMs}ms 后进行第 ${currentRetryAttempt} 次重连尝试")
             delay(delayMs)
-            connect(lastUrl!!, lastDeviceId!!, lastToken!!)
+            connect(lastUrl!!, lastDeviceId!!,
+                clientId = lastClientId!!, lastToken!!)
         }
     }
 
@@ -258,6 +261,7 @@ class SingletonWebSocket(context: Context) {
         // 重置连接参数
         lastUrl = null
         lastDeviceId = null
+        lastClientId = null
         lastToken = null
         webSocketSingleton = null
         currentState = SocketState.IDLE

@@ -5,6 +5,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import com.airobotcomm.tablet.domain.OtaManager
 import com.airobotcomm.tablet.domain.SystemManager
 import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
 import com.airobotcomm.tablet.comm.protocol.AiRobotProtocol
@@ -16,7 +17,7 @@ import com.airobotcomm.tablet.comm.transport.SingletonWebSocket
 @Singleton
 class NetworkServiceImpl @Inject constructor(
     private val singletonWebSocket: SingletonWebSocket,
-    private val systemManager: SystemManager,
+    private val otaManager: OtaManager,
     private val protocolAdapter: ProtocolAdapter,
     private val connectivityMonitor: ConnectivityMonitor,
     private val protocol: AiRobotProtocol
@@ -49,9 +50,9 @@ class NetworkServiceImpl @Inject constructor(
                 when (wsEvent) {
                     is WebSocketEvent.Connected -> {
                         _state.value = NetworkState.CONNECTING // 传输层 OK，进入协议握手
-                        runBlocking { // 使用runBlocking来处理挂起函数调用
-                            val config = systemManager.loadConfig()
-                            protocol.open("", config.deviceId, config.token)
+                        val params = otaManager.getWsConnectionParams()
+                        runBlocking { // waring：使用runBlocking来处理协议握手，确保握手后发送数据
+                            protocol.open("", params.deviceId, params.token)
                         }
                     }
                     is WebSocketEvent.Reconnecting -> {
@@ -97,8 +98,8 @@ class NetworkServiceImpl @Inject constructor(
 
     override fun connect() {
         scope.launch {
-            val config = systemManager.loadConfig()
-            if (config.websocketUrl.isBlank()) {
+            val params = otaManager.getWsConnectionParams()
+            if (params.url.isBlank()) {
                 _state.value = NetworkState.ERROR
                 _events.tryEmit(AiRobotEvent.Error("WebSocket URL is empty. Please check OTA/Activation."))
                 return@launch
@@ -106,7 +107,7 @@ class NetworkServiceImpl @Inject constructor(
 
             _state.value = NetworkState.CONNECTING
             try {
-                connectInternal(config.websocketUrl, config.deviceId, config.token)
+                connectInternal(params.url, params.deviceId, params.clientId,params.token)
             } catch (e: Exception) {
                 _state.value = NetworkState.ERROR
                 _events.tryEmit(AiRobotEvent.Error(e.message ?: "Connection failed"))
@@ -126,10 +127,11 @@ class NetworkServiceImpl @Inject constructor(
         singletonWebSocket.sendBinaryMessage(data)
     }
 
-    private fun connectInternal(url: String, deviceId: String, token: String) {
+    private fun connectInternal(url: String, deviceId: String, clientId: String, token: String) {
         singletonWebSocket.connect(
             url = url,
             deviceId = deviceId,
+            clientId = clientId,
             token = token
         )
     }

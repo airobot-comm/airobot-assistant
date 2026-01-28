@@ -10,38 +10,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.airobotcomm.tablet.airobotui.framework.drawer.ConfigTextField
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
-import com.airobotcomm.tablet.domain.model.DeviceInfo
+import com.airobotcomm.tablet.domain.model.SystemConfig
 
 @Composable
 fun ServiceConfigPage(
-    config: DeviceInfo,
-    onConfigChange: (DeviceInfo) -> Unit
+    config: SystemConfig,
+    onConfigChange: (SystemConfig) -> Unit
 ) {
     var editedConfig by remember(config) { mutableStateOf(config) }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         ConfigTextField(
-            label = "设备名称",
-            value = (editedConfig.name as String?).orEmpty(),
-            onValueChange = { editedConfig = editedConfig.copy(name = it) }
-        )
-
-        ConfigTextField(
             label = "OTA 地址",
-            value = (editedConfig.otaUrl as String?).orEmpty(),
+            value = editedConfig.otaUrl,
             onValueChange = { editedConfig = editedConfig.copy(otaUrl = it) }
         )
 
         ConfigTextField(
-            label = "WSS 地址",
-            value = (editedConfig.websocketUrl as String?).orEmpty(),
-            onValueChange = { editedConfig = editedConfig.copy(websocketUrl = it) }
+            label = "角色名称",
+            value = editedConfig.roleName,
+            onValueChange = { editedConfig = editedConfig.copy(roleName = it) }
         )
 
         ConfigTextField(
-            label = "Token",
-            value = (editedConfig.token as String?).orEmpty(),
-            onValueChange = { editedConfig = editedConfig.copy(token = it) }
+            label = "角色 ID (UUID)",
+            value = editedConfig.roleId,
+            onValueChange = { editedConfig = editedConfig.copy(roleId = it) }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
