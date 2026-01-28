@@ -79,7 +79,7 @@ class OtaNetRepoImpl @Inject constructor() : OtaNetRepo {
     override fun createDeviceReportRequest(clientId: String, deviceId: String): DeviceReportRequest {
         return DeviceReportRequest(
             application = DeviceReportRequest.Application(
-                version = "2.0.0",
+                version = "1.0.0",
                 elfSha256 = "c8a8ecb6d6fbcda682494d9675cd1ead240ecf38bdde75282a42365a0e396033"
             ),
             board = DeviceReportRequest.BoardInfo(

@@ -49,7 +49,7 @@ class NetworkServiceImpl @Inject constructor(
                 when (wsEvent) {
                     is WebSocketEvent.Connected -> {
                         _state.value = NetworkState.CONNECTING // 传输层 OK，进入协议握手
-                        val params = otaManager.getWsConnectionParams()
+                        val params = otaManager.getWsCommParams()
                         runBlocking { // waring：使用runBlocking来处理协议握手，确保握手后发送数据
                             protocol.open("", params.deviceId, params.token)
                         }
@@ -97,7 +97,7 @@ class NetworkServiceImpl @Inject constructor(
 
     override fun connect() {
         scope.launch {
-            val params = otaManager.getWsConnectionParams()
+            val params = otaManager.getWsCommParams()
             if (params.url.isBlank()) {
                 _state.value = NetworkState.ERROR
                 _events.tryEmit(AiRobotEvent.Error("WebSocket URL is empty. Please check OTA/Activation."))

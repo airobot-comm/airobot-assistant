@@ -1,6 +1,5 @@
 package com.airobotcomm.tablet.system
 
-import com.airobotcomm.tablet.system.model.WsParams
 import com.airobotcomm.tablet.system.remote.OtaNetRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +22,22 @@ sealed class OtaState {
 }
 
 /**
+ * ota获取动态WebSocket 连接参数类 - 由 OtaManager 提供给 NetworkService
+ */
+data class CommParams(
+    val deviceId: String,
+    val macAddress: String,
+    val clientId: String,
+    val clientName: String,
+
+    // websocket 连接参数
+    val url: String,
+    val token: String
+
+    // mqtt 通信参数，待补充
+)
+
+/**
  * OTA 业务逻辑类 - 处理 OTA 相关的业务规则
  */
 @Singleton
@@ -39,18 +54,28 @@ class OtaManager @Inject constructor(
 
     /**
      * 获取 WebSocket 连接参数
-     * 为 comm/network 模块提供访问 ota 获取的 ws url, token 等信息
+     * 为 comm/network 模块提供访问 ota 获取的最新 ws url, token 等信息
      */
-    suspend fun getWsConnectionParams(): WsParams {
+    suspend fun getWsCommParams(): CommParams {
         val config = systemManager.getConfig()
-        return WsParams(
-            url = dynamicWsUrl, // 实际应从动态数据或配置获取
-            token = dynamicToken,
+        return CommParams(
             deviceId = systemManager.getMacAddress(),
             macAddress = systemManager.getMacAddress(),
             clientId = config.roleId,
-            clientName = config.roleName
+            clientName = config.roleName,
+
+            // 从ota动态更新数据中获取新的ws连接参数
+            url = dynamicWsUrl,
+            token = dynamicToken
         )
+    }
+
+    /**
+     * 获取 MQTT 连接参数
+     * 为 comm/network 模块提供访问 ota 获取的最新 ws url, token 等信息
+     */
+    suspend fun getMQTTCommParams() {
+     //todo 待完善，从服务器已经能获取，但comm层目前还没支持
     }
 
     /**
@@ -90,7 +115,7 @@ class OtaManager @Inject constructor(
     }
 
     /**
-     * 确认激活
+     * 确认激活，todo：待完善，新的激活方式需要再向服务器提交产品序列号信息等
      */
     suspend fun confirmActivation(code: String) {
         val currentConfig = systemManager.getConfig()

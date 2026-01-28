@@ -39,7 +39,7 @@ class SystemManager @Inject constructor(
                 model = "airobot-tablet-V1",
                 version = "1.0.0",
                 deviceId = androidId,
-                //macAddress = mac,  //todo :先用已经认证的mac，后续检查mac地址认证机制
+                //macAddress = mac,  //todo :先用已经激活认证的mac，后续检查升级版激活机制（后台改了激活逻辑）
                 macAddress = "4c:da:59:a0:32:54",
                 maxAirobot = 3
             )
