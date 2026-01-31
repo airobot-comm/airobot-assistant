@@ -51,7 +51,7 @@ class NetworkServiceImpl @Inject constructor(
                         _state.value = NetworkState.CONNECTING // 传输层 OK，进入协议握手
                         val params = otaManager.getWsCommParams()
                         runBlocking { // waring：使用runBlocking来处理协议握手，确保握手后发送数据
-                            protocol.open("", params.deviceId, params.token)
+                            protocol.open("", params.macAddress, params.token)
                         }
                     }
                     is WebSocketEvent.Reconnecting -> {
@@ -106,7 +106,7 @@ class NetworkServiceImpl @Inject constructor(
 
             _state.value = NetworkState.CONNECTING
             try {
-                connectInternal(params.url, params.deviceId, params.clientId,params.token)
+                connectInternal(params.url, params.macAddress, params.clientId,params.token)
             } catch (e: Exception) {
                 _state.value = NetworkState.ERROR
                 _events.tryEmit(AiRobotEvent.Error(e.message ?: "Connection failed"))

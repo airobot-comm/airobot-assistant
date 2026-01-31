@@ -79,12 +79,12 @@ class OtaNetRepoImpl @Inject constructor() : OtaNetRepo {
     override fun createDeviceReportRequest(clientId: String, deviceId: String): DeviceReportRequest {
         return DeviceReportRequest(
             application = DeviceReportRequest.Application(
-                version = "1.0.0",
+                version = "2.0.0",
                 elfSha256 = "c8a8ecb6d6fbcda682494d9675cd1ead240ecf38bdde75282a42365a0e396033"
             ),
             board = DeviceReportRequest.BoardInfo(
                 type = "wifi", // 标识为Wi-Fi设备类型
-                name = "android-tablet",
+                name = "xiaozhi-android",
                 ssid = "test-ssid", // Wi-Fi SSID，如需要可从系统获取
                 rssi = -55, // Wi-Fi信号强度，如需要可从系统获取
                 channel = 1, // Wi-Fi频道，如需要可从系统获取

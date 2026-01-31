@@ -39,25 +39,26 @@ class SystemManager @Inject constructor(
                 model = "airobot-tablet-V1",
                 version = "1.0.0",
                 deviceId = androidId,
-                //macAddress = mac,  //todo :先用已经激活认证的mac，后续检查升级版激活机制（后台改了激活逻辑）
-                macAddress = "4c:da:59:a0:32:54",
+                macAddress = mac,
                 maxAirobot = 3
             )
         }
         return _deviceInfo!!
     }
 
+    // todo :用认证厂商做地址前缀：fa:2e:39，or 4c:da:59，后几位用androidId填充
     private fun generateStableMac(seed: String): String {
+        val prefixes = listOf("fa:2e:39", "4c:da:59")
+        // 使用 seed 的 hashCode 作为随机种子，确保同一设备生成一致的前缀
         val random = Random(seed.hashCode().toLong())
-        val mac = ByteArray(6)
-        random.nextBytes(mac)
-        // 保证是 locally administered address (second least significant bit of first byte set to 1)
-        mac[0] = (mac[0].toInt() or 0x02).toByte()
-        mac[0] = (mac[0].toInt() and 0xFE.inv()).toByte() // unicast (least significant bit of first byte set to 0) - wait, FE.inv() is wrong for clearing bit 0. 
-        // Correct way to clear bit 0: mac[0] = (mac[0].toInt() and 0xFE).toByte()
-        mac[0] = (mac[0].toInt() and 0xFE).toByte()
-        
-        return mac.joinToString(":") { "%02X".format(it) }
+        val prefix = prefixes[random.nextInt(prefixes.size)]
+
+        // 取 androidId 的最后 6 位作为 MAC 地址的后半部分
+        // androidId 通常是 16 位十六进制字符串，如果不足 6 位则在前补 0
+        val suffixSource = seed.takeLast(6).padStart(6, '0')
+        val suffix = suffixSource.chunked(2).joinToString(":")
+
+        return "$prefix:$suffix".lowercase()
     }
 
     /**

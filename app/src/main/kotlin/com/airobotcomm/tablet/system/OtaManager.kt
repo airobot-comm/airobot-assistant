@@ -59,7 +59,7 @@ class OtaManager @Inject constructor(
     suspend fun getWsCommParams(): CommParams {
         val config = systemManager.getConfig()
         return CommParams(
-            deviceId = systemManager.getMacAddress(),
+            deviceId = systemManager.getDeviceId(),
             macAddress = systemManager.getMacAddress(),
             clientId = config.roleId,
             clientName = config.roleName,
@@ -103,7 +103,7 @@ class OtaManager @Inject constructor(
 
             // 1. 检查激活状态
             val activationCode = response.activation?.code
-            if (!activationCode.isNullOrEmpty() && config.activationCode.isEmpty()) {
+            if (!activationCode.isNullOrEmpty()) {
                 _state.value = OtaState.ActivationRequired(activationCode)
                 return@onSuccess
             }
