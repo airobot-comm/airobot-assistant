@@ -40,8 +40,7 @@ class SystemManager @Inject constructor(
                 model = "airobot-tablet-V1",
                 version = "1.0.0",
                 deviceId = androidId,
-                macAddress = mac,
-                maxAirobot = 3
+                macAddress = mac
             )
         }
         return _deviceInfo!!
