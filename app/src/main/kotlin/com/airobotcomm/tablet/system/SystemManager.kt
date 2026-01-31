@@ -11,6 +11,7 @@ import kotlinx.coroutines.sync.withLock
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
 
 /**
  * 配置业务逻辑类 - 处理基础设备信息展示与系统配置管理的业务规则
@@ -46,12 +47,18 @@ class SystemManager @Inject constructor(
         return _deviceInfo!!
     }
 
-    // todo :用认证厂商做地址前缀：fa:2e:39，or 4c:da:59，后几位用androidId填充
+    /**
+     * 根据 androidId 生成稳定的 MAC 地址
+     * 规则：
+     * 1. 前缀从 ["fa:2e:39", "4c:da:59"] 中选择，通过 seed 的 hashCode 取模决定，确保重装后依然稳定
+     * 2. 后 3 字节（6 位字符）使用 androidId 的末尾填充
+     */
     private fun generateStableMac(seed: String): String {
         val prefixes = listOf("fa:2e:39", "4c:da:59")
-        // 使用 seed 的 hashCode 作为随机种子，确保同一设备生成一致的前缀
-        val random = Random(seed.hashCode().toLong())
-        val prefix = prefixes[random.nextInt(prefixes.size)]
+        
+        // 直接使用 hashCode 取模来选择前缀，避免使用 Random 类以确保绝对的确定性
+        val index = abs(seed.hashCode()) % prefixes.size
+        val prefix = prefixes[index]
 
         // 取 androidId 的最后 6 位作为 MAC 地址的后半部分
         // androidId 通常是 16 位十六进制字符串，如果不足 6 位则在前补 0
