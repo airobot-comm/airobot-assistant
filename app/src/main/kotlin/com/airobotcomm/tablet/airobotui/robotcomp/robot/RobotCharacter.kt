@@ -211,7 +211,7 @@ private fun RobotHead(
                         BlinkingEye(size = headSize * 0.17f)
                     }
                 } else {
-                    EnhancedDynamicEyes(
+                    DynamicEyes(
                         state = state,
                         ttsProgressNormalized = ttsProgressNormalized,
                         audioLevel = audioLevel,
