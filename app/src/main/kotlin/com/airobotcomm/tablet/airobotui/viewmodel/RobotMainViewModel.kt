@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.airobotcomm.tablet.system.SysManage
 import com.airobotcomm.tablet.system.SysState
+import com.airobotcomm.tablet.system.model.SystemInfo
 
 /**
  * 主控制 ViewModel
@@ -145,5 +146,31 @@ class RobotMainViewModel @Inject constructor(
      */
     fun updateRobotState(newState: RobotState) {
         robotStateManager.updateRobotState(newState)
+    }
+
+    // System Config & Device Info Management
+    val systemConfig: StateFlow<SystemInfo> = flow {
+        emit(sysManage.getSystemInfo())
+        // Poll or observe changes if SysManage supports it. For now, assume mainly updated via this VM.
+    }.stateIn(viewModelScope, SharingStarted.Lazily, SystemInfo())
+
+    // Device Info Exposure
+    val deviceId = flow { emit(sysManage.getDevInfo().deviceId) }.stateIn(viewModelScope, SharingStarted.Lazily, "")
+    val macAddress = flow { emit(sysManage.getDevInfo().macAddress) }.stateIn(viewModelScope, SharingStarted.Lazily, "")
+
+    fun updateConfig(newInfo: SystemInfo) {
+        viewModelScope.launch {
+            sysManage.updateSystemInfo(newInfo)
+            // If SysManage doesn't emit updates, we might need a MutableStateFlow locally to reflect immediate changes,
+            // but for now relying on SysManage being the source of truth or reloading.
+            // Ideally SysManage.state or similar would emit config changes.
+            // Since we don't see a config flow in SysState, we might need to rely on reloading.
+        }
+        // Retrigger connection logic as per original screen logic
+        viewModelScope.launch {
+            networkService.disconnect()
+            robotStateManager.updateRobotState(RobotState.Offline)
+            networkService.connect()
+        }
     }
 }

@@ -26,8 +26,9 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobotcomm.tablet.R
+import com.airobotcomm.tablet.airobotui.framework.comp.BackgroundDecorations
+import com.airobotcomm.tablet.airobotui.framework.comp.BottomFooter
 import com.airobotcomm.tablet.airobotui.subpage.ActivationDialog
-import com.airobotcomm.tablet.system.model.SystemInfo
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.DialogueBubble
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.TypewriterText
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.UserMessageBubble
@@ -101,19 +102,6 @@ fun AiRobotMainScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     
-    // 从配置管理器加载配置
-    var currentConfig by remember { mutableStateOf(SystemInfo()) }
-    
-    // 从ConversationViewModel加载当前配置
-    LaunchedEffect(conversationViewModel) {
-        try {
-            val loadedConfig = conversationViewModel.getCurrentConfig()
-            currentConfig = loadedConfig
-        } catch (e: Exception) {
-            Log.e("AiRobotMainScreen", "Failed to load config", e)
-        }
-    }
-    
     // 机器人UI状态
     var robotUiState by remember { mutableStateOf(RobotUiState()) }
     var currentCardIndex by remember { mutableIntStateOf(0) }
@@ -179,27 +167,11 @@ fun AiRobotMainScreen(
         }
         robotUiState = robotUiState.copy(statusTip = newStatusTip)
     }
-    
-    // Load device info asynchronously
-    val deviceId by produceState(initialValue = "") {
-        value = conversationViewModel.getDeviceId()
-    }
-    val macAddress by produceState(initialValue = "") {
-        value = conversationViewModel.getMacAddress()
-    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             RobotDrawerContent(
-                deviceId = deviceId,
-                macAddress = macAddress,
-                currentConfig = currentConfig,
-                onConfigChange = { newConfig ->
-                    currentConfig = newConfig
-                    conversationViewModel.updateConfig(newConfig)
-                    scope.launch { drawerState.close() }
-                },
                 onClose = { scope.launch { drawerState.close() } }
             )
         },
@@ -453,76 +425,6 @@ fun AiRobotMainScreen(
 }
 
 @Composable
-private fun BackgroundDecorations() {
-    val infiniteTransition = rememberInfiniteTransition(label = "bgAnimation")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = EaseInOutQuad),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseScale"
-    )
-    
-    Box(modifier = Modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .offset(x = (-100).dp, y = (-150).dp)
-                .size(400.dp * pulseScale)
-                .clip(CircleShape)
-                .background(Color(0xFF3B82F6).copy(alpha = 0.05f))
-                .blur(120.dp)
-        )
-        
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .offset(x = 100.dp, y = 100.dp)
-                .size(350.dp)
-                .clip(CircleShape)
-                .background(Color(0xFF6366F1).copy(alpha = 0.08f))
-                .blur(100.dp)
-        )
-    }
-}
-
-@Composable
-private fun BottomFooter(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(4.dp)
-                    .clip(CircleShape)
-                    .background(RobotPrimaryCyan.copy(alpha = 0.3f))
-            )
-            Text(
-                text = "OPERATIONAL MODE: SEAMLESS COMPANION",
-                color = RobotTextPrimary.copy(alpha = 0.4f),
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 3.sp
-            )
-            Box(
-                modifier = Modifier
-                    .size(4.dp)
-                    .clip(CircleShape)
-                    .background(RobotPrimaryCyan.copy(alpha = 0.3f))
-            )
-        }
-    }
-}
-
-@Composable
 private fun FunctionalModulePanel(
     card: ServiceCard?,
     aiMsg: String?,
@@ -596,9 +498,9 @@ private fun FunctionalModulePanel(
                 IconButton(
                     onClick = onClose,
                     modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.White.copy(alpha = 0.05f))
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.White.copy(alpha = 0.05f))
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.close),
@@ -657,7 +559,7 @@ private fun FunctionalModulePanel(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-            ) {
+                ) {
                 if (card.type == ServiceCardType.TIMER) {
                     FocusTimerWidget(
                         command = timerCommand,

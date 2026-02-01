@@ -9,20 +9,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airobotcomm.tablet.airobotui.framework.components.ConfigTextField
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.airobotcomm.tablet.airobotui.framework.comp.ConfigTextField
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextSecondary
-import com.airobotcomm.tablet.system.model.SystemInfo
+import com.airobotcomm.tablet.airobotui.viewmodel.RobotMainViewModel
 import com.airobotcomm.tablet.system.model.ActiveInfo
 
 @Composable
 fun SystemAuthPage(
-    deviceId: String,
-    macAddress: String,
-    config: SystemInfo,
-    onConfigChange: (SystemInfo) -> Unit
+    viewModel: RobotMainViewModel = hiltViewModel()
 ) {
+    val deviceId by viewModel.deviceId.collectAsState()
+    val macAddress by viewModel.macAddress.collectAsState()
+    val config by viewModel.systemConfig.collectAsState()
+    
     var editedConfig by remember(config) { mutableStateOf(config) }
+    
+    // Sync local state when config updates
+    LaunchedEffect(config) {
+        editedConfig = config
+    }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
@@ -36,6 +43,7 @@ fun SystemAuthPage(
             label = "设备 ID (Android ID)",
             value = deviceId,
             onValueChange = {},
+            // readOnly = true // If ConfigTextField supports it, otherwise just no-op onValueChange
         )
 
         ConfigTextField(
@@ -65,7 +73,7 @@ fun SystemAuthPage(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { onConfigChange(editedConfig) },
+            onClick = { viewModel.updateConfig(editedConfig) },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = RobotPrimaryCyan),
             shape = RoundedCornerShape(12.dp)
