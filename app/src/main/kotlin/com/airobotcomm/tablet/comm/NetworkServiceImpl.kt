@@ -5,7 +5,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import com.airobotcomm.tablet.system.OtaManager
+import com.airobotcomm.tablet.system.SysManage
 import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
 import com.airobotcomm.tablet.comm.protocol.AiRobotProtocol
 import com.airobotcomm.tablet.comm.protocol.ProtocolAdapter
@@ -16,7 +16,7 @@ import com.airobotcomm.tablet.comm.transport.SingletonWebSocket
 @Singleton
 class NetworkServiceImpl @Inject constructor(
     private val singletonWebSocket: SingletonWebSocket,
-    private val otaManager: OtaManager,
+    private val sysManage: SysManage,
     private val protocolAdapter: ProtocolAdapter,
     private val connectivityMonitor: ConnectivityMonitor,
     private val protocol: AiRobotProtocol
@@ -49,7 +49,7 @@ class NetworkServiceImpl @Inject constructor(
                 when (wsEvent) {
                     is WebSocketEvent.Connected -> {
                         _state.value = NetworkState.CONNECTING // 传输层 OK，进入协议握手
-                        val params = otaManager.commCredentials()
+                        val params = sysManage.getCredential()
                         runBlocking { // waring：使用runBlocking来处理协议握手，确保握手后发送数据
                             protocol.open("", params.macAddress, params.token)
                         }
@@ -97,7 +97,7 @@ class NetworkServiceImpl @Inject constructor(
 
     override fun connect() {
         scope.launch {
-            val params = otaManager.commCredentials()
+            val params = sysManage.getCredential()
             if (params.url.isBlank()) {
                 _state.value = NetworkState.ERROR
                 _events.tryEmit(AiRobotEvent.Error("WebSocket URL is empty. Please check OTA/Activation."))

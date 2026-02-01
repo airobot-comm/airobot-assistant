@@ -13,11 +13,11 @@ ai机器人项目Android版系统架构，技术设计等概要说明
 
 ### 设计原则
 
-- 模块化，分层 + MVVMM的clear Architecture
-- ui要求组件化设计，并使用jetpack compose开发
+- 采用服务化模块 + MVVM的clear Architecture
+- AiRobotUi组件化设计，使用jetpack compose开发
 - 语音与协议通信模块独立，设计高性能，自愈合、高可靠
 - 系统管理模块负责系统配置与ota管理、角色配置等功能
-- UI分层、业务模块间通过Hilt DI机制解耦，服务调用
+- AiRobotUI、各业务模块间通过Hilt DI机制解耦，调用
 
 ### 项目架构
 ```

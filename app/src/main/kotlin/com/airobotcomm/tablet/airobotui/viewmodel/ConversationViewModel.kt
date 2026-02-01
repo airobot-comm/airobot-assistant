@@ -1,6 +1,6 @@
 package com.airobotcomm.tablet.airobotui.viewmodel
 
-import com.airobotcomm.tablet.system.SysManager
+import com.airobotcomm.tablet.system.SysManage
 import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
@@ -32,7 +32,7 @@ class ConversationViewModel @Inject constructor(
     application: Application,
     private val networkService: NetworkService,
     private val audioService: AudioServiceImpl,
-    private val sysManager: SysManager,
+    private val sysManage: SysManage,
     private val robotStateManager: RobotStateManager // 使用 RobotStateManager 替代 RobotMainViewModel
 ) : AndroidViewModel(application) {
     companion object {
@@ -216,7 +216,7 @@ class ConversationViewModel @Inject constructor(
      */
     fun updateConfig(newInfo: SystemInfo) {
         viewModelScope.launch {
-            sysManager.updateSystemInfo(newInfo)
+            sysManage.updateSystemInfo(newInfo)
         }
         networkService.disconnect()
         robotStateManager.updateRobotState(RobotState.Offline)
@@ -226,8 +226,8 @@ class ConversationViewModel @Inject constructor(
     /**
      * 基础设备信息展示
      */
-    suspend fun getDeviceId(): String = sysManager.getDeviceId()
-    suspend fun getMacAddress(): String = sysManager.getMacAddress()
+    suspend fun getDeviceId(): String = sysManage.getDevInfo().deviceId
+    suspend fun getMacAddress(): String = sysManage.getDevInfo().macAddress
 
     /**
      * 处理音频事件
@@ -398,7 +398,7 @@ class ConversationViewModel @Inject constructor(
      * 获取当前配置
      */
     suspend fun getCurrentConfig(): SystemInfo {
-        return sysManager.getSystemInfo()
+        return sysManage.getSystemInfo()
     }
 
     override fun onCleared() {

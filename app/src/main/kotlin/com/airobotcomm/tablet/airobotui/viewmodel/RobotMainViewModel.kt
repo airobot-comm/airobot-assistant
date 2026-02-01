@@ -11,8 +11,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.airobotcomm.tablet.system.OtaManager
-import com.airobotcomm.tablet.system.OtaState
+import com.airobotcomm.tablet.system.SysManage
+import com.airobotcomm.tablet.system.SysState
 
 /**
  * 主控制 ViewModel
@@ -22,7 +22,7 @@ import com.airobotcomm.tablet.system.OtaState
 class RobotMainViewModel @Inject constructor(
     private val networkService: NetworkService,
     private val robotStateManager: RobotStateManager,
-    private val otaManager: OtaManager
+    private val sysManage: SysManage
 ) : ViewModel() {
 
     val robotState: StateFlow<RobotState> = robotStateManager.robotState
@@ -38,43 +38,44 @@ class RobotMainViewModel @Inject constructor(
 
     init {
         observeNetwork()
-        observeOta()
-        startOtaCheck()
+        observeSysState()
+        startSysCheck()
     }
 
-    private fun startOtaCheck() {
-        viewModelScope.launch {
-            otaManager.checkUpdateAndActivation()
-        }
+    private fun startSysCheck() {
+        // Trigger system initialization/check
+        sysManage.start()
     }
 
-    private fun observeOta() {
+    private fun observeSysState() {
         viewModelScope.launch {
-            otaManager.state.collect { state ->
+            sysManage.state.collect { state ->
                 when (state) {
-                    is OtaState.Checking -> {
+                    is SysState.Checking -> {
                         robotStateManager.updateRobotState(RobotState.Initializing)
                     }
-                    is OtaState.ActivationRequired -> {
+                    is SysState.ActivationRequired -> {
                         _activationCode.value = state.code
                         _showActivationDialog.value = true
                         robotStateManager.updateRobotState(RobotState.Unauthorized(state.code))
                     }
-                    is OtaState.Activated -> {
+                    is SysState.Ready -> {
                         _showActivationDialog.value = false
                         _activationCode.value = null
                         // OTA 激活/检查完成后，尝试连接网络
                         networkService.connect()
                     }
-                    is OtaState.UpdateAvailable -> {
+                    is SysState.UpdateAvailable -> {
                         // TODO: 处理更新提示
                         robotStateManager.updateRobotState(RobotState.Ready)
+                        // Also try to connect if update is available, assuming it functions
+                        networkService.connect()
                     }
-                    is OtaState.Error -> {
+                    is SysState.Error -> {
                         _errorMessage.value = state.message
                         robotStateManager.updateRobotState(RobotState.Offline)
                     }
-                    is OtaState.Idle -> {}
+                    is SysState.Idle -> {}
                 }
             }
         }
@@ -130,7 +131,7 @@ class RobotMainViewModel @Inject constructor(
         val code = _activationCode.value
         if (code != null) {
             viewModelScope.launch {
-                otaManager.confirmActivation(code)
+                sysManage.activate(code)
             }
         }
     }
