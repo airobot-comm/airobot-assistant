@@ -63,7 +63,7 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
  */
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun AiRobotServiceScreen(
+fun AiRobotMainScreen(
     robotMainViewModel: RobotMainViewModel = hiltViewModel(),
     conversationViewModel: ConversationViewModel = hiltViewModel(),
     serviceViewModel: ServiceViewModel = hiltViewModel()
@@ -110,7 +110,7 @@ fun AiRobotServiceScreen(
             val loadedConfig = conversationViewModel.getCurrentConfig()
             currentConfig = loadedConfig
         } catch (e: Exception) {
-            Log.e("AiRobotServiceScreen", "Failed to load config", e)
+            Log.e("AiRobotMainScreen", "Failed to load config", e)
         }
     }
     

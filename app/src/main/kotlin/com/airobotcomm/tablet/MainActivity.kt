@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.airobotcomm.tablet.airobotui.AiRobotServiceScreen
+import com.airobotcomm.tablet.airobotui.AiRobotMainScreen
 import com.airobotcomm.tablet.airobotui.framework.theme.DarkColorScheme
 import com.airobotcomm.tablet.airobotui.framework.theme.YTheme
 
@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = DarkColorScheme.background
                 ) {
-                    AiRobotServiceScreen()
+                    AiRobotMainScreen()
                 }
             }
         }
