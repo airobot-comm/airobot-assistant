@@ -1,6 +1,20 @@
 package com.airobotcomm.tablet.system.model
 
-import javax.crypto.SecretKey
+/**
+ * ota激活/服务器动态认证获取新的通信凭证，目前支持ws
+ * todo：后续要支持MQTT，支持V2的动态认证激活模式
+ */
+data class CommCredentials(
+    val deviceId: String,
+    val macAddress: String,
+    val clientId: String,
+
+    // websocket 连接参数
+    val url: String,
+    val token: String
+
+    // mqtt 通信参数，待补充
+)
 
 /**
  * 系统激活信息 - 应用系统激活密钥，激活返回码等信息

@@ -16,7 +16,7 @@ import javax.inject.Singleton
  * 遵循封闭原则，不对外直接暴露内部存储实现与模型细节
  */
 @Singleton
-class SystemManager @Inject constructor(
+class SysManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val sysInfoRepo: SysInfoRepo
 ) {

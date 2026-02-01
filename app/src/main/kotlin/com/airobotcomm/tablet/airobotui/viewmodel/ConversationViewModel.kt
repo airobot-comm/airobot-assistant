@@ -1,6 +1,6 @@
 package com.airobotcomm.tablet.airobotui.viewmodel
 
-import com.airobotcomm.tablet.system.SystemManager
+import com.airobotcomm.tablet.system.SysManager
 import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
@@ -24,8 +24,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.delay
 
-// 移除旧的 enum class ConversationState
-
 /**
  * 对话ViewModel
  */
@@ -34,14 +32,12 @@ class ConversationViewModel @Inject constructor(
     application: Application,
     private val networkService: NetworkService,
     private val audioService: AudioServiceImpl,
-    private val systemManager: SystemManager,
+    private val sysManager: SysManager,
     private val robotStateManager: RobotStateManager // 使用 RobotStateManager 替代 RobotMainViewModel
 ) : AndroidViewModel(application) {
     companion object {
         private const val TAG = "ConversationViewModel"
     }
-
-    private val gson = Gson()
 
     // 内部子状态管理
     private val _subState = MutableStateFlow(ConversationSubState.LISTENING)
@@ -50,19 +46,8 @@ class ConversationViewModel @Inject constructor(
     // 移除旧的 _state 和 _isConnected，由 RobotMainViewModel 管理
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
-    val messages: StateFlow<List<Message>> = _messages.asStateFlow()
-
     private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
-    
-    // 激活弹窗状态
-    // 激活弹窗状态
-    private val _showActivationDialog = MutableStateFlow(false)
-    val showActivationDialog: StateFlow<Boolean> = _showActivationDialog.asStateFlow()
-    
-    private val _activationCode = MutableStateFlow<String?>(null)
-    val activationCode: StateFlow<String?> = _activationCode.asStateFlow()
-    
+
     // 当前轮次的用户输入文本 (用于UI显示，每轮对话开始时清空)
     private val _currentRoundUserText = MutableStateFlow<String?>(null)
     val currentRoundUserText: StateFlow<String?> = _currentRoundUserText.asStateFlow()
@@ -231,7 +216,7 @@ class ConversationViewModel @Inject constructor(
      */
     fun updateConfig(newInfo: SystemInfo) {
         viewModelScope.launch {
-            systemManager.updateSystemInfo(newInfo)
+            sysManager.updateSystemInfo(newInfo)
         }
         networkService.disconnect()
         robotStateManager.updateRobotState(RobotState.Offline)
@@ -241,8 +226,8 @@ class ConversationViewModel @Inject constructor(
     /**
      * 基础设备信息展示
      */
-    suspend fun getDeviceId(): String = systemManager.getDeviceId()
-    suspend fun getMacAddress(): String = systemManager.getMacAddress()
+    suspend fun getDeviceId(): String = sysManager.getDeviceId()
+    suspend fun getMacAddress(): String = sysManager.getMacAddress()
 
     /**
      * 处理音频事件
@@ -325,16 +310,6 @@ class ConversationViewModel @Inject constructor(
         syncToMainState()
         audioService.startRecording()
         networkService.startListening("auto")
-    }
-
-    /**
-     * 发送文本消息
-     */
-    fun sendTextMessage(text: String) {
-        if (!networkService.isConnected || text.isBlank()) return
-        networkService.sendText(text)
-        _subState.value = ConversationSubState.THINKING
-        syncToMainState()
     }
 
     /**
@@ -423,7 +398,7 @@ class ConversationViewModel @Inject constructor(
      * 获取当前配置
      */
     suspend fun getCurrentConfig(): SystemInfo {
-        return systemManager.getSystemInfo()
+        return sysManager.getSystemInfo()
     }
 
     override fun onCleared() {

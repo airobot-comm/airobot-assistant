@@ -1,5 +1,6 @@
 package com.airobotcomm.tablet.system
 
+import com.airobotcomm.tablet.system.model.CommCredentials
 import com.airobotcomm.tablet.system.remote.OtaNetRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,13 +23,13 @@ sealed class OtaState {
 }
 
 /**
- * ota获取动态WebSocket 连接参数类 - 由 OtaManager 提供给 NetworkService
+ * ota激活/服务器动态认证获取新的通信凭证，目前支持ws
+ * todo：后续要支持MQTT，支持V2的动态认证激活模式
  */
-data class CommParams(
+data class CommCredentials(
     val deviceId: String,
     val macAddress: String,
     val clientId: String,
-    val clientName: String,
 
     // websocket 连接参数
     val url: String,
@@ -43,7 +44,7 @@ data class CommParams(
 @Singleton
 class OtaManager @Inject constructor(
     private val otaNetRepo: OtaNetRepo,
-    private val systemManager: SystemManager
+    private val sysManager: SysManager
 ) {
     private val _state = MutableStateFlow<OtaState>(OtaState.Idle)
     val state: StateFlow<OtaState> = _state.asStateFlow()
@@ -53,19 +54,15 @@ class OtaManager @Inject constructor(
     private var dynamicToken: String = ""
 
     /**
-     * 获取 WebSocket 连接参数
-     * 为 comm/network 模块提供访问 ota 获取的最新 ws url, token 等信息
+     * 获取通信凭证：只有服务器激活/认证通过有效
+     * 为 comm/network 模块提供动态的通信凭证
      */
-    suspend fun getWsCommParams(): CommParams {
-        val info = systemManager.getSystemInfo()
-        return CommParams(
-            deviceId = systemManager.getDeviceId(),
-            macAddress = systemManager.getMacAddress(),
+    suspend fun commCredentials(): CommCredentials {
+        val info = sysManager.getSystemInfo()
+        return CommCredentials(
+            deviceId = sysManager.getDeviceId(),
+            macAddress = sysManager.getMacAddress(),
             clientId = info.clientId,
-            // Assuming roleName was part of config before, but now maybe part of stored info or fixed.
-            // SystemConfig had roleName. SystemInfo has aiRobotArray.
-            // Let's use the first robot's roleName if available, or default.
-            clientName = info.aiRobotArray.firstOrNull()?.roleName ?: "AiRobot",
 
             // 从ota动态更新数据中获取新的ws连接参数
             url = dynamicWsUrl,
@@ -74,19 +71,11 @@ class OtaManager @Inject constructor(
     }
 
     /**
-     * 获取 MQTT 连接参数
-     * 为 comm/network 模块提供访问 ota 获取的最新 ws url, token 等信息
-     */
-    suspend fun getMQTTCommParams() {
-     //todo 待完善，从服务器已经能获取，但comm层目前还没支持
-    }
-
-    /**
      * 检查更新和激活状态
      */
     suspend fun checkUpdateAndActivation() {
         _state.value = OtaState.Checking
-        val info = systemManager.getSystemInfo()
+        val info = sysManager.getSystemInfo()
         
         if (info.otaUrl.isBlank()) {
             _state.value = OtaState.Error("OTA URL is not configured")
@@ -95,7 +84,7 @@ class OtaManager @Inject constructor(
 
         val result = otaNetRepo.reportDeviceAndGetOta(
             clientId = info.clientId,
-            deviceId = systemManager.getMacAddress(),
+            deviceId = sysManager.getMacAddress(),
             otaUrl = info.otaUrl
         )
 
@@ -121,9 +110,9 @@ class OtaManager @Inject constructor(
      * 确认激活，todo：待完善，新的激活方式需要再向服务器提交产品序列号信息等
      */
     suspend fun confirmActivation(code: String) {
-        val currentInfo = systemManager.getSystemInfo()
+        val currentInfo = sysManager.getSystemInfo()
         val updatedActiveInfo = currentInfo.activeInfo!!.copy(activationCode = code)
-        systemManager.updateSystemInfo(currentInfo.copy(activeInfo = updatedActiveInfo))
+        sysManager.updateSystemInfo(currentInfo.copy(activeInfo = updatedActiveInfo))
         _state.value = OtaState.Activated
     }
     
