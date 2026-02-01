@@ -10,14 +10,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.airobotcomm.tablet.airobotui.framework.drawer.ConfigTextField
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
-import com.airobotcomm.tablet.system.model.SystemConfig
+import com.airobotcomm.tablet.system.model.SystemInfo
+import com.airobotcomm.tablet.system.model.AiRobot
 
 @Composable
 fun ServiceConfigPage(
-    config: SystemConfig,
-    onConfigChange: (SystemConfig) -> Unit
+    config: SystemInfo,
+    onConfigChange: (SystemInfo) -> Unit
 ) {
     var editedConfig by remember(config) { mutableStateOf(config) }
+    
+    // Helper to get the first robot or a default one
+    val currentRobot = editedConfig.aiRobotArray.firstOrNull() ?: AiRobot()
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         ConfigTextField(
@@ -28,14 +32,32 @@ fun ServiceConfigPage(
 
         ConfigTextField(
             label = "角色名称",
-            value = editedConfig.roleName,
-            onValueChange = { editedConfig = editedConfig.copy(roleName = it) }
+            value = currentRobot.roleName,
+            onValueChange = { newName ->
+                val newRobot = currentRobot.copy(roleName = newName)
+                val newArray = editedConfig.aiRobotArray.clone()
+                if (newArray.isNotEmpty()) newArray[0] = newRobot else return@ConfigTextField // Should handle resize if empty? 
+                // For simplicity assuming size > 0 as per default
+                if (newArray.isEmpty()) { 
+                     // This case is rare given default init
+                } else {
+                     newArray[0] = newRobot
+                }
+                editedConfig = editedConfig.copy(aiRobotArray = newArray)
+            }
         )
 
         ConfigTextField(
             label = "角色 ID (UUID)",
-            value = editedConfig.roleId,
-            onValueChange = { editedConfig = editedConfig.copy(roleId = it) }
+            value = currentRobot.roleId,
+            onValueChange = { newId ->
+               val newRobot = currentRobot.copy(roleId = newId)
+                val newArray = editedConfig.aiRobotArray.clone()
+                if (newArray.isNotEmpty()) {
+                     newArray[0] = newRobot
+                     editedConfig = editedConfig.copy(aiRobotArray = newArray)
+                }
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))

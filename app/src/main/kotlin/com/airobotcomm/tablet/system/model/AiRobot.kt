@@ -10,5 +10,5 @@ data class AiRobot(
     val roleId: String = UUID.randomUUID().toString(), // activate role-uuid
     val mcpEnabled: Boolean = false
 ){
-   // todo：完成初始的构造方法，自己先赋值
+   // AiRobot initialized with default values
 }

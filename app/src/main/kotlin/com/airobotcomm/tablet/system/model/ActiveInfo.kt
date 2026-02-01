@@ -9,9 +9,13 @@ data class ActiveInfo(
     val productKey: String,      // 产品激活密钥，授权给用户
     val secretKey: String,       // 简单的激活密钥生成与检测secretKey
     val serviceTime: String,     // 服务器激活时候的时间戳
-    val serverCode: String = ""
+    val serverCode: String = "",
+    val activationCode: String = "" // Migrated activation code from SystemConfig
 ){
-    // todo：完成构造方法，
 
-   // todo：productKey的检测功能（设计一个私有密钥key）
+    fun isValid(): Boolean {
+        // Simple check: productKey must not be empty.
+        // TODO: Implement actual secret key verification logic
+        return productKey.isNotEmpty()
+    }
 }

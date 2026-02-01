@@ -8,12 +8,36 @@ import java.util.UUID
 data class SystemInfo (
     val otaUrl: String = "https://api.tenclass.net/xiaozhi/ota/",
     val clientId: String = UUID.randomUUID().toString(),
-    val deviceInfo: DeviceInfo,
+    val deviceInfo: DeviceInfo = DeviceInfo.empty(),
 
     // activation and airobot info
-    val activeInfo: ActiveInfo,
+    val activeInfo: ActiveInfo = ActiveInfo(productKey = "", secretKey = "", serviceTime = ""),
     val aiRobotNux: Byte = 3,     // airobot role number
     val aiRobotArray: Array<AiRobot?> = Array(size = aiRobotNux.toInt()) { null }
 ){
-    // todo:完成构造方法赋值
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as SystemInfo
+
+        if (otaUrl != other.otaUrl) return false
+        if (clientId != other.clientId) return false
+        if (deviceInfo != other.deviceInfo) return false
+        if (activeInfo != other.activeInfo) return false
+        if (aiRobotNux != other.aiRobotNux) return false
+        if (!aiRobotArray.contentEquals(other.aiRobotArray)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = otaUrl.hashCode()
+        result = 31 * result + clientId.hashCode()
+        result = 31 * result + deviceInfo.hashCode()
+        result = 31 * result + activeInfo.hashCode()
+        result = 31 * result + aiRobotNux
+        result = 31 * result + aiRobotArray.contentHashCode()
+        return result
+    }
 }

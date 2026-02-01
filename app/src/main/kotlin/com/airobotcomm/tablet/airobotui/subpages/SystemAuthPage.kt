@@ -12,14 +12,15 @@ import androidx.compose.ui.unit.sp
 import com.airobotcomm.tablet.airobotui.framework.drawer.ConfigTextField
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextSecondary
-import com.airobotcomm.tablet.system.model.SystemConfig
+import com.airobotcomm.tablet.system.model.SystemInfo
+import com.airobotcomm.tablet.system.model.ActiveInfo
 
 @Composable
 fun SystemAuthPage(
     deviceId: String,
     macAddress: String,
-    config: SystemConfig,
-    onConfigChange: (SystemConfig) -> Unit
+    config: SystemInfo,
+    onConfigChange: (SystemInfo) -> Unit
 ) {
     var editedConfig by remember(config) { mutableStateOf(config) }
 
@@ -54,8 +55,11 @@ fun SystemAuthPage(
 
         ConfigTextField(
             label = "激活码",
-            value = editedConfig.activationCode,
-            onValueChange = { editedConfig = editedConfig.copy(activationCode = it) },
+            value = editedConfig.activeInfo?.activationCode ?: "",
+            onValueChange = { newCode -> 
+                val currentActive = editedConfig.activeInfo ?: ActiveInfo(productKey="", secretKey="", serviceTime="")
+                editedConfig = editedConfig.copy(activeInfo = currentActive.copy(activationCode = newCode))
+            },
         )
 
         Spacer(modifier = Modifier.height(16.dp))

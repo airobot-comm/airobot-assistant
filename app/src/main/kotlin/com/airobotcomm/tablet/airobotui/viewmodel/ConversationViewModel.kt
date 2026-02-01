@@ -1,5 +1,6 @@
 package com.airobotcomm.tablet.airobotui.viewmodel
 
+import com.airobotcomm.tablet.system.SystemManager
 import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
@@ -10,10 +11,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import com.airobotcomm.tablet.audio.AudioEvent
 import com.airobotcomm.tablet.audio.AudioServiceImpl
-import com.airobotcomm.tablet.system.SystemManager
 import com.airobotcomm.tablet.system.model.Message
 import com.airobotcomm.tablet.system.model.MessageRole
-import com.airobotcomm.tablet.system.model.SystemConfig
+import com.airobotcomm.tablet.system.model.SystemInfo
 import com.airobotcomm.tablet.comm.NetworkService
 import com.airobotcomm.tablet.comm.NetworkState
 import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
@@ -229,9 +229,9 @@ class ConversationViewModel @Inject constructor(
     /**
      * 更新配置
      */
-    fun updateConfig(newConfig: SystemConfig) {
+    fun updateConfig(newInfo: SystemInfo) {
         viewModelScope.launch {
-            systemManager.updateConfig(newConfig)
+            systemManager.updateSystemInfo(newInfo)
         }
         networkService.disconnect()
         robotStateManager.updateRobotState(RobotState.Offline)
@@ -241,8 +241,8 @@ class ConversationViewModel @Inject constructor(
     /**
      * 基础设备信息展示
      */
-    fun getDeviceId(): String = systemManager.getDeviceId()
-    fun getMacAddress(): String = systemManager.getMacAddress()
+    suspend fun getDeviceId(): String = systemManager.getDeviceId()
+    suspend fun getMacAddress(): String = systemManager.getMacAddress()
 
     /**
      * 处理音频事件
@@ -422,8 +422,8 @@ class ConversationViewModel @Inject constructor(
     /**
      * 获取当前配置
      */
-    suspend fun getCurrentConfig(): SystemConfig {
-        return systemManager.getConfig()
+    suspend fun getCurrentConfig(): SystemInfo {
+        return systemManager.getSystemInfo()
     }
 
     override fun onCleared() {

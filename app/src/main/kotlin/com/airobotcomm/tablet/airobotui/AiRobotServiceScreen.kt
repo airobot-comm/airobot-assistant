@@ -27,7 +27,7 @@ import androidx.constraintlayout.compose.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobotcomm.tablet.R
 import com.airobotcomm.tablet.airobotui.framework.components.ActivationDialog
-import com.airobotcomm.tablet.system.model.SystemConfig
+import com.airobotcomm.tablet.system.model.SystemInfo
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.DialogueBubble
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.TypewriterText
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.UserMessageBubble
@@ -102,7 +102,7 @@ fun AiRobotServiceScreen(
     val scope = rememberCoroutineScope()
     
     // 从配置管理器加载配置
-    var currentConfig by remember { mutableStateOf(SystemConfig()) }
+    var currentConfig by remember { mutableStateOf(SystemInfo()) }
     
     // 从ConversationViewModel加载当前配置
     LaunchedEffect(conversationViewModel) {
@@ -180,12 +180,20 @@ fun AiRobotServiceScreen(
         robotUiState = robotUiState.copy(statusTip = newStatusTip)
     }
     
+    // Load device info asynchronously
+    val deviceId by produceState(initialValue = "") {
+        value = conversationViewModel.getDeviceId()
+    }
+    val macAddress by produceState(initialValue = "") {
+        value = conversationViewModel.getMacAddress()
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             RobotDrawerContent(
-                deviceId = conversationViewModel.getDeviceId(),
-                macAddress = conversationViewModel.getMacAddress(),
+                deviceId = deviceId,
+                macAddress = macAddress,
                 currentConfig = currentConfig,
                 onConfigChange = { newConfig ->
                     currentConfig = newConfig

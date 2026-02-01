@@ -57,12 +57,15 @@ class OtaManager @Inject constructor(
      * 为 comm/network 模块提供访问 ota 获取的最新 ws url, token 等信息
      */
     suspend fun getWsCommParams(): CommParams {
-        val config = systemManager.getConfig()
+        val info = systemManager.getSystemInfo()
         return CommParams(
             deviceId = systemManager.getDeviceId(),
             macAddress = systemManager.getMacAddress(),
-            clientId = config.roleId,
-            clientName = config.roleName,
+            clientId = info.clientId,
+            // Assuming roleName was part of config before, but now maybe part of stored info or fixed.
+            // SystemConfig had roleName. SystemInfo has aiRobotArray.
+            // Let's use the first robot's roleName if available, or default.
+            clientName = info.aiRobotArray.firstOrNull()?.roleName ?: "AiRobot",
 
             // 从ota动态更新数据中获取新的ws连接参数
             url = dynamicWsUrl,
@@ -83,17 +86,17 @@ class OtaManager @Inject constructor(
      */
     suspend fun checkUpdateAndActivation() {
         _state.value = OtaState.Checking
-        val config = systemManager.getConfig()
+        val info = systemManager.getSystemInfo()
         
-        if (config.otaUrl.isBlank()) {
+        if (info.otaUrl.isBlank()) {
             _state.value = OtaState.Error("OTA URL is not configured")
             return
         }
 
         val result = otaNetRepo.reportDeviceAndGetOta(
-            clientId = config.roleId,
+            clientId = info.clientId,
             deviceId = systemManager.getMacAddress(),
-            otaUrl = config.otaUrl
+            otaUrl = info.otaUrl
         )
 
         result.onSuccess { response ->
@@ -118,8 +121,9 @@ class OtaManager @Inject constructor(
      * 确认激活，todo：待完善，新的激活方式需要再向服务器提交产品序列号信息等
      */
     suspend fun confirmActivation(code: String) {
-        val currentConfig = systemManager.getConfig()
-        systemManager.updateConfig(currentConfig.copy(activationCode = code))
+        val currentInfo = systemManager.getSystemInfo()
+        val updatedActiveInfo = currentInfo.activeInfo!!.copy(activationCode = code)
+        systemManager.updateSystemInfo(currentInfo.copy(activeInfo = updatedActiveInfo))
         _state.value = OtaState.Activated
     }
     

@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.airobotcomm.tablet.system.model.SystemConfig
+import com.airobotcomm.tablet.system.model.SystemInfo
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -25,10 +25,10 @@ class SysInfoRepoImpl @Inject constructor(
     private val gson = Gson()
     
     private object PreferencesKeys {
-        val CONFIG_DATA = stringPreferencesKey("system_config_json")
+        val CONFIG_DATA = stringPreferencesKey("system_info_config_json")
     }
 
-    override suspend fun saveConfig(config: SystemConfig) {
+    override suspend fun saveConfig(config: SystemInfo) {
         withContext(Dispatchers.IO) {
             context.dataStore.edit { preferences ->
                 val jsonString = gson.toJson(config)
@@ -37,19 +37,19 @@ class SysInfoRepoImpl @Inject constructor(
         }
     }
 
-    override suspend fun loadConfig(): SystemConfig {
+    override suspend fun loadConfig(): SystemInfo {
         return withContext(Dispatchers.IO) {
             val preferences = context.dataStore.data.first()
             val configJson = preferences[PreferencesKeys.CONFIG_DATA]
             
             if (configJson != null) {
                 try {
-                    gson.fromJson(configJson, SystemConfig::class.java)
+                    gson.fromJson(configJson, SystemInfo::class.java)
                 } catch (e: Exception) {
-                    SystemConfig()
+                    SystemInfo()
                 }
             } else {
-                SystemConfig()
+                SystemInfo()
             }
         }
     }
