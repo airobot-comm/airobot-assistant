@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.airobotcomm.tablet.airobotui.framework.drawer.ConfigTextField
+import com.airobotcomm.tablet.airobotui.framework.components.ConfigTextField
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.system.model.SystemInfo
 import com.airobotcomm.tablet.system.model.AiRobot

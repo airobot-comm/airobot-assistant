@@ -35,10 +35,10 @@ import com.airobotcomm.tablet.airobotui.robotcomp.robot.*
 import com.airobotcomm.tablet.airobotui.robotcomp.voice.RobotVoiceInputPanel
 import com.airobotcomm.tablet.airobotui.framework.statusbar.RobotTopBar
 import com.airobotcomm.tablet.airobotui.framework.drawer.RobotDrawerContent
-import com.airobotcomm.tablet.airobotui.service.DEFAULT_SERVICE_CARDS
-import com.airobotcomm.tablet.airobotui.service.FocusTimerWidget
-import com.airobotcomm.tablet.airobotui.service.ServiceCardCarousel
-import com.airobotcomm.tablet.airobotui.service.getServiceCardIcon
+import com.airobotcomm.tablet.airobotui.servicecomp.DEFAULT_SERVICE_CARDS
+import com.airobotcomm.tablet.airobotui.servicecomp.FocusTimerWidget
+import com.airobotcomm.tablet.airobotui.servicecomp.ServiceCardCarousel
+import com.airobotcomm.tablet.airobotui.servicecomp.getServiceCardIcon
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextPrimary
 import com.airobotcomm.tablet.airobotui.state.ConversationSubState
 import com.airobotcomm.tablet.airobotui.state.InteractionType

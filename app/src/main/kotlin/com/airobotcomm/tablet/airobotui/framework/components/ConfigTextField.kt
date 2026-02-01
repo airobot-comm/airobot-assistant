@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.airobotui.framework.drawer
+package com.airobotcomm.tablet.airobotui.framework.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

@@ -23,8 +23,9 @@ ai机器人项目Android版系统架构，技术设计等概要说明
 ```
 app/src/main/kotlin/com/airobotcomm/tablet/
 ├── airobotui/                # airobot单页UI层 (Presentation Layer)
-│   ├── framework/                 # ui框架如topbar，menu菜单...
-│   ├── robotcomp/                 # airobot头像，眼睛等主要组件
+│   ├── framework/                 # ui框架如topbar，menu菜单,通用小组件...
+│   ├── robotcomp/                 # robot头像，眼睛，对话气泡等核心组件
+│   ├── servicecomp/               # service卡片容器与功能卡片组件
 │   ├── state/                     # ui状态数据模型
 │   ├── theme/                     # 主题配置    
 │   ├── subpages/                  # 菜单，弹框页面模块
