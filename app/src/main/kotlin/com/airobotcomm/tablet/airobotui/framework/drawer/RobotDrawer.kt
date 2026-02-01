@@ -24,8 +24,8 @@ import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotSurface
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextPrimary
 import com.airobotcomm.tablet.system.model.SystemInfo
-import com.airobotcomm.tablet.airobotui.subpages.ServiceConfigPage
-import com.airobotcomm.tablet.airobotui.subpages.SystemAuthPage
+import com.airobotcomm.tablet.airobotui.subpage.ServiceConfigPage
+import com.airobotcomm.tablet.airobotui.subpage.SystemAuthPage
 
 /**
  * 侧边栏菜单内容
