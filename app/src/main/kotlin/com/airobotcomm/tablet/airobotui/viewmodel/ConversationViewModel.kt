@@ -39,10 +39,6 @@ class ConversationViewModel @Inject constructor(
 
     // 内部子状态管理
     private val _subState = MutableStateFlow(ConversationSubState.LISTENING)
-    val subState: StateFlow<ConversationSubState> = _subState.asStateFlow()
-
-    // 移除旧的 _state 和 _isConnected，由 RobotMainViewModel 管理
-
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     private val _errorMessage = MutableStateFlow<String?>(null)
 
@@ -56,8 +52,7 @@ class ConversationViewModel @Inject constructor(
 
     // 静音状态管理
     private val _isMuted = MutableStateFlow(false)
-    val isMuted: StateFlow<Boolean> = _isMuted.asStateFlow()
-    
+
     // 音频强度状态 - 用于驱动波形动画
     private val _audioLevel = MutableStateFlow(0.0f)
     val audioLevel: StateFlow<Float> = _audioLevel.asStateFlow()
@@ -102,26 +97,12 @@ class ConversationViewModel @Inject constructor(
             }
         }
 
-        // 监听网络连接状态
-        viewModelScope.launch {
-            networkService.state.collect { networkState ->
-                updateStateFromNetwork(networkState)
-            }
-        }
-
         // 监听音频事件
         viewModelScope.launch {
             audioService.audioEvents.collect { event ->
                 handleAudioEvent(event)
             }
         }
-    }
-
-    /**
-     * 根据网络服务状态映射 UI 状态
-     */
-    private fun updateStateFromNetwork(networkState: NetworkState) {
-        // 一级状态由 RobotMainViewModel 处理
     }
 
     /**
@@ -359,19 +340,6 @@ class ConversationViewModel @Inject constructor(
         if (_isMuted.value) {
             audioService.stopPlaying()
         }
-    }
-
-    /**
-     * 处理MCP消息
-     */
-    private fun handleMCPMessage(message: String) {
-        Log.d(TAG, "收到MCP消息: $message")
-        
-        // 添加MCP消息到对话列表（可选）
-        addMessage(Message(
-            role = MessageRole.SYSTEM,
-            content = "MCP: $message"
-        ))
     }
 
     override fun onCleared() {

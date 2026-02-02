@@ -23,8 +23,8 @@ import com.airobotcomm.tablet.airobotui.framework.theme.RobotBackgroundDark
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotSurface
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextPrimary
-import com.airobotcomm.tablet.airobotui.subpage.ServiceConfigPage
-import com.airobotcomm.tablet.airobotui.subpage.SystemAuthPage
+import com.airobotcomm.tablet.airobotui.subpage.AgentConfig
+import com.airobotcomm.tablet.airobotui.subpage.SystemAuth
 
 /**
  * 侧边栏菜单内容
@@ -54,19 +54,19 @@ fun RobotDrawerContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 DrawerMenuItem(
-                    icon = Icons.Default.Settings,
-                    label = "服务配置",
-                    isSelected = selectedTab == 0,
-                    onClick = { selectedTab = 0 }
-                )
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                DrawerMenuItem(
                     icon = Icons.Default.Lock,
                     label = "系统认证",
                     isSelected = selectedTab == 1,
                     onClick = { selectedTab = 1 }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                DrawerMenuItem(
+                    icon = Icons.Default.Settings,
+                    label = "Ai智能体",
+                    isSelected = selectedTab == 0,
+                    onClick = { selectedTab = 0 }
                 )
             }
 
@@ -119,9 +119,9 @@ fun RobotDrawerContent(
                 // 统一风格的子页面容器
                 Box(modifier = Modifier.fillMaxWidth()) {
                     if (selectedTab == 0) {
-                        ServiceConfigPage()
+                        AgentConfig()
                     } else {
-                        SystemAuthPage()
+                        SystemAuth()
                     }
                 }
             }

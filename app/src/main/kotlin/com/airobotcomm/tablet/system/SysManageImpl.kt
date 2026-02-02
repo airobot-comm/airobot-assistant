@@ -25,7 +25,7 @@ import javax.inject.Singleton
  * Implements SysManage interface, consolidating System Config and OTA/Activation logic.
  */
 @Singleton
-class SysManagerImpl @Inject constructor(
+class SysManageImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val sysInfoRepo: SysInfoRepo,
     private val otaNetRepo: OtaNetRepo

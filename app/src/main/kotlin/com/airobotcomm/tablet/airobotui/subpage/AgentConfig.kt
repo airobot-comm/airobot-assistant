@@ -15,7 +15,7 @@ import com.airobotcomm.tablet.airobotui.viewmodel.RobotMainViewModel
 import com.airobotcomm.tablet.system.model.AiRobot
 
 @Composable
-fun ServiceConfigPage(
+fun AgentConfig(
     viewModel: RobotMainViewModel = hiltViewModel()
 ) {
     val config by viewModel.systemConfig.collectAsState()

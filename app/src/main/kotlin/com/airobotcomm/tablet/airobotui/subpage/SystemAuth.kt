@@ -17,7 +17,7 @@ import com.airobotcomm.tablet.airobotui.viewmodel.RobotMainViewModel
 import com.airobotcomm.tablet.system.model.ActiveInfo
 
 @Composable
-fun SystemAuthPage(
+fun SystemAuth(
     viewModel: RobotMainViewModel = hiltViewModel()
 ) {
     val deviceId by viewModel.deviceId.collectAsState()

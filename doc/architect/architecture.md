@@ -27,8 +27,8 @@ app/src/main/kotlin/com/airobotcomm/tablet/
 │   ├── robotcomp/                 # robot头像，眼睛，对话气泡等核心组件
 │   ├── servicecomp/               # service卡片容器与功能卡片组件
 │   ├── state/                     # ui状态数据模型
-│   ├── theme/                     # 主题配置    
-│   ├── subpages/                  # 菜单，弹框页面模块
+│   ├── theme/                     # 主题配置 
+│   ├── subpages/                  # 菜单功能、对话弹框页面模块
 │   ├── viewmodel/                 # airobot viewmodel协调各业务状态    
 ├── audio/                    # 音频处理模块（集成asr，vod，播放等功能）
 │   ├── di/                        # audio模块hilt di服务
@@ -47,7 +47,7 @@ app/src/main/kotlin/com/airobotcomm/tablet/
 │   ├── remote/                    # 远程数据仓库
 │   ├── repository/                # 本地仓库服务
 │   ├── SysManager.kt              # 系统管理接口
-│   └── SysManagerImpl.kt          # 系统管理接口实现 
+│   └── SysManageImpl.kt          # 系统管理接口实现 
 ├── utils/                    # 通用工具类
 ├── MainActivity.kt           # 主活动 (Activity)
 └── RobotApplication.kt       # Hilt Application 入口

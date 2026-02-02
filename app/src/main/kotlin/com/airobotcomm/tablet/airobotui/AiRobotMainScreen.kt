@@ -1,12 +1,9 @@
 package com.airobotcomm.tablet.airobotui
 
 import android.Manifest
-import android.util.Log
 import androidx.compose.animation.*
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -40,7 +36,6 @@ import com.airobotcomm.tablet.airobotui.servicecomp.DEFAULT_SERVICE_CARDS
 import com.airobotcomm.tablet.airobotui.servicecomp.FocusTimerWidget
 import com.airobotcomm.tablet.airobotui.servicecomp.ServiceCardCarousel
 import com.airobotcomm.tablet.airobotui.servicecomp.getServiceCardIcon
-import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextPrimary
 import com.airobotcomm.tablet.airobotui.state.ConversationSubState
 import com.airobotcomm.tablet.airobotui.state.InteractionType
 import com.airobotcomm.tablet.airobotui.state.RobotState
@@ -59,7 +54,6 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 /**
  * 机器人服务主屏幕
- * 
  * Web原型对应: App.tsx
  */
 @OptIn(ExperimentalPermissionsApi::class)
@@ -69,8 +63,6 @@ fun AiRobotMainScreen(
     conversationViewModel: ConversationViewModel = hiltViewModel(),
     serviceViewModel: ServiceViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    
     // 权限管理
     val permissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
@@ -78,8 +70,7 @@ fun AiRobotMainScreen(
             Manifest.permission.MODIFY_AUDIO_SETTINGS
         )
     )
-    
-    // 从ViewModel收集状态
+
     // 从 RobotMainViewModel 收集一级状态
     val robotState by robotMainViewModel.robotState.collectAsState()
     val errorMessage by robotMainViewModel.errorMessage.collectAsState()
@@ -87,14 +78,12 @@ fun AiRobotMainScreen(
     val activationCode by robotMainViewModel.activationCode.collectAsState()
 
     // 从 ConversationViewModel 收集交互状态
-    val conversationSubState by conversationViewModel.subState.collectAsState()
     val audioLevel by conversationViewModel.audioLevel.collectAsState()
     val currentRoundUserText by conversationViewModel.currentRoundUserText.collectAsState()
     val currentRoundAiText by conversationViewModel.currentRoundAiText.collectAsState()
 
     // 从 ServiceViewModel 收集功能状态
     val activeCard by serviceViewModel.activeCard.collectAsState()
-    val serviceSubState by serviceViewModel.serviceSubState.collectAsState()
     val timerCommand by serviceViewModel.timerCommand.collectAsState()
     val timerStatus by serviceViewModel.timerStatus.collectAsState()
     
@@ -338,7 +327,6 @@ fun AiRobotMainScreen(
                             ServiceCardCarousel(
                                 cards = serviceCards,
                                 onCardClick = { card ->
-                                    currentCardIndex = serviceCards.indexOf(card)
                                     robotUiState = robotUiState.copy(
                                         interactionType = InteractionType.CARD,
                                         activeCard = card,
