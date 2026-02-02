@@ -28,7 +28,7 @@ interface SysManage {
     /**
      * Confirm activation with code
      */
-    suspend fun activate(code: String)
+    suspend fun airobotActivate(code: String)
 
     /**
      * Get communication credentials for Network Service

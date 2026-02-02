@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,7 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobotcomm.tablet.R
 import com.airobotcomm.tablet.airobotui.framework.comp.BackgroundDecorations
 import com.airobotcomm.tablet.airobotui.framework.comp.BottomFooter
-import com.airobotcomm.tablet.airobotui.subpage.ActivationDialog
+import com.airobotcomm.tablet.airobotui.subpage.AiRobotDialog
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.DialogueBubble
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.TypewriterText
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.UserMessageBubble
@@ -402,7 +401,7 @@ fun AiRobotMainScreen(
             
             // 激活弹窗
             if (showActivationDialog && activationCode != null) {
-                ActivationDialog(
+                AiRobotDialog(
                     activationCode = activationCode!!,
                     onConfirm = { robotMainViewModel.onActivationConfirmed() },
                     onDismiss = { /* Optionally handle dismissal, but usually activation is required */ }

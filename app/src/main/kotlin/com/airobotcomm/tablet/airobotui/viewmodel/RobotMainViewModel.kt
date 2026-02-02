@@ -132,7 +132,7 @@ class RobotMainViewModel @Inject constructor(
         val code = _activationCode.value
         if (code != null) {
             viewModelScope.launch {
-                sysManage.activate(code)
+                sysManage.airobotActivate(code)
             }
         }
     }

@@ -14,7 +14,7 @@ import androidx.compose.ui.window.Dialog
 import com.airobotcomm.tablet.R
 
 @Composable
-fun ActivationDialog(
+fun AiRobotDialog(
     activationCode: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
@@ -39,7 +39,7 @@ fun ActivationDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "设备激活",
+                        text = "设备Ai机器人激活",
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         fontSize = MaterialTheme.typography.headlineSmall.fontSize
@@ -60,7 +60,7 @@ fun ActivationDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = "请使用以下激活码激活设备：",
+                    text = "使用以下激活码激活AI机器人：",
                     color = Color.White.copy(alpha = 0.7f),
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize
                 )

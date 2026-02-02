@@ -6,12 +6,14 @@ import java.util.UUID
  * 系统配置数据类 - 包含可修改的系统设置
  */
 data class SystemInfo (
-    val otaUrl: String = "https://api.tenclass.net/xiaozhi/ota/",
+    // system device and auth info
+    val serviceUrl: String = "https://api.tenclass.net/xiaozhi/ota/",
     val clientId: String = UUID.randomUUID().toString(),
     val deviceInfo: DeviceInfo = DeviceInfo.empty(),
+    val activeInfo: ActiveInfo = ActiveInfo(productKey = "", secretKey = "", time = ""),
 
-    // activation and airobot info
-    val activeInfo: ActiveInfo = ActiveInfo(productKey = "", secretKey = "", serviceTime = ""),
+    // airobot info，include agentinfo and role
+    val aiAgent: AiAgent = AiAgent(),
     val aiRobotNux: Byte = 3,     // airobot role number
     val aiRobotArray: Array<AiRobot?> = Array(size = aiRobotNux.toInt()) { null }
 ){
@@ -21,7 +23,7 @@ data class SystemInfo (
 
         other as SystemInfo
 
-        if (otaUrl != other.otaUrl) return false
+        if (serviceUrl != other.serviceUrl) return false
         if (clientId != other.clientId) return false
         if (deviceInfo != other.deviceInfo) return false
         if (activeInfo != other.activeInfo) return false
@@ -32,7 +34,7 @@ data class SystemInfo (
     }
 
     override fun hashCode(): Int {
-        var result = otaUrl.hashCode()
+        var result = serviceUrl.hashCode()
         result = 31 * result + clientId.hashCode()
         result = 31 * result + deviceInfo.hashCode()
         result = 31 * result + activeInfo.hashCode()

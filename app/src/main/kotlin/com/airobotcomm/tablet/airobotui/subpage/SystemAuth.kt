@@ -62,11 +62,11 @@ fun SystemAuth(
         )
 
         ConfigTextField(
-            label = "激活码",
-            value = editedConfig.activeInfo?.activationCode ?: "",
+            label = "授权密钥",
+            value = editedConfig.activeInfo?.productKey ?: "",
             onValueChange = { newCode -> 
-                val currentActive = editedConfig.activeInfo ?: ActiveInfo(productKey="", secretKey="", serviceTime="")
-                editedConfig = editedConfig.copy(activeInfo = currentActive.copy(activationCode = newCode))
+                val currentActive = editedConfig.activeInfo ?: ActiveInfo(productKey="", secretKey="", time="")
+                editedConfig = editedConfig.copy(activeInfo = currentActive.copy(productKey = newCode))
             },
         )
 

@@ -57,7 +57,7 @@ class SysManageImpl @Inject constructor(
         _state.value = SysState.Checking
         val info = getSystemInfo() // Ensure loaded
         
-        if (info.otaUrl.isBlank()) {
+        if (info.serviceUrl.isBlank()) {
             _state.value = SysState.Error("OTA URL is not configured")
             return
         }
@@ -65,7 +65,7 @@ class SysManageImpl @Inject constructor(
         val result = otaNetRepo.reportDeviceAndGetOta(
             clientId = info.clientId,
             deviceId = getMacAddress(), // Using MacAddress as deviceId for OTA as per previous logic
-            otaUrl = info.otaUrl
+            otaUrl = info.serviceUrl
         )
 
         result.onSuccess { response ->
@@ -86,10 +86,10 @@ class SysManageImpl @Inject constructor(
         }
     }
 
-    override suspend fun activate(code: String) {
+    override suspend fun airobotActivate(code: String) {
         val currentInfo = getSystemInfo()
-        val updatedActiveInfo = currentInfo.activeInfo!!.copy(activationCode = code)
-        updateSystemInfo(currentInfo.copy(activeInfo = updatedActiveInfo))
+        val updatedAgentInfo = currentInfo.aiAgent!!.copy(activationCode = code)
+        updateSystemInfo(currentInfo.copy(aiAgent = updatedAgentInfo))
         _state.value = SysState.Ready
     }
 
@@ -123,7 +123,7 @@ class SysManageImpl @Inject constructor(
                      deviceInfo = deviceInfo,
                      // Ensure active info is also present if default was empty
                      activeInfo = if(sInfo.activeInfo!!.productKey.isEmpty())
-                         ActiveInfo(productKey="", secretKey="", serviceTime="") else sInfo.activeInfo
+                         ActiveInfo(productKey="", secretKey="", time="") else sInfo.activeInfo
                  )
                  
                  // Save the initialized config

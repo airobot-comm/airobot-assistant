@@ -3,6 +3,21 @@ package com.airobotcomm.tablet.system.model
 import android.content.Context
 import android.provider.Settings
 
+/**
+ * 系统终端激活信息 - 系统激活密钥，返回码等信息
+ */
+data class ActiveInfo(
+    val productKey: String,      // 产品激活密钥，授权给用户
+    val secretKey: String,       // 简单的激活密钥生成与检测secretKey
+    val time: String,            // 设备激活时候的时间戳
+    val code: String = "",
+){
+    private fun isValid(): Boolean {
+        // Simple check: productKey must not be empty.
+        // TODO: Implement actual secret key verification logic
+        return productKey.isNotEmpty()
+    }
+}
 
 /**
  * 设备基础数据类 - 包含系统启动时确定的不可修改的基础信息
@@ -12,7 +27,7 @@ data class DeviceInfo(
     val model: String,
     val version: String,
     val deviceId: String,
-    val macAddress: String
+    val macAddress: String,
 ){
     companion object {
         fun create(context: Context): DeviceInfo {

@@ -15,7 +15,7 @@ import com.airobotcomm.tablet.airobotui.viewmodel.RobotMainViewModel
 import com.airobotcomm.tablet.system.model.AiRobot
 
 @Composable
-fun AgentConfig(
+fun AiRobotConfig(
     viewModel: RobotMainViewModel = hiltViewModel()
 ) {
     val config by viewModel.systemConfig.collectAsState()
@@ -32,8 +32,8 @@ fun AgentConfig(
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         ConfigTextField(
             label = "OTA 地址",
-            value = editedConfig.otaUrl ?: "",
-            onValueChange = { editedConfig = editedConfig.copy(otaUrl = it) }
+            value = editedConfig.serviceUrl ?: "",
+            onValueChange = { editedConfig = editedConfig.copy(serviceUrl = it) }
         )
 
         ConfigTextField(
