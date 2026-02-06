@@ -39,12 +39,14 @@ fun SystemAuth(
             label = "设备 ID",
             value = deviceInfo.deviceId,
             onValueChange = {},
+            readOnly = true
         )
 
         ConfigTextField(
             label = "MAC 地址",
             value = deviceInfo.macAddress,
             onValueChange = {},
+            readOnly = true
         )
 
         Spacer(modifier = Modifier.height(8.dp))

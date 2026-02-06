@@ -45,7 +45,8 @@ fun AiRobotConfig(
         ConfigTextField(
             label = "AI 模型 (Model)",
             value = editedModel,
-            onValueChange = { editedModel = it }
+            onValueChange = {},
+            readOnly = true
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -61,7 +62,7 @@ fun AiRobotConfig(
             label = "激活凭证 (Activation Code)",
             value = aiAgent.activationCode.ifEmpty { "尚未生成" },
             onValueChange = {},
-            // readOnly = true
+            readOnly = true
         )
 
         // Connection Credentials Status

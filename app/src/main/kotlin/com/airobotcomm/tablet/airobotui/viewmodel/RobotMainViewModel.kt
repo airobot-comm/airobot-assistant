@@ -58,11 +58,11 @@ class RobotMainViewModel @Inject constructor(
                         robotStateManager.updateRobotState(RobotState.Initializing)
                     }
                     is SysState.DeviceActivationRequired -> {
-                        robotStateManager.updateRobotState(RobotState.Initializing)
-                        // This will trigger UI to show device activation fields
+                        robotStateManager.updateRobotState(RobotState.Unauthorized("DEVICE_ACTIVATION"))
+                        _showActivationDialog.value = false
                     }
-                    is SysState.AiRobotActivationRequired, is SysState.ActivationRequired -> {
-                        val code = if (state is SysState.AiRobotActivationRequired) state.code else (state as SysState.ActivationRequired).code
+                    is SysState.AiRobotActivationRequired -> {
+                        val code = state.code
                         _activationCode.value = code
                         _showActivationDialog.value = true
                         robotStateManager.updateRobotState(RobotState.Unauthorized(code))
@@ -139,7 +139,7 @@ class RobotMainViewModel @Inject constructor(
         val code = _activationCode.value
         if (code != null) {
             viewModelScope.launch {
-                sysManage.airobotActivate(code)
+                sysManage.confirmAiRobotActivation(code)
             }
         }
     }

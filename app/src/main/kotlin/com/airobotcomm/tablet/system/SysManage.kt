@@ -17,8 +17,6 @@ sealed class SysState {
     data class UpdateAvailable(val version: String, val url: String) : SysState()
     object DeviceActivationRequired : SysState()  // Device not activated
     data class AiRobotActivationRequired(val code: String) : SysState()  // AIRobot needs activation
-    @Deprecated("Use AiRobotActivationRequired instead")
-    data class ActivationRequired(val code: String) : SysState()
     object Ready : SysState() // Both device and AIRobot activated
     data class Error(val message: String) : SysState()
 }
@@ -68,8 +66,15 @@ interface SysManage {
 
     /**
      * Confirm AIRobot activation with OTA-provided code and credentials
+     * Use this when credentials are valid and known (e.g. from OTA response)
      */
     suspend fun confirmAiRobotActivation(code: String, credentials: CommCredentials): Result<AiAgent>
+
+    /**
+     * Confirm AIRobot activation with code only
+     * Uses internally cached/pending credentials from the last OTA check
+     */
+    suspend fun confirmAiRobotActivation(code: String): Result<AiAgent>
 
     /**
      * Get AIRobot agent information (including activation state and credentials)
@@ -92,40 +97,10 @@ interface SysManage {
      */
     suspend fun getCommCredentials(): CommCredentials?
 
-    // ===== Legacy/Backward Compatibility =====
-
     /**
      * Update system configuration
      */
     suspend fun updateSystemInfo(info: SystemInfo)
-
-    /**
-     * Get current system info
-     * @deprecated Use specific getters instead
-     */
-    @Deprecated("Use getDeviceInfo() and getAiAgent() instead")
-    suspend fun getSystemInfo(): SystemInfo
-
-    /**
-     * Get device info
-     * @deprecated Use getDeviceInfo() instead
-     */
-    @Deprecated("Use getDeviceInfo() instead", ReplaceWith("getDeviceInfo()"))
-    suspend fun getDevInfo(): DeviceInfo
-
-    /**
-     * Confirm activation with code
-     * @deprecated Use confirmAiRobotActivation() instead
-     */
-    @Deprecated("Use confirmAiRobotActivation() instead")
-    suspend fun airobotActivate(code: String)
-
-    /**
-     * Get communication credentials for Network Service
-     * @deprecated Use getCommCredentials() instead
-     */
-    @Deprecated("Use getCommCredentials() instead", ReplaceWith("getCommCredentials()"))
-    suspend fun commCredential(): CommCredentials
     
     /**
      * Start/Initialize system check (OTA, Activation)

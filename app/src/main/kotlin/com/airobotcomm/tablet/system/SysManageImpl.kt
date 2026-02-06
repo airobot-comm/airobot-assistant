@@ -45,8 +45,7 @@ class SysManageImpl @Inject constructor(
     override val systemInfo: StateFlow<SystemInfo> = _systemInfoFlow.asStateFlow()
 
     // Dynamic data from OTA/Network
-    private var dynamicWsUrl: String = ""
-    private var dynamicToken: String = ""
+    private var pendingCommCredentials: CommCredentials? = null
 
     /**
      * Start/Initialize system check (OTA, Activation)
@@ -89,12 +88,16 @@ class SysManageImpl @Inject constructor(
                 topic = "",  // TODO: Extract from response when available
                 qos = 0      // TODO: Extract from response when available
             )
+            
+            // Cache credentials for potential activation confirmation
+            pendingCommCredentials = credentials
+            
 
             // Check if activation code is provided
             val activationCode = response.activation?.code
             if (!activationCode.isNullOrEmpty()) {
-                // Auto-confirm activation with code and credentials
-                confirmAiRobotActivation(activationCode, credentials)
+                // If code is present, we require user/robot confirmation
+
                 _state.value = SysState.AiRobotActivationRequired(activationCode)
                 return@onSuccess
             }
@@ -102,7 +105,11 @@ class SysManageImpl @Inject constructor(
             // If no activation code but has credentials, update agent
             val updatedAgent = info.aiAgent.copy(commCredentials = credentials)
             updateSystemInfo(info.copy(aiAgent = updatedAgent))
-            _state.value = SysState.Ready
+            if (isAiRobotActivated()) {
+                _state.value = SysState.Ready
+            } else {
+                 _state.value = SysState.Error("Failed to activate agent state")
+            }
         }.onFailure { e ->
             _state.value = SysState.Error(e.message ?: "OTA check failed")
         }
@@ -177,12 +184,21 @@ class SysManageImpl @Inject constructor(
         )
         updateSystemInfo(currentInfo.copy(aiAgent = activatedAgent))
         
-        // Update credentials in memory cache if needed, though they are in SystemInfo now
-        dynamicWsUrl = credentials.url
-        dynamicToken = credentials.token
+        // Clear pending
+        pendingCommCredentials = null
         
         _state.value = SysState.Ready
         return Result.success(activatedAgent)
+    }
+
+    override suspend fun confirmAiRobotActivation(code: String): Result<AiAgent> {
+        val credentials = pendingCommCredentials ?: getCommCredentials()
+        
+        if (credentials == null) {
+             return Result.failure(Exception("No credentials available for activation"))
+        }
+        
+        return confirmAiRobotActivation(code, credentials)
     }
 
     override suspend fun getAiAgent(): AiAgent {
@@ -194,42 +210,24 @@ class SysManageImpl @Inject constructor(
     }
 
     override suspend fun isAiRobotActivated(): Boolean {
-        val agent = getAiAgent()
-        return agent.activationCode.isNotEmpty() && agent.commCredentials != null
+        // Relaxed check: if we have credentials, we are activated.
+        // The code is optional/transient.
+        return getAiAgent().commCredentials != null
     }
 
     override suspend fun getCommCredentials(): CommCredentials? {
         return getAiAgent().commCredentials
     }
 
-    // ===== Legacy/Backward Compatibility Implementations =====
+    // ===== Legacy/Backward Compatibility Implementations ===== 
+    // All Removed as per refactoring plan
 
-    @Deprecated("Use confirmAiRobotActivation instead")
-    override suspend fun airobotActivate(code: String) {
-        // Redirect to confirmAiRobotActivation with cached credentials if available
-        // Note: This is legacy path, ideally shouldn't be called without credentials
-        val agent = getAiAgent()
-        val credentials = agent.commCredentials ?: CommCredentials(
-            url = dynamicWsUrl,
-            token = dynamicToken,
-            clientId = ensureSystemInfo().clientId,
-            topic = "",
-            qos = 0
-        )
-        confirmAiRobotActivation(code, credentials)
-    }
-
-    @Deprecated("Use getCommCredentials instead")
-    override suspend fun commCredential(): CommCredentials {
-        return getCommCredentials() ?: CommCredentials(dynamicWsUrl, dynamicToken, "", "", 0)
-    }
-
-    @Deprecated("Use getDeviceInfo() instead", ReplaceWith("getDeviceInfo()"))
-    override suspend fun getDevInfo(): DeviceInfo {
-        return getDeviceInfo()
-    }
 
     // --- Internal Helpers & SysInfo Management ---
+    
+    private suspend fun getSystemInfo(): SystemInfo = mutex.withLock {
+        ensureSystemInfo()
+    }
 
     private suspend fun ensureSystemInfo(): SystemInfo {
         if (_systemInfo == null) {
@@ -264,8 +262,5 @@ class SysManageImpl @Inject constructor(
         // For now, simple update.
     }
 
-    @Deprecated("Use systemInfo property or individual getters instead")
-    override suspend fun getSystemInfo(): SystemInfo = mutex.withLock {
-        ensureSystemInfo()
-    }
+
 }

@@ -130,7 +130,7 @@ class NetworkServiceImpl @Inject constructor(
             try {
                 connectInternal(
                     url = credentials.url,
-                    deviceId = deviceInfo.deviceId,
+                    macAddr = deviceInfo.macAddress,
                     clientId = credentials.clientId.ifEmpty { deviceInfo.deviceId },
                     token = credentials.token
                 )
@@ -153,10 +153,13 @@ class NetworkServiceImpl @Inject constructor(
         singletonWebSocket.sendBinaryMessage(data)
     }
 
-    private fun connectInternal(url: String, deviceId: String, clientId: String, token: String) {
+    /* convert clientId to macAddr because websocket need macAddr as deviceId
+     * todo: add adapt-lay to resolve mac-client problem
+     */
+    private fun connectInternal(url: String, macAddr: String, clientId: String, token: String) {
         singletonWebSocket.connect(
             url = url,
-            deviceId = deviceId,
+            deviceId = macAddr,
             clientId = clientId,
             token = token
         )
