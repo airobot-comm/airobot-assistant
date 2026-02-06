@@ -49,9 +49,14 @@ class NetworkServiceImpl @Inject constructor(
                 when (wsEvent) {
                     is WebSocketEvent.Connected -> {
                         _state.value = NetworkState.CONNECTING // 传输层 OK，进入协议握手
-                        val params = sysManage.getCredential()
-                        runBlocking { // waring：使用runBlocking来处理协议握手，确保握手后发送数据
-                            protocol.open("", params.macAddress, params.token)
+                        scope.launch {
+                            val deviceInfo = sysManage.getDeviceInfo()
+                            val credentials = sysManage.getCommCredentials()
+                            if (credentials != null) {
+                                protocol.open("", deviceInfo.macAddress, credentials.token)
+                            } else {
+                                Log.e(TAG, "连接成功但未找到凭证")
+                            }
                         }
                     }
                     is WebSocketEvent.Reconnecting -> {
@@ -97,19 +102,41 @@ class NetworkServiceImpl @Inject constructor(
 
     override fun connect() {
         scope.launch {
-            val params = sysManage.getCredential()
-            if (params.url.isBlank()) {
+            // 1. Check device activation
+            if (!sysManage.isDeviceActivated()) {
                 _state.value = NetworkState.ERROR
-                _events.tryEmit(AiRobotEvent.Error("WebSocket URL is empty. Please check OTA/Activation."))
+                _events.emit(AiRobotEvent.Error("设备未激活，请先进行系统认证"))
+                return@launch
+            }
+
+            // 2. Check AIRobot activation
+            if (!sysManage.isAiRobotActivated()) {
+                _state.value = NetworkState.ERROR
+                _events.emit(AiRobotEvent.Error("智能体未激活，请先在配置页完成激活"))
+                return@launch
+            }
+
+            // 3. Get composed parameters
+            val deviceInfo = sysManage.getDeviceInfo()
+            val credentials = sysManage.getCommCredentials()
+            
+            if (credentials == null || credentials.url.isBlank()) {
+                _state.value = NetworkState.ERROR
+                _events.emit(AiRobotEvent.Error("获取通信凭证失败，请重试"))
                 return@launch
             }
 
             _state.value = NetworkState.CONNECTING
             try {
-                connectInternal(params.url, params.macAddress, params.clientId,params.token)
+                connectInternal(
+                    url = credentials.url,
+                    deviceId = deviceInfo.deviceId,
+                    clientId = credentials.clientId.ifEmpty { deviceInfo.deviceId },
+                    token = credentials.token
+                )
             } catch (e: Exception) {
                 _state.value = NetworkState.ERROR
-                _events.tryEmit(AiRobotEvent.Error(e.message ?: "Connection failed"))
+                _events.emit(AiRobotEvent.Error(e.message ?: "连接失败"))
             }
         }
     }

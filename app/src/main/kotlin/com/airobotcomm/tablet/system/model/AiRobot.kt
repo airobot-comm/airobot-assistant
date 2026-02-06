@@ -1,38 +1,47 @@
 package com.airobotcomm.tablet.system.model
 
 import java.util.UUID
+import javax.crypto.SecretKey
+
+/**
+ * agent服务的ota认证/激活而动态获取新的通信凭证
+ * 目前支持ws，后续要支持mqtt，支持agent V2动态认证
+ */
+data class CommCredentials(
+    // websocket 连接参数
+    val url: String,
+    val token: String,
+
+    // mqtt 通信参数（todo：后续扩展支持，支持V2的动态认证激活模式）
+    val clientId: String,
+    val topic: String,
+    val qos: Int
+)
 
 data class AiAgent(
     val agentUrl: String = "https://api.tenclass.net/xiaozhi/ota/",
     val agentId: String = UUID.randomUUID().toString(),
-    val model: String = "gpt-3.5-turbo",
-    val activationCode: String = "" // agent active code,such as xiaozhi
+    val model: String = "qwen-3.5-test",
+
+    // agent active code and comm credentials(such as xiaozhi)
+    val activationCode: String = "",
+    val commCredentials: CommCredentials? = null,
+
+    // mcp support
+    val mcpEnabled: Boolean = false,
 )
 
 /**
- * agent服务的ota激活/动态认证获取新的通信凭证，目前支持ws
- * todo：后续要支持MQTT，支持V2的动态认证激活模式
- */
-data class CommCredentials(
-    val deviceId: String,
-    val macAddress: String,
-    val clientId: String,
-
-    // websocket 连接参数
-    val url: String,
-    val token: String
-
-    // mqtt 通信参数，待补充
-)
-
-/**
- * Ai机器人信息 - 智能体配置，角色名字，id，能力与模型等配置信息；
+ * Ai机器人信息 - 智能体配置，角色名字，id，agent配置信息；
  * 可以配置不同智能体的多个airobot角色
  */
 data class AiRobot(
-    val roleName: String = "小美",                      // airobotActivate airobot's role-name：角色别名
+    // airobot role
+    val roleName: String = "小美",
     val roleId: String = UUID.randomUUID().toString(), // airobotActivate role-uuid
-    val mcpEnabled: Boolean = false
+
+    // agent of airobot
+    val aiAgent: AiAgent = AiAgent()
 ){
    // AiRobot initialized with default values
 }

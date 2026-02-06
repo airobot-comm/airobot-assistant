@@ -85,7 +85,7 @@ fun RobotDrawerContent(
                 ) {
                     Column {
                         Text(
-                            text = if (selectedTab == 0) "服务配置" else "系统认证",
+                            text = if (selectedTab == 0) "Ai机器人配置" else "系统认证信息",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Black,
                             color = RobotTextPrimary,

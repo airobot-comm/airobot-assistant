@@ -10,13 +10,17 @@ data class SystemInfo (
     val serviceUrl: String = "https://api.tenclass.net/xiaozhi/ota/",
     val clientId: String = UUID.randomUUID().toString(),
     val deviceInfo: DeviceInfo = DeviceInfo.empty(),
-    val activeInfo: ActiveInfo = ActiveInfo(productKey = "", secretKey = "", time = ""),
 
     // airobot info，include agentinfo and role
     val aiAgent: AiAgent = AiAgent(),
     val aiRobotNux: Byte = 3,     // airobot role number
     val aiRobotArray: Array<AiRobot?> = Array(size = aiRobotNux.toInt()) { null }
 ){
+    // Convenience property for backward compatibility
+    @Deprecated("Use deviceInfo.activation instead", ReplaceWith("deviceInfo.activation"))
+    val activeInfo: ActiveInfo
+        get() = deviceInfo.activation
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -26,7 +30,7 @@ data class SystemInfo (
         if (serviceUrl != other.serviceUrl) return false
         if (clientId != other.clientId) return false
         if (deviceInfo != other.deviceInfo) return false
-        if (activeInfo != other.activeInfo) return false
+        if (aiAgent != other.aiAgent) return false
         if (aiRobotNux != other.aiRobotNux) return false
         if (!aiRobotArray.contentEquals(other.aiRobotArray)) return false
 
@@ -37,7 +41,7 @@ data class SystemInfo (
         var result = serviceUrl.hashCode()
         result = 31 * result + clientId.hashCode()
         result = 31 * result + deviceInfo.hashCode()
-        result = 31 * result + activeInfo.hashCode()
+        result = 31 * result + aiAgent.hashCode()
         result = 31 * result + aiRobotNux
         result = 31 * result + aiRobotArray.contentHashCode()
         return result

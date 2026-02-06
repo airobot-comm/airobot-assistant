@@ -13,6 +13,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.airobotcomm.tablet.system.SysManage
 import com.airobotcomm.tablet.system.SysState
+import com.airobotcomm.tablet.system.model.AiAgent
+import com.airobotcomm.tablet.system.model.DeviceInfo
 import com.airobotcomm.tablet.system.model.SystemInfo
 
 /**
@@ -55,10 +57,15 @@ class RobotMainViewModel @Inject constructor(
                     is SysState.Checking -> {
                         robotStateManager.updateRobotState(RobotState.Initializing)
                     }
-                    is SysState.ActivationRequired -> {
-                        _activationCode.value = state.code
+                    is SysState.DeviceActivationRequired -> {
+                        robotStateManager.updateRobotState(RobotState.Initializing)
+                        // This will trigger UI to show device activation fields
+                    }
+                    is SysState.AiRobotActivationRequired, is SysState.ActivationRequired -> {
+                        val code = if (state is SysState.AiRobotActivationRequired) state.code else (state as SysState.ActivationRequired).code
+                        _activationCode.value = code
                         _showActivationDialog.value = true
-                        robotStateManager.updateRobotState(RobotState.Unauthorized(state.code))
+                        robotStateManager.updateRobotState(RobotState.Unauthorized(code))
                     }
                     is SysState.Ready -> {
                         _showActivationDialog.value = false
@@ -137,6 +144,20 @@ class RobotMainViewModel @Inject constructor(
         }
     }
 
+    fun activateDevice(productKey: String) {
+        viewModelScope.launch {
+            sysManage.deviceActivate(productKey)
+                .onFailure { _errorMessage.value = it.message }
+        }
+    }
+
+    fun configureAndActivateAiAgent(agentUrl: String, model: String) {
+        viewModelScope.launch {
+            sysManage.configureAiAgent(agentUrl, model)
+                .onFailure { _errorMessage.value = it.message }
+        }
+    }
+
     fun clearError() {
         _errorMessage.value = null
     }
@@ -148,29 +169,24 @@ class RobotMainViewModel @Inject constructor(
         robotStateManager.updateRobotState(newState)
     }
 
-    // System Config & Device Info Management
-    val systemConfig: StateFlow<SystemInfo> = flow {
-        emit(sysManage.getSystemInfo())
-        // Poll or observe changes if SysManage supports it. For now, assume mainly updated via this VM.
-    }.stateIn(viewModelScope, SharingStarted.Lazily, SystemInfo())
+    // System Info Exposure (Reactive)
+    val systemInfo: StateFlow<SystemInfo> = sysManage.systemInfo
 
-    // Device Info Exposure
-    val deviceId = flow { emit(sysManage.getDevInfo().deviceId) }.stateIn(viewModelScope, SharingStarted.Lazily, "")
-    val macAddress = flow { emit(sysManage.getDevInfo().macAddress) }.stateIn(viewModelScope, SharingStarted.Lazily, "")
+    // Device Info Exposure (derived from hierarchical model)
+    val deviceInfo = systemInfo.map { it.deviceInfo }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DeviceInfo.empty())
+    
+    val deviceActivation = deviceInfo.map { it.activation }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DeviceInfo.empty().activation)
 
-    fun updateConfig(newInfo: SystemInfo) {
-        viewModelScope.launch {
-            sysManage.updateSystemInfo(newInfo)
-            // If SysManage doesn't emit updates, we might need a MutableStateFlow locally to reflect immediate changes,
-            // but for now relying on SysManage being the source of truth or reloading.
-            // Ideally SysManage.state or similar would emit config changes.
-            // Since we don't see a config flow in SysState, we might need to rely on reloading.
-        }
-        // Retrigger connection logic as per original screen logic
-        viewModelScope.launch {
-            networkService.disconnect()
-            robotStateManager.updateRobotState(RobotState.Offline)
-            networkService.connect()
-        }
-    }
+    val isDeviceActivated = deviceActivation.map { it.isActivated }
+        .stateIn(viewModelScope, SharingStarted.Lazily, false)
+
+    // AIRobot Info Exposure (derived from hierarchical model)
+    val aiAgent = systemInfo.map { it.aiAgent }
+        .stateIn(viewModelScope, SharingStarted.Lazily, AiAgent())
+
+    val isAiRobotActivated = aiAgent.map { 
+        it.activationCode.isNotEmpty() && it.commCredentials != null 
+    }.stateIn(viewModelScope, SharingStarted.Lazily, false)
 }

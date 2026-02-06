@@ -10,12 +10,16 @@ data class ActiveInfo(
     val productKey: String,      // 产品激活密钥，授权给用户
     val secretKey: String,       // 简单的激活密钥生成与检测secretKey
     val time: String,            // 设备激活时候的时间戳
+    val isActivated: Boolean = false,  // 设备激活状态
     val code: String = "",
 ){
-    private fun isValid(): Boolean {
-        // Simple check: productKey must not be empty.
+    /**
+     * 验证productKey是否符合规范
+     */
+    fun isValid(): Boolean {
+        // Simple check: productKey must not be empty and meet minimum length
         // TODO: Implement actual secret key verification logic
-        return productKey.isNotEmpty()
+        return productKey.isNotEmpty() && productKey.length >= 8
     }
 }
 
@@ -28,21 +32,28 @@ data class DeviceInfo(
     val version: String,
     val deviceId: String,
     val macAddress: String,
+
+    // active info
+    val activation:ActiveInfo
 ){
     companion object {
         fun create(context: Context): DeviceInfo {
-            var deviceId = generateDeviceId(context)
+            val deviceId = generateDeviceId(context)
              return DeviceInfo(
                  name = "AiRobot-Assistant",
                  model = "AiRobot-Assistant-V1",
                  version = "1.0.0",
                  deviceId = deviceId,
-                 macAddress = generateStableMac(deviceId)
+                 macAddress = generateStableMac(deviceId),
+                 activation = ActiveInfo(productKey = "", secretKey = "", time = "", isActivated = false)
              )
         }
 
         fun empty(): DeviceInfo {
-            return DeviceInfo("", "", "", "", "")
+            return DeviceInfo(
+                "", "", "", "", "",
+                ActiveInfo(productKey = "", secretKey = "", time = "", isActivated = false)
+            )
         }
 
         /**
