@@ -187,6 +187,6 @@ class RobotMainViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Lazily, AiAgent())
 
     val isAiRobotActivated = aiAgent.map { 
-        it.activationCode.isNotEmpty() && it.commCredentials != null 
+        it.activationCode.isNotEmpty() || it.commCredentials != null // sometime ai-agent hasn't activationCode
     }.stateIn(viewModelScope, SharingStarted.Lazily, false)
 }

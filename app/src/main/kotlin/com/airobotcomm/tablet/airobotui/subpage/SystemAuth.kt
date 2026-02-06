@@ -58,10 +58,19 @@ fun SystemAuth(
             fontWeight = FontWeight.Bold
         )
 
+        val displayKey = if (isActivated && productKey.length > 8) {
+            val start = productKey.take(4)
+            val end = productKey.takeLast(4)
+            "$start-****-****-$end"
+        } else {
+            productKey
+        }
+
         ConfigTextField(
             label = "产品激活密钥 (Product Key)",
-            value = productKey,
-            onValueChange = { productKey = it },
+            value = displayKey,
+            onValueChange = { if (!isActivated) productKey = it },
+            readOnly = isActivated
         )
 
         // Activation Status Indicator

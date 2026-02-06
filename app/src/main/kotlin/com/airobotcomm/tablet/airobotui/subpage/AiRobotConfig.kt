@@ -14,7 +14,6 @@ import com.airobotcomm.tablet.airobotui.framework.comp.ConfigTextField
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextSecondary
 import com.airobotcomm.tablet.airobotui.viewmodel.RobotMainViewModel
-import com.airobotcomm.tablet.system.model.AiRobot
 
 @Composable
 fun AiRobotConfig(
@@ -39,7 +38,8 @@ fun AiRobotConfig(
         ConfigTextField(
             label = "智能体服务地址",
             value = editedAgentUrl,
-            onValueChange = { editedAgentUrl = it }
+            onValueChange = { if (!isActivated) editedAgentUrl = it },
+            readOnly = isActivated
         )
 
         ConfigTextField(
@@ -84,10 +84,19 @@ fun AiRobotConfig(
         Button(
             onClick = { viewModel.configureAndActivateAiAgent(editedAgentUrl, editedModel) },
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = RobotPrimaryCyan),
+            enabled = !isActivated,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isActivated) Color.Gray else RobotPrimaryCyan,
+                disabledContainerColor = Color.Gray,
+                disabledContentColor = Color.White
+            ),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("保存配置并启动激活", color = Color.White, fontWeight = FontWeight.Bold)
+            Text(
+                if (isActivated) "AiRobot智能体已激活" else "保存配置并启动激活",
+                color = Color.White, 
+                fontWeight = FontWeight.Bold
+            )
         }
 
         if (isActivated) {

@@ -75,7 +75,7 @@ class SysManageImpl @Inject constructor(
         // 3. Perform OTA check for AIRobot activation
         val result = otaNetRepo.reportDeviceAndGetOta(
             clientId = info.clientId,
-            deviceId = getMacAddress(), // Using MacAddress as deviceId for OTA as per previous logic
+            deviceId = info.deviceInfo.macAddress, // Using MacAddress as deviceId for OTA as per previous logic
             otaUrl = info.serviceUrl
         )
 
@@ -219,12 +219,8 @@ class SysManageImpl @Inject constructor(
         return getAiAgent().commCredentials
     }
 
-    // ===== Legacy/Backward Compatibility Implementations ===== 
-    // All Removed as per refactoring plan
-
 
     // --- Internal Helpers & SysInfo Management ---
-    
     private suspend fun getSystemInfo(): SystemInfo = mutex.withLock {
         ensureSystemInfo()
     }
@@ -250,9 +246,6 @@ class SysManageImpl @Inject constructor(
         return _systemInfo!!
     }
 
-    suspend fun getDeviceId(): String = ensureSystemInfo().deviceInfo.deviceId
-    suspend fun getMacAddress(): String = ensureSystemInfo().deviceInfo.macAddress
-    
     // Exposed via Interface
     override suspend fun updateSystemInfo(info: SystemInfo) = mutex.withLock {
         sysInfoRepo.saveConfig(info)
