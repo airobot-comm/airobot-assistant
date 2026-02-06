@@ -19,13 +19,12 @@ import com.airobotcomm.tablet.airobotui.viewmodel.RobotMainViewModel
 fun AiRobotConfig(
     viewModel: RobotMainViewModel = hiltViewModel()
 ) {
-    val systemInfo by viewModel.systemInfo.collectAsState()
     val aiAgent by viewModel.aiAgent.collectAsState()
     val isActivated by viewModel.isAiRobotActivated.collectAsState()
     
     // UI state for agent configuration
+    var agentVendor by remember(aiAgent) { mutableStateOf(aiAgent.agentVendor) }
     var editedAgentUrl by remember(aiAgent) { mutableStateOf(aiAgent.agentUrl) }
-    var editedModel by remember(aiAgent) { mutableStateOf(aiAgent.model) }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
@@ -36,23 +35,23 @@ fun AiRobotConfig(
         )
 
         ConfigTextField(
+            label = "AI智能体选择",
+            value = agentVendor,
+            onValueChange = {},
+            readOnly = true
+        )
+
+        ConfigTextField(
             label = "智能体服务地址",
             value = editedAgentUrl,
             onValueChange = { if (!isActivated) editedAgentUrl = it },
             readOnly = isActivated
         )
 
-        ConfigTextField(
-            label = "AI 模型 (Model)",
-            value = editedModel,
-            onValueChange = {},
-            readOnly = true
-        )
-
         Spacer(modifier = Modifier.height(8.dp))
         
         Text(
-            "智能体激活状态 (OTA 自动下发)",
+            "智能体激活状态 (自动下发)",
             color = RobotTextSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
@@ -60,7 +59,7 @@ fun AiRobotConfig(
 
         ConfigTextField(
             label = "激活凭证 (Activation Code)",
-            value = aiAgent.activationCode.ifEmpty { "尚未生成" },
+            value = aiAgent.activationCode,
             onValueChange = {},
             readOnly = true
         )
@@ -78,11 +77,20 @@ fun AiRobotConfig(
                 fontSize = 14.sp
             )
         }
+        
+        if (isActivated) {
+            Text(
+                "智能体已就绪，当前智能体: ${aiAgent.agentVendor}",
+                color = RobotPrimaryCyan,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.configureAndActivateAiAgent(editedAgentUrl, editedModel) },
+            onClick = { viewModel.configureAndActivateAiAgent(editedAgentUrl, agentVendor) },
             modifier = Modifier.fillMaxWidth(),
             enabled = !isActivated,
             colors = ButtonDefaults.buttonColors(
@@ -93,18 +101,9 @@ fun AiRobotConfig(
             shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                if (isActivated) "AiRobot智能体已激活" else "保存配置并启动激活",
+                if (isActivated) "Ai智能体已激活" else "保存配置并激活",
                 color = Color.White, 
                 fontWeight = FontWeight.Bold
-            )
-        }
-
-        if (isActivated) {
-            Text(
-                "智能体已就绪，当前模型: ${aiAgent.model}",
-                color = RobotPrimaryCyan,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium
             )
         }
     }

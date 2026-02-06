@@ -1,7 +1,6 @@
 package com.airobotcomm.tablet.system.model
 
 import java.util.UUID
-import javax.crypto.SecretKey
 
 /**
  * agent服务的ota认证/激活而动态获取新的通信凭证
@@ -19,9 +18,9 @@ data class CommCredentials(
 )
 
 data class AiAgent(
+    val agentVendor: String = "xiaozhi-ai", // todo:agent vendor will support coze and joy-agent
     val agentUrl: String = "https://api.tenclass.net/xiaozhi/ota/",
     val agentId: String = UUID.randomUUID().toString(),
-    val model: String = "qwen-3.5-test",
 
     // agent active code and comm credentials(such as xiaozhi)
     val activationCode: String = "",

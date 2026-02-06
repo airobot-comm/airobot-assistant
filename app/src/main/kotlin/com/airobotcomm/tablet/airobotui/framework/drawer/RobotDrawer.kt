@@ -34,7 +34,7 @@ import com.airobotcomm.tablet.airobotui.subpage.SystemAuth
 fun RobotDrawerContent(
     onClose: () -> Unit
 ) {
-    var selectedTab by remember { mutableStateOf(0) } // 0: 服务配置, 1: 系统认证
+    var selectedTab by remember { mutableStateOf(0) } // 0: 系统认证， 1: 服务配置
 
     Surface(
         modifier = Modifier
@@ -56,8 +56,8 @@ fun RobotDrawerContent(
                 DrawerMenuItem(
                     icon = Icons.Default.Lock,
                     label = "系统认证",
-                    isSelected = selectedTab == 1,
-                    onClick = { selectedTab = 1 }
+                    isSelected = selectedTab == 0,
+                    onClick = { selectedTab = 0 }
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -65,8 +65,8 @@ fun RobotDrawerContent(
                 DrawerMenuItem(
                     icon = Icons.Default.Settings,
                     label = "Ai机器人",
-                    isSelected = selectedTab == 0,
-                    onClick = { selectedTab = 0 }
+                    isSelected = selectedTab == 1,
+                    onClick = { selectedTab = 1 }
                 )
             }
 

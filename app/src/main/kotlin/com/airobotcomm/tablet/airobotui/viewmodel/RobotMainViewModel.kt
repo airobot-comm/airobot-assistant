@@ -29,24 +29,19 @@ class RobotMainViewModel @Inject constructor(
 ) : ViewModel() {
 
     val robotState: StateFlow<RobotState> = robotStateManager.robotState
-
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
-
     private val _showActivationDialog = MutableStateFlow(false)
     val showActivationDialog: StateFlow<Boolean> = _showActivationDialog.asStateFlow()
-
     private val _activationCode = MutableStateFlow<String?>(null)
     val activationCode: StateFlow<String?> = _activationCode.asStateFlow()
 
     init {
+        // step1: abserve core agentVendor
         observeNetwork()
         observeSysState()
-        startSysCheck()
-    }
 
-    private fun startSysCheck() {
-        // Trigger system initialization/check
+        // start system
         sysManage.start()
     }
 
@@ -58,14 +53,16 @@ class RobotMainViewModel @Inject constructor(
                         robotStateManager.updateRobotState(RobotState.Initializing)
                     }
                     is SysState.DeviceActivationRequired -> {
-                        robotStateManager.updateRobotState(RobotState.Unauthorized("DEVICE_ACTIVATION"))
+                        robotStateManager.updateRobotState(
+                            RobotState.Unauthorized("DEVICE_ACTIVATION"))
                         _showActivationDialog.value = false
                     }
                     is SysState.AiRobotActivationRequired -> {
                         val code = state.code
                         _activationCode.value = code
                         _showActivationDialog.value = true
-                        robotStateManager.updateRobotState(RobotState.Unauthorized(code))
+                        robotStateManager.updateRobotState(
+                            RobotState.Unauthorized(code))
                     }
                     is SysState.Ready -> {
                         _showActivationDialog.value = false
@@ -172,7 +169,7 @@ class RobotMainViewModel @Inject constructor(
     // System Info Exposure (Reactive)
     val systemInfo: StateFlow<SystemInfo> = sysManage.systemInfo
 
-    // Device Info Exposure (derived from hierarchical model)
+    // Device Info Exposure (derived from hierarchical agentVendor)
     val deviceInfo = systemInfo.map { it.deviceInfo }
         .stateIn(viewModelScope, SharingStarted.Lazily, DeviceInfo.empty())
     
@@ -182,7 +179,7 @@ class RobotMainViewModel @Inject constructor(
     val isDeviceActivated = deviceActivation.map { it.isActivated }
         .stateIn(viewModelScope, SharingStarted.Lazily, false)
 
-    // AIRobot Info Exposure (derived from hierarchical model)
+    // AIRobot Info Exposure (derived from hierarchical agentVendor)
     val aiAgent = systemInfo.map { it.aiAgent }
         .stateIn(viewModelScope, SharingStarted.Lazily, AiAgent())
 

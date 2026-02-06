@@ -116,7 +116,6 @@ class SysManageImpl @Inject constructor(
     }
 
     // ===== Device-level APIs =====
-
     override suspend fun validateProductKey(productKey: String): Boolean {
         // Simple validation: non-empty and minimum length
         return productKey.isNotEmpty() && productKey.length >= 8
@@ -144,7 +143,6 @@ class SysManageImpl @Inject constructor(
 
         // After device activation, trigger check for AIRobot activation
         scope.launch { checkUpdateAndActivation() }
-
         return Result.success(activation)
     }
 
@@ -166,7 +164,7 @@ class SysManageImpl @Inject constructor(
         val currentInfo = getSystemInfo()
         val updatedAgent = currentInfo.aiAgent.copy(
             agentUrl = agentUrl,
-            model = model
+            agentVendor = model
         )
         updateSystemInfo(currentInfo.copy(aiAgent = updatedAgent))
 
@@ -176,7 +174,8 @@ class SysManageImpl @Inject constructor(
         return Result.success(updatedAgent)
     }
 
-    override suspend fun confirmAiRobotActivation(code: String, credentials: CommCredentials): Result<AiAgent> {
+    override suspend fun confirmAiRobotActivation(code: String,
+                          credentials: CommCredentials): Result<AiAgent> {
         val currentInfo = getSystemInfo()
         val activatedAgent = currentInfo.aiAgent.copy(
             activationCode = code,
@@ -249,10 +248,12 @@ class SysManageImpl @Inject constructor(
     // Exposed via Interface
     override suspend fun updateSystemInfo(info: SystemInfo) = mutex.withLock {
         sysInfoRepo.saveConfig(info)
+
+        // If critical info changed, arguably we should restart check, but depends on requirement.
+        // todo：For now, simple update.
         _systemInfo = info
         _systemInfoFlow.value = info
-        // If critical info changed, arguably we should restart check, but depends on requirement.
-        // For now, simple update.
+
     }
 
 

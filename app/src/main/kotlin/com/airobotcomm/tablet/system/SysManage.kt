@@ -59,7 +59,7 @@ interface SysManage {
     // ===== AIRobot-level APIs =====
 
     /**
-     * Configure AIRobot agent (URL, model, etc.)
+     * Configure AIRobot agent (URL, agentVendor, etc.)
      * Triggers OTA authentication to get activation code and credentials
      */
     suspend fun configureAiAgent(agentUrl: String, model: String = "qianwen3"): Result<AiAgent>
