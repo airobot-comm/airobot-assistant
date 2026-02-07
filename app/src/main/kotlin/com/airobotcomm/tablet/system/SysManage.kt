@@ -62,13 +62,8 @@ interface SysManage {
      * Configure AIRobot agent (URL, agentVendor, etc.)
      * Triggers OTA authentication to get activation code and credentials
      */
-    suspend fun configureAiAgent(agentUrl: String, model: String = "qianwen3"): Result<AiAgent>
-
-    /**
-     * Confirm AIRobot activation with OTA-provided code and credentials
-     * Use this when credentials are valid and known (e.g. from OTA response)
-     */
-    suspend fun confirmAiRobotActivation(code: String, credentials: CommCredentials): Result<AiAgent>
+    suspend fun configureAiAgent(agentUrl: String,
+                                 agentVender: String = "xiaozhi-ai"): Result<AiAgent>
 
     /**
      * Confirm AIRobot activation with code only

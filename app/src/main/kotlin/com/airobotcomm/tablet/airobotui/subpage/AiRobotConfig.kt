@@ -90,7 +90,9 @@ fun AiRobotConfig(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.configureAndActivateAiAgent(editedAgentUrl, agentVendor) },
+            onClick = {
+                viewModel.configureAndActivateAiAgent(editedAgentUrl,
+                    agentVendor) },
             modifier = Modifier.fillMaxWidth(),
             enabled = !isActivated,
             colors = ButtonDefaults.buttonColors(

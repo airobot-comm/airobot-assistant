@@ -148,9 +148,9 @@ class RobotMainViewModel @Inject constructor(
         }
     }
 
-    fun configureAndActivateAiAgent(agentUrl: String, model: String) {
+    fun configureAndActivateAiAgent(agentUrl: String, agentVender: String) {
         viewModelScope.launch {
-            sysManage.configureAiAgent(agentUrl, model)
+            sysManage.configureAiAgent(agentUrl, agentVender)
                 .onFailure { _errorMessage.value = it.message }
         }
     }

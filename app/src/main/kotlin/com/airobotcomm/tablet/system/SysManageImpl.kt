@@ -91,13 +91,11 @@ class SysManageImpl @Inject constructor(
             
             // Cache credentials for potential activation confirmation
             pendingCommCredentials = credentials
-            
 
             // Check if activation code is provided
             val activationCode = response.activation?.code
             if (!activationCode.isNullOrEmpty()) {
                 // If code is present, we require user/robot confirmation
-
                 _state.value = SysState.AiRobotActivationRequired(activationCode)
                 return@onSuccess
             }
@@ -160,11 +158,12 @@ class SysManageImpl @Inject constructor(
 
     // ===== AIRobot-level APIs =====
 
-    override suspend fun configureAiAgent(agentUrl: String, model: String): Result<AiAgent> {
+    override suspend fun configureAiAgent(agentUrl: String,
+                                          agentVender: String): Result<AiAgent> {
         val currentInfo = getSystemInfo()
         val updatedAgent = currentInfo.aiAgent.copy(
             agentUrl = agentUrl,
-            agentVendor = model
+            agentVendor = agentVender
         )
         updateSystemInfo(currentInfo.copy(aiAgent = updatedAgent))
 
@@ -174,30 +173,23 @@ class SysManageImpl @Inject constructor(
         return Result.success(updatedAgent)
     }
 
-    override suspend fun confirmAiRobotActivation(code: String,
-                          credentials: CommCredentials): Result<AiAgent> {
+    override suspend fun confirmAiRobotActivation(code: String): Result<AiAgent> {
+        val credentials = pendingCommCredentials ?: getCommCredentials()
+        if (credentials == null) {
+             return Result.failure(Exception("No credentials available for activation"))
+        }
         val currentInfo = getSystemInfo()
         val activatedAgent = currentInfo.aiAgent.copy(
             activationCode = code,
             commCredentials = credentials
         )
         updateSystemInfo(currentInfo.copy(aiAgent = activatedAgent))
-        
+
         // Clear pending
         pendingCommCredentials = null
-        
+
         _state.value = SysState.Ready
         return Result.success(activatedAgent)
-    }
-
-    override suspend fun confirmAiRobotActivation(code: String): Result<AiAgent> {
-        val credentials = pendingCommCredentials ?: getCommCredentials()
-        
-        if (credentials == null) {
-             return Result.failure(Exception("No credentials available for activation"))
-        }
-        
-        return confirmAiRobotActivation(code, credentials)
     }
 
     override suspend fun getAiAgent(): AiAgent {
