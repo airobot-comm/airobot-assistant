@@ -85,7 +85,7 @@ fun RobotDrawerContent(
                 ) {
                     Column {
                         Text(
-                            text = if (selectedTab == 0) "Ai机器人配置" else "系统认证信息",
+                            text = if (selectedTab == 0) "系统认证信息" else "Ai机器人配置",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Black,
                             color = RobotTextPrimary,
@@ -119,9 +119,9 @@ fun RobotDrawerContent(
                 // 统一风格的子页面容器
                 Box(modifier = Modifier.fillMaxWidth()) {
                     if (selectedTab == 0) {
-                        AiRobotConfig()
-                    } else {
                         SystemAuth()
+                    } else {
+                        AiRobotConfig()
                     }
                 }
             }
