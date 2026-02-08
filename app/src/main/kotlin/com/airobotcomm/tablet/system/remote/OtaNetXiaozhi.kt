@@ -13,9 +13,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class OtaNetRepoImpl @Inject constructor() : OtaNetRepo {
+class OtaNetXiaozhi @Inject constructor() : OtaNetRepo {
     companion object {
-        private const val TAG = "OtaNetRepoImpl"
+        private const val TAG = "OtaNetXiaozhi"
         private const val TIMEOUT_SECONDS = 30L
     }
 
@@ -84,7 +84,7 @@ class OtaNetRepoImpl @Inject constructor() : OtaNetRepo {
             ),
             board = DeviceReportRequest.BoardInfo(
                 type = "wifi", // 标识为Wi-Fi设备类型
-                name = "xiaozhi-android",
+                name = "airobot-assistant",
                 ssid = "test-ssid", // Wi-Fi SSID，如需要可从系统获取
                 rssi = -55, // Wi-Fi信号强度，如需要可从系统获取
                 channel = 1, // Wi-Fi频道，如需要可从系统获取

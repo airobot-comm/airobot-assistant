@@ -2,6 +2,7 @@ package com.airobotcomm.tablet.system.remote
 
 /**
  * OTA仓库接口 - 定义OTA相关操作的契约
+ * todo ：后续优化，改为通用的系统接口，xiaozhi的服务是agent，迁移到agent—auth
  */
 interface OtaNetRepo {
     /**

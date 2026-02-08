@@ -2,7 +2,7 @@ package com.airobotcomm.tablet.system.di
 
 import com.airobotcomm.tablet.system.repository.SysInfoRepo
 import com.airobotcomm.tablet.system.remote.OtaNetRepo
-import com.airobotcomm.tablet.system.remote.OtaNetRepoImpl
+import com.airobotcomm.tablet.system.remote.OtaNetXiaozhi
 import com.airobotcomm.tablet.system.repository.SysInfoRepoImpl
 import dagger.Binds
 import dagger.Module
@@ -20,5 +20,5 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindOtaRepository(impl: OtaNetRepoImpl): OtaNetRepo
+    abstract fun bindOtaRepository(impl: OtaNetXiaozhi): OtaNetRepo
 }
