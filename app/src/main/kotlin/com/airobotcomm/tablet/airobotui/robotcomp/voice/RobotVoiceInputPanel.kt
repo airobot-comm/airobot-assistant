@@ -162,12 +162,13 @@ private fun IdleMicButton(
                             }
                         )
                     )
-                    .clickable(enabled = isConnected) { onStartListening() },
+                    // .clickable(enabled = isConnected) { onStartListening() } // 移除点击触发
+                    ,
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.mic),
-                    contentDescription = "开始录音",
+                    contentDescription = "语音输入",
                     modifier = Modifier.size(44.dp), // 图标同步增大
                     tint = if (isConnected) Color.White else Color.White.copy(alpha = 0.5f)
                 )
@@ -176,7 +177,7 @@ private fun IdleMicButton(
         
         // 提示文字 - 保持常驻
         VoiceHintText(
-            text = if (isConnected) "点击开始对话" else "等待连接..."
+            text = if (isConnected) "呼唤\"Hi Robot\"开始对话" else "等待连接..."
         )
     }
 }

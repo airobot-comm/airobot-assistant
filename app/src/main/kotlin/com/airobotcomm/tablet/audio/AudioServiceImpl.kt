@@ -29,6 +29,9 @@ class AudioServiceImpl @Inject constructor(
     // 分离的录音和播放模块
     private val audioRecorder: AudioRecorder
     private val audioPlayer: AudioPlayer
+    
+    // KWS 管理器
+    private var kwsManager: com.airobotcomm.tablet.audio.tools.kws.KwsManager? = null
 
     // 合并的音频事件流
     private val _audioEvents = MutableSharedFlow<AudioEvent>()
@@ -41,11 +44,24 @@ class AudioServiceImpl @Inject constructor(
         // 初始化录音和播放模块
         audioRecorder = DefaultAudioRecorder(context)
         audioPlayer = DefaultAudioPlayer(context)
+        kwsManager = com.airobotcomm.tablet.audio.tools.kws.KwsManager(context)
         
         // 监听录音和播放事件
         scope.launch {
             audioRecorder.audioEvents.collect { event ->
+                if (event is AudioEvent.AudioData) {
+                    kwsManager?.process(event.data)
+                }
                 _audioEvents.emit(event)
+            }
+        }
+        
+        scope.launch {
+            kwsManager?.kwsEvents?.collect { event ->
+                if (event is com.airobotcomm.tablet.audio.tools.kws.KwsEvent.Wakeup) {
+                    Log.d(TAG, "KWS Wakeup received: ${event.keyword}")
+                    _audioEvents.emit(AudioEvent.Wakeup(event.audioData))
+                }
             }
         }
         
@@ -80,16 +96,22 @@ class AudioServiceImpl @Inject constructor(
             return false
         }
         
-        Log.d(TAG, "音频系统初始化成功")
+        // 初始化KWS并启动录音
+        kwsManager?.init()
+        audioRecorder.startRecording()
+        Log.d(TAG, "音频系统初始化成功，KWS已启动")
         return true
     }
 
     override fun startRecording() {
-        audioRecorder.startRecording()
+        if (!audioRecorder.isRecording()) {
+            audioRecorder.startRecording()
+        }
     }
 
     override fun stopRecording() {
-        audioRecorder.stopRecording()
+        // KWS需要由于后台监听，因此不停止底层录音，仅逻辑上停止
+        Log.d(TAG, "stopRecording called, but keeping recorder active for KWS")
     }
 
     override fun playAudio(audioData: ByteArray) {
@@ -113,8 +135,10 @@ class AudioServiceImpl @Inject constructor(
     }
 
     override fun cleanup() {
+        audioRecorder.stopRecording() // 真正停止录音
         audioRecorder.cleanup()
         audioPlayer.cleanup()
+        kwsManager?.cleanup()
         scope.cancel()
     }
 

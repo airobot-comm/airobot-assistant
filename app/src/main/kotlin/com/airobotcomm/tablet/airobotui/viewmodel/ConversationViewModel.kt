@@ -205,6 +205,23 @@ class ConversationViewModel @Inject constructor(
                 // 更新音频强度状态
                 _audioLevel.value = event.level
             }
+            is AudioEvent.Wakeup -> {
+                Log.d(TAG, "KWS 唤醒触发")
+                // 只有在非对话状态（Ready）或思考完成后才能唤醒
+                // 如果正在对话中，也可以选择打断并重新开始，或者忽略
+                // 这里选择总是响应唤醒
+                
+                isAutoMode = true
+                resetRoundText()
+                _subState.value = ConversationSubState.LISTENING
+                syncToMainState()
+                
+                audioService.startRecording()
+                networkService.startListening("kws")
+                
+                // 发送唤醒词音频上下文
+                networkService.sendAudio(event.audioData)
+            }
             is AudioEvent.Error -> {
                 Log.e(TAG, "音频错误: ${event.message}")
                 _errorMessage.value = event.message

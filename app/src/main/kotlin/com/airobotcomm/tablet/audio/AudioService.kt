@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharedFlow
 sealed class AudioEvent {
     data class AudioData(val data: ByteArray) : AudioEvent()
     data class AudioLevel(val level: Float) : AudioEvent()
+    data class Wakeup(val audioData: ByteArray) : AudioEvent()
     data class Error(val message: String) : AudioEvent()
 }
 
