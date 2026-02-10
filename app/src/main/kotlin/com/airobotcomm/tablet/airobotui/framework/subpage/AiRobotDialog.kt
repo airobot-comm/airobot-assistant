@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.airobotui.subpage
+package com.airobotcomm.tablet.airobotui.framework.subpage
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

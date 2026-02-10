@@ -23,7 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobotcomm.tablet.R
 import com.airobotcomm.tablet.airobotui.framework.comp.BackgroundDecorations
 import com.airobotcomm.tablet.airobotui.framework.comp.BottomFooter
-import com.airobotcomm.tablet.airobotui.subpage.AiRobotDialog
+import com.airobotcomm.tablet.airobotui.framework.subpage.AiRobotDialog
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.DialogueBubble
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.TypewriterText
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.UserMessageBubble
@@ -31,10 +31,10 @@ import com.airobotcomm.tablet.airobotui.robotcomp.robot.*
 import com.airobotcomm.tablet.airobotui.robotcomp.voice.RobotVoiceInputPanel
 import com.airobotcomm.tablet.airobotui.framework.statusbar.RobotTopBar
 import com.airobotcomm.tablet.airobotui.framework.drawer.RobotDrawerContent
-import com.airobotcomm.tablet.airobotui.servicecomp.DEFAULT_SERVICE_CARDS
-import com.airobotcomm.tablet.airobotui.servicecomp.FocusTimerWidget
-import com.airobotcomm.tablet.airobotui.servicecomp.ServiceCardCarousel
-import com.airobotcomm.tablet.airobotui.servicecomp.getServiceCardIcon
+import com.airobotcomm.tablet.service.compoments.DEFAULT_SERVICE_CARDS
+import com.airobotcomm.tablet.service.FocusTimerWidget
+import com.airobotcomm.tablet.service.compoments.ServiceCardCarousel
+import com.airobotcomm.tablet.service.compoments.getServiceCardIcon
 import com.airobotcomm.tablet.airobotui.state.ConversationSubState
 import com.airobotcomm.tablet.airobotui.state.InteractionType
 import com.airobotcomm.tablet.airobotui.state.RobotState

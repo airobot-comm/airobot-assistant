@@ -23,8 +23,8 @@ import com.airobotcomm.tablet.airobotui.framework.theme.RobotBackgroundDark
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotSurface
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextPrimary
-import com.airobotcomm.tablet.airobotui.subpage.AiRobotConfig
-import com.airobotcomm.tablet.airobotui.subpage.SystemAuth
+import com.airobotcomm.tablet.airobotui.framework.subpage.AiRobotConfig
+import com.airobotcomm.tablet.airobotui.framework.subpage.SystemAuth
 
 /**
  * 侧边栏菜单内容

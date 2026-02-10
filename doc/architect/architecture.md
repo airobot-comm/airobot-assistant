@@ -25,7 +25,6 @@ app/src/main/kotlin/com/airobotcomm/tablet/
 ├── airobotui/                # airobot单页UI层 (Presentation Layer)
 │   ├── framework/                 # ui框架如topbar，menu菜单,通用小组件...
 │   ├── robotcomp/                 # robot头像，眼睛，对话气泡等核心组件
-│   ├── servicecomp/               # service卡片容器与功能卡片组件
 │   ├── state/                     # ui状态数据模型
 │   ├── theme/                     # 主题配置 
 │   ├── subpages/                  # 菜单功能、对话弹框页面模块
@@ -41,6 +40,10 @@ app/src/main/kotlin/com/airobotcomm/tablet/
 │   ├── transport/                 # 底层ws，mqtt传输服务
 │   ├── CommService.kt             # 通信服务接口
 │   └── commServiceImpl.kt         # 网络服务接口实现 
+├── service/                 # service卡片容器与功能卡片组件
+│   ├── compoments/                # 功能服务卡片容器组件
+│   ├── times/                     # 定时器服务功能
+│   └── xxx.kt                     # 待定 
 ├──system/                    # 系统管理模块（系统配置、ota管理功能模块）
 │   ├── di/                        # 系统管理模块hilt di服务
 │   ├── model/                     # 业务模型

@@ -1,4 +1,4 @@
-package com.airobotcomm.tablet.airobotui.subpage
+package com.airobotcomm.tablet.airobotui.framework.subpage
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,102 +14,98 @@ import com.airobotcomm.tablet.airobotui.framework.comp.ConfigTextField
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobotcomm.tablet.airobotui.framework.theme.RobotTextSecondary
 import com.airobotcomm.tablet.airobotui.viewmodel.RobotMainViewModel
-import com.airobotcomm.tablet.system.model.ActiveInfo
 
 @Composable
-fun SystemAuth(
+fun AiRobotConfig(
     viewModel: RobotMainViewModel = hiltViewModel()
 ) {
-    val deviceInfo by viewModel.deviceInfo.collectAsState()
-    val isActivated by viewModel.isDeviceActivated.collectAsState()
+    val aiAgent by viewModel.aiAgent.collectAsState()
+    val isActivated by viewModel.isAiRobotActivated.collectAsState()
     
-    var productKey by remember(deviceInfo) { 
-        mutableStateOf(deviceInfo.activation.productKey) 
-    }
-    
+    // UI state for agent configuration
+    var agentVendor by remember(aiAgent) { mutableStateOf(aiAgent.agentVendor) }
+    var editedAgentUrl by remember(aiAgent) { mutableStateOf(aiAgent.agentUrl) }
+
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
-            "设备基本信息 (不可修改)",
+            "智能体配置",
             color = RobotTextSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
 
         ConfigTextField(
-            label = "设备 ID",
-            value = deviceInfo.deviceId,
+            label = "AI智能体选择",
+            value = agentVendor,
             onValueChange = {},
             readOnly = true
         )
 
         ConfigTextField(
-            label = "MAC 地址",
-            value = deviceInfo.macAddress,
-            onValueChange = {},
-            readOnly = true
+            label = "智能体服务地址",
+            value = editedAgentUrl,
+            onValueChange = { if (!isActivated) editedAgentUrl = it },
+            readOnly = isActivated
         )
 
         Spacer(modifier = Modifier.height(8.dp))
         
         Text(
-            "设备激活与授权",
+            "智能体激活状态 (自动下发)",
             color = RobotTextSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
 
-        val displayKey = if (isActivated && productKey.length > 8) {
-            val start = productKey.take(4)
-            val end = productKey.takeLast(4)
-            "$start-****-****-$end"
-        } else {
-            productKey
-        }
-
         ConfigTextField(
-            label = "产品激活密钥 (Product Key)",
-            value = displayKey,
-            onValueChange = { if (!isActivated) productKey = it },
-            readOnly = isActivated
+            label = "激活凭证 (Activation Code)",
+            value = aiAgent.activationCode,
+            onValueChange = {},
+            readOnly = true
         )
 
-        // Activation Status Indicator
+        // Connection Credentials Status
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("激活状态:", color = RobotTextSecondary, fontSize = 14.sp)
+            Text("WS 连接凭证:", color = RobotTextSecondary, fontSize = 14.sp)
             Text(
-                if (isActivated) "已成功激活" else "尚未激活",
-                color = if (isActivated) RobotPrimaryCyan else Color.Red,
+                if (aiAgent.commCredentials != null) "已下发凭证" else "尚未下发",
+                color = if (aiAgent.commCredentials != null) RobotPrimaryCyan else Color.Red,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp
+            )
+        }
+        
+        if (isActivated) {
+            Text(
+                "智能体已就绪，当前智能体: ${aiAgent.agentVendor}",
+                color = RobotPrimaryCyan,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.activateDevice(productKey) },
+            onClick = {
+                viewModel.configureAndActivateAiAgent(editedAgentUrl,
+                    agentVendor) },
             modifier = Modifier.fillMaxWidth(),
-            enabled = productKey.length >= 8,
+            enabled = !isActivated,
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isActivated) Color.Gray else RobotPrimaryCyan
+                containerColor = if (isActivated) Color.Gray else RobotPrimaryCyan,
+                disabledContainerColor = Color.Gray,
+                disabledContentColor = Color.White
             ),
             shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                if (isActivated) "已激活" else "立即激活设备", 
+                if (isActivated) "Ai智能体已激活" else "保存配置并激活",
                 color = Color.White, 
                 fontWeight = FontWeight.Bold
-            )
-        }
-
-        if (isActivated) {
-            Text(
-                "激活时间: ${deviceInfo.activation.time}",
-                color = RobotTextSecondary,
-                fontSize = 12.sp
             )
         }
     }
