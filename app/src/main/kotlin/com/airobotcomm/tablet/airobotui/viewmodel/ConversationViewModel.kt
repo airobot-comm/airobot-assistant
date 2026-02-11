@@ -119,7 +119,7 @@ class ConversationViewModel @Inject constructor(
             }
             is AiRobotEvent.Disconnected -> {
                 // 由 RobotMainViewModel 处理
-                audioService.stopRecording()
+                audioService.stopWorking()
                 audioService.stopPlaying()
             }
             is AiRobotEvent.Error -> {
@@ -144,7 +144,7 @@ class ConversationViewModel @Inject constructor(
             }
             is AiRobotEvent.DialogueEnd -> {
                 robotStateManager.updateRobotState(RobotState.Ready)
-                audioService.stopRecording()
+                audioService.stopWorking()
                 audioService.stopPlaying()
             }
             else -> {}
@@ -160,7 +160,7 @@ class ConversationViewModel @Inject constructor(
             currentUserMessage = text
             _currentRoundUserText.value = text
             addMessage(Message(role = MessageRole.USER, content = text))
-            audioService.stopRecording()
+            // 停止发送音频数据（回到监听状态，但实际由上层控制）
             _subState.value = ConversationSubState.THINKING
             syncToMainState()
         }
@@ -216,7 +216,7 @@ class ConversationViewModel @Inject constructor(
                 _subState.value = ConversationSubState.LISTENING
                 syncToMainState()
                 
-                audioService.startRecording()
+                // KWS已自动切换到工作状态
                 networkService.startListening("kws")
                 
                 // 发送唤醒词音频上下文
@@ -239,7 +239,8 @@ class ConversationViewModel @Inject constructor(
         resetRoundText()
         _subState.value = ConversationSubState.LISTENING
         syncToMainState()
-        audioService.startRecording()
+        // 手动请求进入工作状态
+        audioService.startWorking()
         networkService.startListening("manual")
     }
 
@@ -252,7 +253,8 @@ class ConversationViewModel @Inject constructor(
         resetRoundText()
         _subState.value = ConversationSubState.LISTENING
         syncToMainState()
-        audioService.startRecording()
+        // 请求进入工作状态
+        audioService.startWorking()
         networkService.startListening("auto")
     }
 
@@ -260,7 +262,8 @@ class ConversationViewModel @Inject constructor(
      * 停止聆听
      */
     fun stopListening() {
-        audioService.stopRecording()
+        // 上层停止会话，audio 回到监听状态
+        audioService.stopWorking()
         _subState.value = ConversationSubState.THINKING
         syncToMainState()
         networkService.stopListening()
@@ -270,7 +273,7 @@ class ConversationViewModel @Inject constructor(
      * 取消当前录音并发送中止信号
      */
     fun cancelListeningWithAbort(reason: String = "user_interrupt") {
-        audioService.stopRecording()
+        audioService.stopWorking()
         networkService.abort(reason)
         robotStateManager.updateRobotState(RobotState.Ready)
     }
@@ -286,7 +289,8 @@ class ConversationViewModel @Inject constructor(
         resetRoundText()
         _subState.value = ConversationSubState.LISTENING
         syncToMainState()
-        audioService.startRecording()
+        // 启动下一轮工作
+        audioService.startWorking()
         networkService.startListening("auto")
     }
 
@@ -295,7 +299,7 @@ class ConversationViewModel @Inject constructor(
      */
     fun interrupt() {
         audioService.stopPlaying()
-        audioService.stopRecording()
+        audioService.stopWorking()
         networkService.abort("user_interrupt")
         isAutoMode = false
         robotStateManager.updateRobotState(RobotState.Ready)
@@ -306,7 +310,7 @@ class ConversationViewModel @Inject constructor(
      */
     fun stopAutoConversation() {
         isAutoMode = false
-        audioService.stopRecording()
+        audioService.stopWorking()
         audioService.stopPlaying()
         networkService.abort("stop_auto_mode")
         robotStateManager.updateRobotState(RobotState.Ready)

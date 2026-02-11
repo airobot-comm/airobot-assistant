@@ -1,15 +1,19 @@
 package com.airobotcomm.tablet.audio.tools.kws
 
 import android.content.Context
-import android.content.res.AssetManager
 import android.util.Log
 import com.k2fsa.sherpa.onnx.KeywordSpotter
 import com.k2fsa.sherpa.onnx.KeywordSpotterConfig
 import com.k2fsa.sherpa.onnx.OnlineStream
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import java.io.IOException
 
+/**
+ * KWS工具类 - 纯粹的关键词检测功能，无状态
+ * 
+ * 使用方式：
+ * 1. 调用 init() 初始化
+ * 2. 调用 process() 处理音频帧，返回检测到的关键词（如果有）
+ * 3. 调用 cleanup() 释放资源
+ */
 class KwsManager(private val context: Context) {
     companion object {
         private const val TAG = "KwsManager"
@@ -19,26 +23,20 @@ class KwsManager(private val context: Context) {
 
     private var spotter: KeywordSpotter? = null
     private var stream: OnlineStream? = null
-    
-    // Ring buffer to store audio history (2 seconds)
-    private val bufferSize = SAMPLE_RATE * 2 * 2
-    private val audioBuffer = ByteArray(bufferSize)
-    private var bufferHead = 0
-
-    private val _kwsEvents = MutableSharedFlow<KwsEvent>()
-    val kwsEvents: SharedFlow<KwsEvent> = _kwsEvents
-    
     private var isInitialized = false
 
-    fun init() {
-        if (isInitialized) return
+    /**
+     * 初始化KWS引擎
+     */
+    fun init(): Boolean {
+        if (isInitialized) return true
         
         try {
             val config = KeywordSpotterConfig()
             config.featConfig.sampleRate = SAMPLE_RATE
             config.featConfig.featureDim = 80
             
-            // Use relative paths in assets
+            // 模型文件路径
             config.modelConfig.transducer.encoder = "$ASSET_DIR/encoder-epoch-13-avg-2-chunk-16-left-64.onnx"
             config.modelConfig.transducer.decoder = "$ASSET_DIR/decoder-epoch-13-avg-2-chunk-16-left-64.onnx"
             config.modelConfig.transducer.joiner = "$ASSET_DIR/joiner-epoch-13-avg-2-chunk-16-left-64.onnx"
@@ -46,107 +44,77 @@ class KwsManager(private val context: Context) {
             
             config.modelConfig.numThreads = 1
             config.modelConfig.provider = "cpu"
-            config.modelConfig.modelType = "zipformer2" // Explicitly set model type if needed, or let it infer?
-            // Actually, for zipformer, we might not need to set modelType if we set transducer paths, but let's be careful.
-            // Let's rely on inference first, but definitely set tokens.
+            config.modelConfig.modelType = "zipformer2"
             
             config.keywordsFile = "$ASSET_DIR/keywords.txt"
+            config.keywordsScore = 1.0f      // 灵敏度阈值，调高可以减少误唤醒
+            config.keywordsThreshold = 0.20f // 检测阈值
             
-            Log.d(TAG, "Configuring KWS with:")
-            Log.d(TAG, "Encoder: ${config.modelConfig.transducer.encoder}")
-            Log.d(TAG, "Decoder: ${config.modelConfig.transducer.decoder}")
-            Log.d(TAG, "Joiner: ${config.modelConfig.transducer.joiner}")
-            Log.d(TAG, "Tokens: ${config.modelConfig.tokens}")
-            Log.d(TAG, "Keywords: ${config.keywordsFile}")
+            Log.d(TAG, "初始化KWS: $ASSET_DIR")
             
-            // Initialize with AssetManager
-            Log.d(TAG, "Creating KeywordSpotter...")
+            // 创建引擎
             spotter = KeywordSpotter(context.assets, config)
-            Log.d(TAG, "Creating OnlineStream...")
             stream = spotter?.createStream()
             
             isInitialized = true
-            Log.d(TAG, "KWS Initialized successfully with assets")
+            Log.d(TAG, "KWS初始化成功")
+            return true
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to initialize KWS", e)
-            e.printStackTrace()
+            Log.e(TAG, "KWS初始化失败", e)
+            return false
         }
     }
 
-    fun process(audioData: ByteArray) {
+    /**
+     * 处理音频数据，返回检测到的关键词
+     * 
+     * @param pcmData PCM音频数据 (16kHz, 16bit, mono)
+     * @return 检测到的关键词，如果没有检测到返回null
+     */
+    fun process(pcmData: ByteArray): String? {
         val currentStream = stream
         val currentSpotter = spotter
         
-        if (!isInitialized || currentSpotter == null || currentStream == null) return
-
-        // 1. Buffer the raw bytes
-        addToBuffer(audioData)
-        
-        // 2. Convert ByteArray to FloatArray for Sherpa Onnx
-        val samples = FloatArray(audioData.size / 2)
-        for (i in samples.indices) {
-            val sample = (audioData[i * 2].toInt() and 0xFF) or (audioData[i * 2 + 1].toInt() shl 8)
-            samples[i] = sample.toShort() / 32768f
+        if (!isInitialized || currentSpotter == null || currentStream == null) {
+            Log.w(TAG, "KWS not initialized properly")
+            return null
         }
 
-        // 3. Feed to spotter stream
         try {
+            // 转换为float数组
+            val samples = FloatArray(pcmData.size / 2)
+            for (i in samples.indices) {
+                val sample = (pcmData[i * 2].toInt() and 0xFF) or (pcmData[i * 2 + 1].toInt() shl 8)
+                samples[i] = sample.toShort() / 32768f
+            }
+
+            // 送入KWS引擎
             currentStream.acceptWaveform(samples, SAMPLE_RATE)
             while (currentSpotter.isReady(currentStream)) {
                 currentSpotter.decode(currentStream)
                 val result = currentSpotter.getResult(currentStream)
                 
                 if (result != null && result.keyword.isNotEmpty()) {
-                    Log.d(TAG, "Detected keyword: ${result.keyword}")
-                    
-                    // Retrieve context audio
-                    val wakeupAudio = getBufferedAudio()
-                    _kwsEvents.tryEmit(KwsEvent.Wakeup(result.keyword, wakeupAudio))
-                    
-                    // Optionally reset or just continue
+                    Log.d(TAG, "KWS Detected Wake Word: ${result.keyword}")
+                    return result.keyword
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error processing audio for KWS", e)
+            Log.e(TAG, "KWS processing failed: ${e.message}", e)
         }
+        
+        return null
     }
     
+    /**
+     * 清理资源
+     */
     fun cleanup() {
         stream?.release()
         spotter?.release()
         stream = null
         spotter = null
         isInitialized = false
+        Log.d(TAG, "KWS已清理")
     }
-    
-    private fun addToBuffer(data: ByteArray) {
-        if (data.size >= bufferSize) {
-             System.arraycopy(data, data.size - bufferSize, audioBuffer, 0, bufferSize)
-             bufferHead = 0
-             return
-        }
-        
-        val spaceToEnd = bufferSize - bufferHead
-        if (data.size <= spaceToEnd) {
-            System.arraycopy(data, 0, audioBuffer, bufferHead, data.size)
-            bufferHead += data.size
-            if (bufferHead == bufferSize) bufferHead = 0
-        } else {
-            System.arraycopy(data, 0, audioBuffer, bufferHead, spaceToEnd)
-            System.arraycopy(data, spaceToEnd, audioBuffer, 0, data.size - spaceToEnd)
-            bufferHead = data.size - spaceToEnd
-        }
-    }
-    
-    private fun getBufferedAudio(): ByteArray {
-        val result = ByteArray(bufferSize)
-        val spaceToEnd = bufferSize - bufferHead
-        System.arraycopy(audioBuffer, bufferHead, result, 0, spaceToEnd)
-        System.arraycopy(audioBuffer, 0, result, spaceToEnd, bufferHead)
-        return result
-    }
-}
-
-sealed class KwsEvent {
-    data class Wakeup(val keyword: String, val audioData: ByteArray) : KwsEvent()
 }

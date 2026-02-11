@@ -20,7 +20,7 @@ data class AudioConfig(
     val playSampleRate: Int = 24000,
     val channels: Int = 1,
     val audioFormat: Int = android.media.AudioFormat.ENCODING_PCM_16BIT,
-    val frameDurationMs: Int = 60,
+    val frameDurationMs: Int = 100,
     val enableAec: Boolean = true,
     val enableNs: Boolean = true
 )
@@ -35,14 +35,14 @@ interface AudioService {
     fun initialize(config: AudioConfig = AudioConfig()): Boolean
 
     /**
-     * 开始录音
+     * 启动工作模式（开始编码并发送录音数据）
      */
-    fun startRecording()
+    fun startWorking()
 
     /**
-     * 停止录音
+     * 停止工作模式（停止发送数据，回到监听状态）
      */
-    fun stopRecording()
+    fun stopWorking()
 
     /**
      * 播放音频数据（单次播放）
@@ -75,9 +75,9 @@ interface AudioService {
     fun cleanup()
 
     /**
-     * 获取录音状态
+     * 获取工作状态（是否在发送音频数据）
      */
-    fun isRecording(): Boolean
+    fun isWorking(): Boolean
 
     /**
      * 获取播放状态
