@@ -74,6 +74,7 @@ fun RobotVoiceInputPanel(
             when (state) {
                 "IDLE" -> IdleMicButton(
                     isConnected = isConnected,
+                    audioLevel = audioLevel,
                     onStartListening = onStartListening
                 )
                 "TIMER" -> TimerControlPanel(
@@ -93,50 +94,61 @@ fun RobotVoiceInputPanel(
 }
 
 /**
- * 空闲状态麦克风按钮
+ * 空闲状态麦克风按钮 (Waiting State)
+ * 支持点击唤醒和声浪反馈
  */
 @Composable
 private fun IdleMicButton(
     isConnected: Boolean,
+    audioLevel: Float,
     onStartListening: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // 基础呼吸动画
     val infiniteTransition = rememberInfiniteTransition(label = "micPulse")
-    val ringScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.6f, // 增加波动范围
+    val baseScale by infiniteTransition.animateFloat(
+        initialValue = 1.0f,
+        targetValue = 1.05f,
         animationSpec = infiniteRepeatable(
-            animation = tween(2000),
-            repeatMode = RepeatMode.Restart
+            animation = tween(2000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
         ),
-        label = "ringScale"
+        label = "baseScale"
     )
-    val ringAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.25f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000),
-            repeatMode = RepeatMode.Restart
-        ),
+    
+    // 动态声浪缩放 (叠加在呼吸之上)
+    // audioLevel (0~1) -> extraScale (0~0.8)
+    val dynamicScale by animateFloatAsState(
+        targetValue = 1.0f + (audioLevel * 0.8f),
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "audioScale"
+    )
+    
+    val finalScale = if (audioLevel > 0.05f) dynamicScale else baseScale
+
+    val ringAlpha by animateFloatAsState(
+        targetValue = if (audioLevel > 0.05f) 0.6f + (audioLevel * 0.4f) else 0.2f,
         label = "ringAlpha"
     )
     
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp) // 增加间距
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        // 麦克风按钮 - 增大尺寸
+        // 麦克风按钮
         Box(
-            modifier = Modifier.size(120.dp), // 从 80 增大到 120
+            modifier = Modifier
+                .size(120.dp)
+                .clickable(enabled = isConnected) { onStartListening() }, // 点击唤醒
             contentAlignment = Alignment.Center
         ) {
-            // 脉冲环
+            // 动态响应环
             if (isConnected) {
                 Box(
                     modifier = Modifier
                         .size(120.dp)
-                        .scale(ringScale)
+                        .scale(finalScale)
                         .clip(CircleShape)
                         .background(Color(0xFF6366F1).copy(alpha = ringAlpha))
                 )
@@ -145,7 +157,7 @@ private fun IdleMicButton(
             // 按钮主体
             Box(
                 modifier = Modifier
-                    .size(100.dp) // 从 72 增大到 100
+                    .size(100.dp)
                     .clip(CircleShape)
                     .background(
                         brush = Brush.verticalGradient(
@@ -162,22 +174,23 @@ private fun IdleMicButton(
                             }
                         )
                     )
-                    // .clickable(enabled = isConnected) { onStartListening() } // 移除点击触发
+                    .clickable(enabled = isConnected)
+                    { if (isConnected) onStartListening() } // 点击唤醒
                     ,
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.mic),
-                    contentDescription = "语音输入",
-                    modifier = Modifier.size(44.dp), // 图标同步增大
+                    contentDescription = "点击唤醒",
+                    modifier = Modifier.size(44.dp),
                     tint = if (isConnected) Color.White else Color.White.copy(alpha = 0.5f)
                 )
             }
         }
         
-        // 提示文字 - 保持常驻
+        // 提示文字
         VoiceHintText(
-            text = if (isConnected) "呼唤\"Hi Robot\"开始对话" else "等待连接..."
+            text = if (isConnected) "呼唤\"Hi Robot\"或点击开始" else "等待连接..."
         )
     }
 }

@@ -30,7 +30,7 @@ class AudioRecordPipeline(
 ) {
     companion object {
         private const val TAG = "AudioRecordPipeline"
-        private const val WAKEUP_BUFFER_DURATION_SEC = 2
+        private const val WAKEUP_BUFFER_DURATION_SEC = 1
         
         // 内部状态
         const val STATE_LISTENING = 1
@@ -58,12 +58,12 @@ class AudioRecordPipeline(
     }
 
     /**
-     * 处理一帧 PCM 数据
+     * 处理一帧 PCM 数据，确保是串行的音频数据处理（数据帧不能异步处理）
      */
     suspend fun processFrame(pcmData: ByteArray) {
         // 1. 计算 Level (异步发送)
         val audioLevel = calculateRmsLevel(pcmData)
-        scope.launch { events.emit(AudioEvent.AudioLevel(audioLevel)) }
+        scope.launch { events.emit(AudioEvent.VoiceLevel(audioLevel)) }
 
         when (currentState) {
             STATE_LISTENING -> {
@@ -73,38 +73,39 @@ class AudioRecordPipeline(
                 val keyword = kwsManager.process(pcmData)
                 if (keyword != null) {
                     Log.d(TAG, "KWS Detected keyword: $keyword. Switch to WORKING.")
-                    currentState = STATE_WORKING
-                    
-                    // 核心逻辑：编码缓存中的音频并发送 Wakeup 事件
-                    processWakeupEvent()
+                    // 必须先编码并发送唤醒上下文，然后再切状态，确保顺序
+                    handleWakeupAndSwitchState()
                 }
             }
             STATE_WORKING -> {
-                // 工作状态：编码当前帧并发送 AudioData
+                // 工作状态：编码当前帧并发送 SpeechData
                 val opusData = encoder.encode(pcmData)
                 if (opusData != null) {
-                    scope.launch { events.emit(AudioEvent.AudioData(opusData)) }
+                    events.emit(AudioEvent.SpeechData(opusData))
                 }
             }
         }
     }
 
-    private fun processWakeupEvent() {
-        scope.launch {
-            try {
-                // 获取原始缓存音频
-                val rawPcm = getFullBuffer()
-                
-                // 对缓存音频进行分帧编码
-                // 注意：由于是唤醒瞬间，这里需要一次性将过去2秒的音频编码为 Opus
-                val opusContext = encodeLargeBuffer(rawPcm)
-                
-                if (opusContext.isNotEmpty()) {
-                    events.emit(AudioEvent.Wakeup(opusContext))
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to process wakeup audio encoding", e)
+    private suspend fun handleWakeupAndSwitchState() {
+        try {
+            // 1. 获取原始缓存音频
+            val rawPcm = getFullBuffer()
+
+            // 2. 对缓存音频进行分帧编码（不能异步线程处理）
+            val opusContext = encodeLargeBuffer(rawPcm)
+            if (opusContext.isNotEmpty()) {
+                Log.d(TAG, "Emitting Wakeup event with context size: ${opusContext.size}")
+                events.emit(AudioEvent.Wakeup(opusContext))
             }
+
+            // 3. 切换状态 (阻止后续 frame 在 encodeLargeBuffer 完成前进入 WORKING 发送数据)
+            // 注意：由于 processFrame 是由 runReadLoop 顺序调用的，这里阻塞会延迟下一帧
+            // 但这正是我们想要的：确保 Wakeup 先于任何 SpeechData
+            currentState = STATE_WORKING
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to process wakeup audio encoding", e)
+            currentState = STATE_LISTENING // 失败则回退
         }
     }
 

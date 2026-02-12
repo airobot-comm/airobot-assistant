@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.airobotcomm.tablet.system.SysManage
+import com.airobotcomm.tablet.audio.AudioService
+import com.airobotcomm.tablet.audio.AudioState
+import com.airobotcomm.tablet.airobotui.state.ConversationSubState
 import com.airobotcomm.tablet.system.SysState
 import com.airobotcomm.tablet.system.model.AiAgent
 import com.airobotcomm.tablet.system.model.DeviceInfo
@@ -25,7 +28,8 @@ import com.airobotcomm.tablet.system.model.SystemInfo
 class RobotMainViewModel @Inject constructor(
     private val networkService: NetworkService,
     private val robotStateManager: RobotStateManager,
-    private val sysManage: SysManage
+    private val sysManage: SysManage,
+    private val audioService: AudioService
 ) : ViewModel() {
 
     val robotState: StateFlow<RobotState> = robotStateManager.robotState
@@ -40,9 +44,39 @@ class RobotMainViewModel @Inject constructor(
         // step1: abserve core agentVendor
         observeNetwork()
         observeSysState()
+        observeAudioState()
 
         // start system
         sysManage.start()
+    }
+    
+    // ... exist code ...
+
+    private fun observeAudioState() {
+        viewModelScope.launch {
+            audioService.state.collect { audioState ->
+                val current = robotStateManager.robotState.value
+                // 仅在非异常状态下响应音频状态变化
+                if (current is RobotState.Unauthorized || current is RobotState.Initializing || current is RobotState.Offline) {
+                    return@collect
+                }
+                
+                when (audioState) {
+                    is AudioState.Active -> {
+                        if (current !is RobotState.Conversation) {
+                            robotStateManager.updateRobotState(RobotState.Conversation(ConversationSubState.LISTENING))
+                        }
+                    }
+                    is AudioState.Waiting -> {
+                        // 仅当处于 LISTENING 录制子状态，且底层回退到 Waiting 时，才视为对话中断/结束跳转到 Ready
+                        if (current is RobotState.Conversation && current.subState == ConversationSubState.LISTENING) {
+                            robotStateManager.updateRobotState(RobotState.Ready)
+                        }
+                    }
+                    else -> {}
+                }
+            }
+        }
     }
 
     private fun observeSysState() {
@@ -69,6 +103,9 @@ class RobotMainViewModel @Inject constructor(
                         _activationCode.value = null
                         // OTA 激活/检查完成后，尝试连接网络
                         networkService.connect()
+                        // 尝试初始化音频服务 (配置可从 SystemInfo 获取，此处暂用默认)
+                        // 注意：音频初始化可能需要权限，通常在 UI 层或确保权限后调用。
+                        // 这里暂时不调用 audioService.init，由 ConversationViewModel 或 MainViewModel 的 UI Event 触发
                     }
                     is SysState.UpdateAvailable -> {
                         // TODO: 处理更新提示

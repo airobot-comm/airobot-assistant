@@ -2,6 +2,7 @@ package com.airobotcomm.tablet.audio.tools.codec
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class OpusEncoder(
@@ -27,6 +28,8 @@ class OpusEncoder(
         }
     }
 
+    private val mutex = kotlinx.coroutines.sync.Mutex()
+
     suspend fun encode(pcmData: ByteArray): ByteArray? = withContext(Dispatchers.IO) {
         val frameBytes = frameSize * channels * 2 // 16-bit PCM
         if (pcmData.size != frameBytes) {
@@ -34,20 +37,22 @@ class OpusEncoder(
             return@withContext null
         }
 
-        val outputBuffer = ByteArray(frameBytes) // 分配足够大的缓冲区
-        val encodedBytes = nativeEncodeBytes(
-            nativeEncoderHandle,
-            pcmData,
-            pcmData.size,
-            outputBuffer,
-            outputBuffer.size
-        )
+        mutex.withLock {
+            val outputBuffer = ByteArray(frameBytes) // 分配足够大的缓冲区
+            val encodedBytes = nativeEncodeBytes(
+                nativeEncoderHandle,
+                pcmData,
+                pcmData.size,
+                outputBuffer,
+                outputBuffer.size
+            )
 
-        if (encodedBytes > 0) {
-            outputBuffer.copyOf(encodedBytes)
-        } else {
-            Log.e(TAG, "Failed to encode frame")
-            null
+            if (encodedBytes > 0) {
+                outputBuffer.copyOf(encodedBytes)
+            } else {
+                Log.e(TAG, "Failed to encode frame")
+                null
+            }
         }
     }
 

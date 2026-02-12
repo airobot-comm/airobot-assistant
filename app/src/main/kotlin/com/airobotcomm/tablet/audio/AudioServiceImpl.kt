@@ -36,57 +36,69 @@ class AudioServiceImpl @Inject constructor(
     private val audioPlayer: AudioPlayer = DefaultAudioPlayer(context)
     
     // 唯一的事件流 - 增加了缓冲区和背压处理
-    private val _audioEvents = MutableSharedFlow<AudioEvent>(
+    private val _events = MutableSharedFlow<AudioEvent>(
         extraBufferCapacity = 64,
         onBufferOverflow = kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
     )
-    override val audioEvents: SharedFlow<AudioEvent> = _audioEvents
+    override val events: SharedFlow<AudioEvent> = _events
 
-    private var isInWorkingState = false
+    // 全局状态管理
+    private val _state = MutableStateFlow<AudioState>(AudioState.Idle)
+    override val state: StateFlow<AudioState> = _state.asStateFlow()
 
     init {
         // 观察统一事件流，同步业务层状态
         scope.launch {
-            _audioEvents.collect { event ->
+            _events.collect { event ->
                 if (event is AudioEvent.Wakeup) {
-                    isInWorkingState = true
-                    // 确保指令下达到 recorder (虽然 pipeline 内部已自切换)
-                    audioRecorder.startWorking()
-                    Log.d(TAG, "检测到唤醒事件，同步业务状态为 WORKING")
+                    // 检测到唤醒，自动切入 Active
+                    if (_state.value is AudioState.Waiting) {
+                        activate() 
+                    }
                 }
             }
         }
     }
 
     @RequiresPermission(android.Manifest.permission.RECORD_AUDIO)
-    override fun initialize(config: AudioConfig): Boolean {
+    override fun init(config: AudioConfig): Boolean {
         // 1. 初始化音频播放器
-        if (!audioPlayer.initialize(config)) return false
+        if (!audioPlayer.initialize(config)) {
+             _state.value = AudioState.Error("Player Init Failed")
+            return false
+        }
 
         // 2. 初始化录音器，直接注入全局事件流
-        if (!audioRecorder.initialize(config, _audioEvents)) return false
+        if (!audioRecorder.initialize(config, _events)) {
+            _state.value = AudioState.Error("Recorder Init Failed")
+            return false
+        }
         
-        // 3. 启动 Pipeline (启动后默认处于 LISTENING 状态)
+        // 3. 启动 Pipeline (启动后默认处于 LISTENING/Waiting 状态)
         audioRecorder.startRecording()
-        isInWorkingState = false
         
-        Log.d(TAG, "音频系统初始化成功，事件流已打通")
+        _state.value = AudioState.Waiting
+        Log.d(TAG, "音频系统初始化成功，进入 Waiting 状态")
         return true
     }
 
-    override fun startWorking() {
-        isInWorkingState = true
+    override fun activate() {
+        if (_state.value == AudioState.Active) return
+        
         audioRecorder.startWorking()
-        Log.d(TAG, "手动切入 WORKING 状态")
+        _state.value = AudioState.Active
+        Log.d(TAG, "切换到 Active 状态 (Active Conversation)")
     }
 
-    override fun stopWorking() {
-        isInWorkingState = false
+    override fun deactivate() {
+        if (_state.value == AudioState.Waiting) return
+
         audioRecorder.stopWorking()
-        Log.d(TAG, "手动切回 LISTENING 状态")
+        _state.value = AudioState.Waiting
+        Log.d(TAG, "回退到 Waiting 状态 (KWS Mode)")
     }
 
-    override fun playAudio(audioData: ByteArray) {
+    override fun play(audioData: ByteArray) {
         audioPlayer.playAudio(audioData)
     }
 
@@ -106,18 +118,12 @@ class AudioServiceImpl @Inject constructor(
         audioPlayer.waitForPlaybackCompletion()
     }
 
-    override fun cleanup() {
+    override fun release() {
         audioRecorder.stopRecording()
         audioRecorder.cleanup()
         audioPlayer.cleanup()
+        _state.value = AudioState.Idle
         scope.cancel()
-        Log.d(TAG, "音频系统已彻底清理")
-    }
-
-    override fun isWorking(): Boolean = isInWorkingState
-    override fun isPlaying(): Boolean = audioPlayer.isPlaying()
-
-    override fun testAudioPlayback() {
-        // 保持不变...
+        Log.d(TAG, "音频系统已彻底释放 (Idle)")
     }
 }

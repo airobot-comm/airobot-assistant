@@ -119,7 +119,7 @@ class DefaultAudioRecorder(private val context: Context) : AudioRecorder {
                 runReadLoop(record)
             } catch (e: Exception) {
                 Log.e(TAG, "Error in recording job", e)
-                externalEvents?.emit(AudioEvent.Error("Recording error: ${e.message}"))
+                externalEvents?.emit(AudioEvent.SystemError("Recording error: ${e.message}"))
             } finally {
                 record.stop()
                 _onRecordingStateChanged.emit(false)
