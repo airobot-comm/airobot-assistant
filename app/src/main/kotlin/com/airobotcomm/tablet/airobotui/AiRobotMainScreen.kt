@@ -142,6 +142,20 @@ fun AiRobotMainScreen(
         }
     }
     
+    // 初始化音频系统 (当权限获得后)
+    LaunchedEffect(permissionsState.allPermissionsGranted) {
+        if (permissionsState.allPermissionsGranted) {
+            robotMainViewModel.initAudioService()
+        }
+    }
+
+    // 监听唤醒事件
+    LaunchedEffect(Unit) {
+        robotMainViewModel.wakeupEvent.collect { data ->
+            conversationViewModel.startConversation(data)
+        }
+    }
+    
     // 服务卡片
     val serviceCards = DEFAULT_SERVICE_CARDS
     val currentCard = serviceCards.getOrNull(currentCardIndex) ?: serviceCards.first()
@@ -245,7 +259,7 @@ fun AiRobotMainScreen(
                                         currentUserMsg = null,
                                         currentAiMsg = null
                                     )
-                                    conversationViewModel.startAutoConversation()
+                                    conversationViewModel.startConversation()
                                 }
                             },
                             onStopListening = {
@@ -335,7 +349,7 @@ fun AiRobotMainScreen(
                                     )
                                     serviceViewModel.startService(card)
                                     if (permissionsState.allPermissionsGranted) {
-                                        conversationViewModel.startAutoConversation()
+                                        conversationViewModel.startConversation()
                                     }
                                 }
                             )

@@ -1,21 +1,16 @@
 package com.airobotcomm.tablet.airobotui.viewmodel
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import com.airobotcomm.tablet.audio.AudioEvent
 import com.airobotcomm.tablet.audio.AudioService
-import com.airobotcomm.tablet.audio.AudioState
 import com.airobotcomm.tablet.system.model.Message
 import com.airobotcomm.tablet.system.model.MessageRole
-import com.airobotcomm.tablet.system.model.SystemInfo
 import com.airobotcomm.tablet.comm.NetworkService
-import com.airobotcomm.tablet.comm.NetworkState
 import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
 import com.airobotcomm.tablet.airobotui.state.ConversationSubState
 import com.airobotcomm.tablet.airobotui.state.RobotState
@@ -25,7 +20,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.delay
 
 /**
- * 对话ViewModel
+ * 对话ViewModel，处理conversation 状态，事件，发起对话与终止对话
  */
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
@@ -63,26 +58,9 @@ class ConversationViewModel @Inject constructor(
     private var currentUserMessage: String? = null
 
     init {
-        initializeServices()
-    }
-
-    /**
-     * 初始化服务
-     */
-    @SuppressLint("MissingPermission")
-    private fun initializeServices() {
         startEventListening()
-        
-        // 初始化音频管理器 (通常由 MainViewModel 或 Activity 保证权限后调用，这里作为保险或初始化入口)
-        // 注意：如果 MainViewModel 已经做过，这里再次调用 init 也是安全的（AudioServiceImpl 中需处理重复 init）
-        // 实际上建议在 Activity/Fragment 中请求权限成功后调用一次 init
-        if (!audioService.init()) {
-            _errorMessage.value = "音频系统初始化失败"
-        }
-
-        connectToServer()
     }
-    
+
     private fun startEventListening() {
         viewModelScope.launch {
             networkService.events.collect { event ->
@@ -99,47 +77,42 @@ class ConversationViewModel @Inject constructor(
 
     private fun handleAiRobotEvent(event: AiRobotEvent) {
         when (event) {
-            is AiRobotEvent.Disconnected -> {
-                audioService.deactivate()
-                audioService.stopPlaying()
-            }
-            is AiRobotEvent.Error -> {
-                _errorMessage.value = event.message
-                // 错误时不强制重置 MainState，由 MainViewModel 处理
-            }
             is AiRobotEvent.STT -> {
                 handleSttResult(event.text)
             }
-            is AiRobotEvent.TtsSentence -> {
-                handleTtsSentence(event.text)
-            }
             is AiRobotEvent.TtsStart -> {
-                _subState.value = ConversationSubState.SPEAKING
-                syncSubState()
+                handleTtsStart()
             }
             is AiRobotEvent.TtsStop -> {
                 handleTtsStop()
+            }
+            is AiRobotEvent.TtsSentence -> {
+                handleTtsSentence(event.text)
             }
             is AiRobotEvent.AudioFrame -> {
                 if (!_isMuted.value) audioService.play(event.data)
             }
             is AiRobotEvent.DialogueEnd -> {
                 // 对话结束，回退到 Waiting
+                Log.d(TAG, "DialogueEnd received, deactivating audio")
                 audioService.deactivate()
                 audioService.stopPlaying()
                 // RobotState update handled by MainViewModel observing AudioState
             }
             else -> {
-                // network,wakeup event handled by MainViewModel
+                // network error/connect，disconnect event handled by MainViewModel
             }
         }
     }
 
     private fun syncSubState() {
         val current = robotStateManager.robotState.value
-        // 只有在 Ready（允许开启对话）或已经在 Conversation 状态时，才同步子状态
-        if (current is RobotState.Ready || current is RobotState.Conversation) {
+        Log.d(TAG, "syncSubState: current=$current, target subState=${_subState.value}")
+        // 允许在 Ready, Conversation 或 Connecting 状态下进行同步
+        if (current is RobotState.Ready || current is RobotState.Conversation || current is RobotState.Connecting) {
             robotStateManager.updateRobotState(RobotState.Conversation(_subState.value))
+        } else {
+            Log.w(TAG, "syncSubState ignored because current state is $current")
         }
     }
 
@@ -149,14 +122,22 @@ class ConversationViewModel @Inject constructor(
             _currentRoundUserText.value = text
             addMessage(Message(role = MessageRole.USER, content = text))
             
-            _subState.value = ConversationSubState.THINKING
-            syncSubState()
+            // 仅在 LISTENING 状态下才迁移到 THINKING
+            // 如果已经是 SPEAKING，说明 TTS 已经开始，不能回退到 THINKING
+            if (_subState.value == ConversationSubState.LISTENING) {
+                Log.d(TAG, "STT received, transitioning LISTENING -> THINKING")
+                _subState.value = ConversationSubState.THINKING
+                syncSubState()
+            } else {
+                Log.d(TAG, "STT received but ignored state change because current subState is ${_subState.value}")
+            }
         }
     }
 
-    private fun handleTtsSentence(text: String) {
-        _currentRoundAiText.value = text
-        addMessage(Message(role = MessageRole.ASSISTANT, content = text))
+    private fun handleTtsStart() {
+        Log.d(TAG, "TTS Start received, transitioning to SPEAKING")
+        _subState.value = ConversationSubState.SPEAKING
+        syncSubState()
     }
 
     private fun handleTtsStop() {
@@ -173,8 +154,16 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    private fun connectToServer() {
-        networkService.connect()
+    private fun handleTtsSentence(text: String) {
+        _currentRoundAiText.value = text
+        addMessage(Message(role = MessageRole.ASSISTANT, content = text))
+
+        // 兜底：如果收到句子但还没切到 SPEAKING，补切一下
+        if (_subState.value != ConversationSubState.SPEAKING) {
+            Log.d(TAG, "TtsSentence received, ensuring state is SPEAKING")
+            _subState.value = ConversationSubState.SPEAKING
+            syncSubState()
+        }
     }
 
     private fun handleAudioEvent(event: AudioEvent) {
@@ -188,28 +177,22 @@ class ConversationViewModel @Inject constructor(
             is AudioEvent.VoiceLevel -> {
                 _audioLevel.value = event.level
             }
-            is AudioEvent.Wakeup -> {
-                Log.d(TAG, "KWS 唤醒触发 (ConversationContext)")
-                isAutoMode = true
-                resetRoundText()
-                _subState.value = ConversationSubState.LISTENING
-                syncSubState()
-                
-                // 通知服务端启动会话侦听(上下文音频需紧随其后)
-                networkService.startListening("auto")
-                
-                // 上下文音频发送
-                event.data?.let { networkService.sendAudio(it) }
-            }
+
             is AudioEvent.SystemError -> {
                 Log.e(TAG, "音频错误: ${event.message}")
                 _errorMessage.value = event.message
             }
-            else -> {}
+            else -> {
+                // wakeup handled by mainViewModel
+            }
         }
     }
 
-    fun startAutoConversation() {
+    /**
+     * 开启对话（AI 触发或手动触发）
+     * @param contextData 唤醒时的上下文音频数据（可选）
+     */
+    fun startConversation(contextData: ByteArray? = null) {
         if (!networkService.isConnected) return
         isAutoMode = true
         resetRoundText()
@@ -219,7 +202,10 @@ class ConversationViewModel @Inject constructor(
         // 1. 激活网络侦听
         networkService.startListening("auto")
         
-        // 2. 激活音频硬件
+        // 2. 如果有上下文音频，发送之
+        contextData?.let { networkService.sendAudio(it) }
+        
+        // 3. 激活音频硬件
         audioService.activate()
     }
 
@@ -277,9 +263,4 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        audioService.release()
-        networkService.disconnect()
-    }
 }

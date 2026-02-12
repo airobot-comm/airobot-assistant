@@ -46,20 +46,6 @@ class AudioServiceImpl @Inject constructor(
     private val _state = MutableStateFlow<AudioState>(AudioState.Idle)
     override val state: StateFlow<AudioState> = _state.asStateFlow()
 
-    init {
-        // 观察统一事件流，同步业务层状态
-        scope.launch {
-            _events.collect { event ->
-                if (event is AudioEvent.Wakeup) {
-                    // 检测到唤醒，自动切入 Active
-                    if (_state.value is AudioState.Waiting) {
-                        activate() 
-                    }
-                }
-            }
-        }
-    }
-
     @RequiresPermission(android.Manifest.permission.RECORD_AUDIO)
     override fun init(config: AudioConfig): Boolean {
         // 1. 初始化音频播放器

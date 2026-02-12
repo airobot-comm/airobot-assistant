@@ -1,5 +1,6 @@
 package com.airobotcomm.tablet.airobotui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.airobotcomm.tablet.comm.NetworkService
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.airobotcomm.tablet.system.SysManage
+import com.airobotcomm.tablet.audio.AudioEvent
 import com.airobotcomm.tablet.audio.AudioService
 import com.airobotcomm.tablet.audio.AudioState
 import com.airobotcomm.tablet.airobotui.state.ConversationSubState
@@ -40,8 +42,11 @@ class RobotMainViewModel @Inject constructor(
     private val _activationCode = MutableStateFlow<String?>(null)
     val activationCode: StateFlow<String?> = _activationCode.asStateFlow()
 
+    private val _wakeupEvent = MutableSharedFlow<ByteArray?>(extraBufferCapacity = 1)
+    val wakeupEvent: SharedFlow<ByteArray?> = _wakeupEvent.asSharedFlow()
+
     init {
-        // step1: abserve core agentVendor
+        // step1: observe core states
         observeNetwork()
         observeSysState()
         observeAudioState()
@@ -49,13 +54,32 @@ class RobotMainViewModel @Inject constructor(
         // start system
         sysManage.start()
     }
-    
-    // ... exist code ...
+
+    /**
+     * 初始化音频服务
+     */
+    fun initAudioService() {
+        viewModelScope.launch {
+            if (audioService.state.value is AudioState.Idle) {
+                audioService.init()
+            }
+        }
+    }
 
     private fun observeAudioState() {
         viewModelScope.launch {
+            audioService.events.collect { event ->
+                when (event) {
+                    is AudioEvent.Wakeup -> handleWakeup(event)
+                    else -> {}
+                }
+            }
+        }
+
+        viewModelScope.launch {
             audioService.state.collect { audioState ->
                 val current = robotStateManager.robotState.value
+                Log.d("RobotMainViewModel", "AudioState changed: $audioState, current RobotState: $current")
                 // 仅在非异常状态下响应音频状态变化
                 if (current is RobotState.Unauthorized || current is RobotState.Initializing || current is RobotState.Offline) {
                     return@collect
@@ -64,17 +88,30 @@ class RobotMainViewModel @Inject constructor(
                 when (audioState) {
                     is AudioState.Active -> {
                         if (current !is RobotState.Conversation) {
+                            Log.d("RobotMainViewModel", "Transitioning to Conversation(LISTENING) due to AudioState.Active")
                             robotStateManager.updateRobotState(RobotState.Conversation(ConversationSubState.LISTENING))
                         }
                     }
                     is AudioState.Waiting -> {
                         // 仅当处于 LISTENING 录制子状态，且底层回退到 Waiting 时，才视为对话中断/结束跳转到 Ready
                         if (current is RobotState.Conversation && current.subState == ConversationSubState.LISTENING) {
+                            Log.d("RobotMainViewModel", "Transitioning to Ready due to AudioState.Waiting in LISTENING")
                             robotStateManager.updateRobotState(RobotState.Ready)
                         }
                     }
                     else -> {}
                 }
+            }
+        }
+    }
+
+    private fun handleWakeup(event: AudioEvent.Wakeup) {
+        val currentState = robotStateManager.robotState.value
+        // 只有在 Ready 状态或对话状态，且网络连接正常时才响应唤醒
+        if ((currentState is RobotState.Ready || currentState is RobotState.Conversation) && 
+            networkService.isConnected) {
+            viewModelScope.launch {
+                _wakeupEvent.emit(event.data)
             }
         }
     }
@@ -156,7 +193,11 @@ class RobotMainViewModel @Inject constructor(
     private fun handleAiRobotEvent(event: AiRobotEvent) {
         when (event) {
             is AiRobotEvent.Connected -> {
-                robotStateManager.updateRobotState(RobotState.Ready)
+                // 仅在非对话状态下切回 Ready，防止覆盖对话状态
+                if (robotStateManager.robotState.value !is RobotState.Conversation) {
+                    Log.d("RobotMainViewModel", "Safe transitioning to Ready due to Connected event")
+                    robotStateManager.updateRobotState(RobotState.Ready)
+                }
                 _errorMessage.value = null
             }
             is AiRobotEvent.Disconnected -> {
@@ -223,4 +264,10 @@ class RobotMainViewModel @Inject constructor(
     val isAiRobotActivated = aiAgent.map { 
         it.activationCode.isNotEmpty() || it.commCredentials != null // sometime ai-agent hasn't activationCode
     }.stateIn(viewModelScope, SharingStarted.Lazily, false)
+
+    override fun onCleared() {
+        super.onCleared()
+        audioService.release()
+        networkService.disconnect()
+    }
 }
