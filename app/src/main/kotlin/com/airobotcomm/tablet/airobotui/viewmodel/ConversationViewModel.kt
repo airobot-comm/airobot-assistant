@@ -33,10 +33,14 @@ class ConversationViewModel @Inject constructor(
         private const val TAG = "ConversationViewModel"
     }
 
-    // 内部子状态管理
+    // 内部业务模式，状态标志，子状态管理
+    private var isAutoMode = false    // 多轮对话支持
+    private var isActive = false      // 会话激活标志，用于过滤已终止会话的延迟消息
     private val _subState = MutableStateFlow(ConversationSubState.LISTENING)
+    private val _isMuted = MutableStateFlow(false)  // 静音状态管理
+
+    // conversation message handle:todo support
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
-    private val _errorMessage = MutableStateFlow<String?>(null)
 
     // 当前轮次的用户输入文本
     private val _currentRoundUserText = MutableStateFlow<String?>(null)
@@ -46,39 +50,34 @@ class ConversationViewModel @Inject constructor(
     private val _currentRoundAiText = MutableStateFlow<String?>(null)
     val currentRoundAiText: StateFlow<String?> = _currentRoundAiText.asStateFlow()
 
-    // 静音状态管理
-    private val _isMuted = MutableStateFlow(false)
-
     // 音频强度状态
     private val _audioLevel = MutableStateFlow(0.0f)
     val audioLevel: StateFlow<Float> = _audioLevel.asStateFlow()
-
-    // 多轮对话支持
-    private var isAutoMode = false
-    private var currentUserMessage: String? = null
-    
-    // 会话激活标志，用于过滤已终止会话的延迟消息
-    private var isActive = false
 
     init {
         // startEventListening for airobot-comm
         viewModelScope.launch {
             networkService.events.collect { event ->
-                if (isActive || event is AiRobotEvent.Connected || event is AiRobotEvent.Disconnected) {
-                    handleAiRobotEvent(event)
+                // 注意：只处理对话情况的网络通信事件，其他的交mainviewModel处理
+                if (isActive){
+                    handleAiRobotCommEvent(event)
                 }
             }
         }
 
         // startEventListening for audio service
         viewModelScope.launch {
+            // 注意：只处理对话状态下Linsten子状态的音频事件：音频数据，音量；
+            // 而唤醒等由 MainViewModel处理；非listen不处理收音，level计算而导致UI重绘（帧率不够）
             audioService.events.collect { event ->
-                handleAudioEvent(event)
+                if (isActive && _subState.value == ConversationSubState.LISTENING){
+                    handleAudioEvent(event)
+                }
             }
         }
     }
 
-    private fun handleAiRobotEvent(event: AiRobotEvent) {
+    private fun handleAiRobotCommEvent(event: AiRobotEvent) {
         when (event) {
             is AiRobotEvent.STT -> {
                 handleSttResult(event.text)
@@ -99,7 +98,21 @@ class ConversationViewModel @Inject constructor(
                 handleDialogueEnd()
             }
             else -> {
-                // network error/connect，disconnect event handled by MainViewModel
+                // 其他通信异常，由mainviewModel处理
+            }
+        }
+    }
+
+    private fun handleAudioEvent(event: AudioEvent) {
+        when (event) {
+            is AudioEvent.SpeechData -> {
+                networkService.sendAudio(event.data)
+            }
+            is AudioEvent.VoiceLevel -> {
+                _audioLevel.value = event.level
+            }
+            else -> {
+                return
             }
         }
     }
@@ -184,28 +197,6 @@ class ConversationViewModel @Inject constructor(
         // 对话结束，回退并清除本次对话信息
         Log.d(TAG, "DialogueEnd received, deactivating audio")
         cleanConversation()
-    }
-
-    private fun handleAudioEvent(event: AudioEvent) {
-        when (event) {
-            is AudioEvent.SpeechData -> {
-                // 只有在 LISTENING 状态且会话激活时才发送音频数据
-                if (isActive && _subState.value == ConversationSubState.LISTENING) {
-                    networkService.sendAudio(event.data)
-                }
-            }
-            is AudioEvent.VoiceLevel -> {
-                _audioLevel.value = event.level
-            }
-
-            is AudioEvent.SystemError -> {
-                Log.e(TAG, "音频错误: ${event.message}")
-                _errorMessage.value = event.message
-            }
-            else -> {
-                // wakeup handled by mainViewModel
-            }
-        }
     }
 
     /**

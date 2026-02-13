@@ -33,9 +33,9 @@ fun BottomFooter(modifier: Modifier = Modifier) {
                     .background(RobotPrimaryCyan.copy(alpha = 0.3f))
             )
             Text(
-                text = "OPERATIONAL MODE: SEAMLESS COMPANION",
+                text = "POWER BY AIROBOT_COMM.",
                 color = RobotTextPrimary.copy(alpha = 0.4f),
-                fontSize = 10.sp,
+                fontSize = 8.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 3.sp
             )

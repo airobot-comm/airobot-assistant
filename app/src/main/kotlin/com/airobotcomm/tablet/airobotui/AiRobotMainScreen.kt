@@ -237,7 +237,7 @@ fun AiRobotMainScreen(
                     Box(
                         modifier = Modifier
                             .constrainAs(voicePanelRef) {
-                                bottom.linkTo(parent.bottom, margin = 80.dp)
+                                bottom.linkTo(parent.bottom, margin = 65.dp)
                                 start.linkTo(parent.start)
                                 end.linkTo(parent.end)
                             }
@@ -302,8 +302,6 @@ fun AiRobotMainScreen(
                             }
                         )
                     }
-
-
 
                     // 4. 右侧功能推荐卡片 (非交互/卡片模式时显示)
                     if (!robotUiState.isInteracting) {
