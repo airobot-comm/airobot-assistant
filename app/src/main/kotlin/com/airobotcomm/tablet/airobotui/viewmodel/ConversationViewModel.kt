@@ -56,18 +56,21 @@ class ConversationViewModel @Inject constructor(
     // 多轮对话支持
     private var isAutoMode = false
     private var currentUserMessage: String? = null
+    
+    // 会话激活标志，用于过滤已终止会话的延迟消息
+    private var isActive = false
 
     init {
-        startEventListening()
-    }
-
-    private fun startEventListening() {
+        // startEventListening for airobot-comm
         viewModelScope.launch {
             networkService.events.collect { event ->
-                handleAiRobotEvent(event)
+                if (isActive || event is AiRobotEvent.Connected || event is AiRobotEvent.Disconnected) {
+                    handleAiRobotEvent(event)
+                }
             }
         }
 
+        // startEventListening for audio service
         viewModelScope.launch {
             audioService.events.collect { event ->
                 handleAudioEvent(event)
@@ -90,14 +93,10 @@ class ConversationViewModel @Inject constructor(
                 handleTtsSentence(event.text)
             }
             is AiRobotEvent.AudioFrame -> {
-                if (!_isMuted.value) audioService.play(event.data)
+                handleTtsAudioFrame(event.data)
             }
             is AiRobotEvent.DialogueEnd -> {
-                // 对话结束，回退到 Waiting
-                Log.d(TAG, "DialogueEnd received, deactivating audio")
-                audioService.deactivate()
-                audioService.stopPlaying()
-                // RobotState update handled by MainViewModel observing AudioState
+                handleDialogueEnd()
             }
             else -> {
                 // network error/connect，disconnect event handled by MainViewModel
@@ -109,33 +108,41 @@ class ConversationViewModel @Inject constructor(
         val current = robotStateManager.robotState.value
         Log.d(TAG, "syncSubState: current=$current, target subState=${_subState.value}")
         // 允许在 Ready, Conversation 或 Connecting 状态下进行同步
-        if (current is RobotState.Ready || current is RobotState.Conversation || current is RobotState.Connecting) {
-            robotStateManager.updateRobotState(RobotState.Conversation(_subState.value))
+        if (current is RobotState.Ready || current is RobotState.Conversation
+            || current is RobotState.Connecting) {
+            robotStateManager.updateRobotState(
+                            RobotState.Conversation(_subState.value))
         } else {
             Log.w(TAG, "syncSubState ignored because current state is $current")
         }
     }
 
+    private fun addMessage(message: Message) {
+        _messages.value = _messages.value + message
+    }
+
     private fun handleSttResult(text: String) {
         if (text.isNotBlank()) {
-            currentUserMessage = text
+            // 服务器处理反馈：有时候 ttsStart 会早于 STT 到达
+            // 只要收到 STT，我们就确保它被记录并显示
             _currentRoundUserText.value = text
             addMessage(Message(role = MessageRole.USER, content = text))
-            
+
             // 仅在 LISTENING 状态下才迁移到 THINKING
-            // 如果已经是 SPEAKING，说明 TTS 已经开始，不能回退到 THINKING
+            // 如果已经是 SPEAKING，说明 TTS 已经开始，保持 SPEAKING 状态继续播报
             if (_subState.value == ConversationSubState.LISTENING) {
                 Log.d(TAG, "STT received, transitioning LISTENING -> THINKING")
                 _subState.value = ConversationSubState.THINKING
                 syncSubState()
             } else {
-                Log.d(TAG, "STT received but ignored state change because current subState is ${_subState.value}")
+                Log.d(TAG, "STT received during ${_subState.value}, text displayed but state unchanged")
             }
         }
     }
 
     private fun handleTtsStart() {
         Log.d(TAG, "TTS Start received, transitioning to SPEAKING")
+        // 即便还没收到 STT (服务器并发处理延迟)，也先切到 SPEAKING，因为播报已经开始了
         _subState.value = ConversationSubState.SPEAKING
         syncSubState()
     }
@@ -143,14 +150,16 @@ class ConversationViewModel @Inject constructor(
     private fun handleTtsStop() {
         audioService.stopPlaying()
         viewModelScope.launch {
-            delay(500)
-            if (isAutoMode) {
-                // 自动模式：继续下一轮
-                startNextRound()
-            } else {
-                // 非自动模式：结束对话，回退状态
-                audioService.deactivate()
-            }
+            delay(100)
+                if (isAutoMode) {
+                    // 自动模式：继续下一轮
+                    startNextRound()
+                } else {
+                    // 非自动模式：结束对话，回退状态
+                    isActive = false
+                    audioService.deactivate()
+                    robotStateManager.updateRobotState(RobotState.Ready)
+                }
         }
     }
 
@@ -166,11 +175,23 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
+    private fun handleTtsAudioFrame(data: ByteArray) {
+        // only speak when not muted and in speaking state
+        if (!_isMuted.value && _subState.value == ConversationSubState.SPEAKING)
+            audioService.play(data)
+    }
+
+    private fun handleDialogueEnd() {
+        // 对话结束，回退并清除本次对话信息
+        Log.d(TAG, "DialogueEnd received, deactivating audio")
+        cleanConversation()
+    }
+
     private fun handleAudioEvent(event: AudioEvent) {
         when (event) {
             is AudioEvent.SpeechData -> {
-                // 只有在 LISTENING 状态才发送音频数据
-                if (_subState.value == ConversationSubState.LISTENING) {
+                // 只有在 LISTENING 状态且会话激活时才发送音频数据
+                if (isActive && _subState.value == ConversationSubState.LISTENING) {
                     networkService.sendAudio(event.data)
                 }
             }
@@ -194,6 +215,7 @@ class ConversationViewModel @Inject constructor(
      */
     fun startConversation(contextData: ByteArray? = null) {
         if (!networkService.isConnected) return
+        isActive = true
         isAutoMode = true
         resetRoundText()
         _subState.value = ConversationSubState.LISTENING
@@ -209,58 +231,48 @@ class ConversationViewModel @Inject constructor(
         audioService.activate()
     }
 
-    private fun startNextRound() {
-        if (!isAutoMode || !networkService.isConnected) {
-            audioService.deactivate()
-            return
-        }
-        resetRoundText()
-        _subState.value = ConversationSubState.LISTENING
-        syncSubState()
-        
-        // 开启新轮次网络侦听
-        networkService.startListening("auto")
-        
-        audioService.activate()
-    }
-
     fun interrupt() {
-        audioService.stopPlaying()
-        audioService.deactivate()
         networkService.abort("user_interrupt")
-        isAutoMode = false
+        cleanConversation()
     }
 
     fun stopAutoConversation() {
-        isAutoMode = false
-        audioService.deactivate()
-        audioService.stopPlaying()
         networkService.abort("stop_auto_mode")
+        cleanConversation()
     }
 
     private fun resetRoundText() {
-        currentUserMessage = null
         _currentRoundUserText.value = null
         _currentRoundAiText.value = null
     }
 
-    private fun addMessage(message: Message) {
-        _messages.value = _messages.value + message
+    private fun cleanConversation(){
+        isActive = false
+        isAutoMode = false
+        audioService.deactivate()
+        audioService.stopPlaying()
+
+        // clean conversation text
+        resetRoundText()
+
+        // 显式重置状态（是否必要？）
+        _subState.value = ConversationSubState.LISTENING
+        robotStateManager.updateRobotState(RobotState.Ready)
     }
 
-    fun clearError() {
-        _errorMessage.value = null
-    }
-
-    fun clearMessages() {
-        _messages.value = emptyList()
-    }
-
-    fun toggleMute() {
-        _isMuted.value = !_isMuted.value
-        if (_isMuted.value) {
-            audioService.stopPlaying()
+    private fun startNextRound() {
+        if (!isAutoMode || !networkService.isConnected) {
+            isActive = false
+            audioService.deactivate()
+            return
         }
-    }
+        isActive = true
+        resetRoundText()
+        _subState.value = ConversationSubState.LISTENING
+        syncSubState()
 
+        // 开启新轮次网络侦听
+        networkService.startListening("auto")
+        audioService.activate()
+    }
 }

@@ -93,9 +93,11 @@ class RobotMainViewModel @Inject constructor(
                         }
                     }
                     is AudioState.Waiting -> {
-                        // 仅当处于 LISTENING 录制子状态，且底层回退到 Waiting 时，才视为对话中断/结束跳转到 Ready
-                        if (current is RobotState.Conversation && current.subState == ConversationSubState.LISTENING) {
-                            Log.d("RobotMainViewModel", "Transitioning to Ready due to AudioState.Waiting in LISTENING")
+                        // 仅当处于录制/播报子状态，且底层回退到 Waiting 时，才视为对话中断/结束跳转到 Ready
+                        if (current is RobotState.Conversation && 
+                            (current.subState == ConversationSubState.LISTENING || 
+                             current.subState == ConversationSubState.SPEAKING)) {
+                            Log.d("RobotMainViewModel", "Transitioning to Ready due to AudioState.Waiting")
                             robotStateManager.updateRobotState(RobotState.Ready)
                         }
                     }

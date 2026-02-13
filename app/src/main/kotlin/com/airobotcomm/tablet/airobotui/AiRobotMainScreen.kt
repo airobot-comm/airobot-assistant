@@ -94,8 +94,20 @@ fun AiRobotMainScreen(
     var robotUiState by remember { mutableStateOf(RobotUiState()) }
     var currentCardIndex by remember { mutableIntStateOf(0) }
     
-    // 同步到 UI 状态
-    LaunchedEffect(robotState) {
+    // 服务卡片定义
+    val serviceCards = DEFAULT_SERVICE_CARDS
+    val currentCard = serviceCards.getOrNull(currentCardIndex) ?: serviceCards.first()
+
+    // 机器人UI状态汇总同步 - 整合多个来源，避免竞态覆盖
+    LaunchedEffect(
+        robotState, 
+        currentRoundUserText, 
+        currentRoundAiText, 
+        activeCard, 
+        timerCommand, 
+        timerStatus,
+        currentCard
+    ) {
         val visualState = when (val s = robotState) {
             is RobotState.Offline -> RobotVisualState.SLEEPING
             is RobotState.Initializing -> RobotVisualState.THINKING
@@ -113,35 +125,33 @@ fun AiRobotMainScreen(
                 ServiceSubState.PAUSED -> RobotVisualState.IDLE
             }
         }
+
+        val newStatusTip = when (timerStatus) {
+            TimerStatus.RUNNING -> "正在专注: ${timerCommand?.task ?: "未知任务"}..."
+            TimerStatus.PAUSED -> "已暂停，休息一下..."
+            else -> currentCard.statusTip
+        }
+
         robotUiState = robotUiState.copy(
             visualState = visualState,
-            isConnected = robotState !is RobotState.Offline
-        )
-    }
-
-    LaunchedEffect(currentRoundUserText, currentRoundAiText) {
-        robotUiState = robotUiState.copy(
+            isConnected = robotState !is RobotState.Offline,
             currentUserMsg = currentRoundUserText,
-            currentAiMsg = currentRoundAiText
-        )
-    }
-
-    LaunchedEffect(activeCard, timerCommand, timerStatus) {
-        robotUiState = robotUiState.copy(
+            currentAiMsg = currentRoundAiText,
             activeCard = activeCard,
             timerCommand = timerCommand,
             timerStatus = timerStatus,
-            interactionType = if (activeCard != null) InteractionType.CARD else InteractionType.CHAT
+            interactionType = if (activeCard != null) InteractionType.CARD else InteractionType.CHAT,
+            statusTip = newStatusTip
         )
     }
-    
+
     // 请求权限
     LaunchedEffect(Unit) {
         if (!permissionsState.allPermissionsGranted) {
             permissionsState.launchMultiplePermissionRequest()
         }
     }
-    
+
     // 初始化音频系统 (当权限获得后)
     LaunchedEffect(permissionsState.allPermissionsGranted) {
         if (permissionsState.allPermissionsGranted) {
@@ -154,20 +164,6 @@ fun AiRobotMainScreen(
         robotMainViewModel.wakeupEvent.collect { data ->
             conversationViewModel.startConversation(data)
         }
-    }
-    
-    // 服务卡片
-    val serviceCards = DEFAULT_SERVICE_CARDS
-    val currentCard = serviceCards.getOrNull(currentCardIndex) ?: serviceCards.first()
-    
-    // 更新状态提示
-    LaunchedEffect(currentCard, robotUiState.timerStatus, robotUiState.timerCommand) {
-        val newStatusTip = when (robotUiState.timerStatus) {
-            TimerStatus.RUNNING -> "正在专注: ${robotUiState.timerCommand?.task ?: "未知任务"}..."
-            TimerStatus.PAUSED -> "已暂停，休息一下..."
-            else -> currentCard.statusTip
-        }
-        robotUiState = robotUiState.copy(statusTip = newStatusTip)
     }
 
     ModalNavigationDrawer(
@@ -282,7 +278,7 @@ fun AiRobotMainScreen(
                         DialogueBubble(
                             robotState = robotUiState.visualState,
                             aiMsg = if (robotUiState.interactionType == InteractionType.CHAT)
-                                robotUiState.currentAiMsg else null,
+                                currentRoundAiText else null,
                             onAiSpeechComplete = {
                                 if (robotUiState.timerCommand != null &&
                                     robotUiState.timerStatus == TimerStatus.IDLE
@@ -308,20 +304,21 @@ fun AiRobotMainScreen(
                     }
 
                     // 4. 用户消息气泡 (位于语音面板左上方)
-                    if (robotUiState.currentUserMsg != null &&
-                        (robotUiState.visualState == RobotVisualState.LISTENING ||
-                                robotUiState.visualState == RobotVisualState.THINKING)
+                    // 只要当前轮次有 STT 文本就显示，直到下一轮开始时被重置为 null
+                    if(robotUiState.currentUserMsg != null &&
+                            (robotUiState.visualState == RobotVisualState.LISTENING
+                                    || robotUiState.visualState == RobotVisualState.THINKING
+                                    || robotUiState.visualState == RobotVisualState.SPEAKING)
                     ) {
                         Box(
                             modifier = Modifier
                                 .constrainAs(userBubbleRef) {
-                                    end.linkTo(voicePanelRef.start, margin = 0.dp)
+                                    end.linkTo(voicePanelRef.start, margin = -180.dp)
                                     bottom.linkTo(voicePanelRef.top, margin = 20.dp)
                                 }
                         ) {
                             UserMessageBubble(
-                                message = robotUiState.currentUserMsg ?: ""
-                            )
+                                message = robotUiState.currentUserMsg ?: "")
                         }
                     }
 
