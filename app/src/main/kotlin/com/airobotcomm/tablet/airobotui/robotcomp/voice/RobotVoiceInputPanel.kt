@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobotcomm.tablet.R
+import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.UserMessageBubble
 import com.airobotcomm.tablet.airobotui.state.RobotVisualState
 import com.airobotcomm.tablet.airobotui.state.TimerStatus
 
@@ -42,6 +44,7 @@ fun RobotVoiceInputPanel(
     robotState: RobotVisualState,
     isConnected: Boolean,
     timerStatus: TimerStatus,
+    userMessage: String? = null,
     audioLevel: Float = 0.0f,
     onStartListening: () -> Unit,
     onStopListening: () -> Unit,
@@ -53,40 +56,62 @@ fun RobotVoiceInputPanel(
     val isSpeaking = robotState == RobotVisualState.SPEAKING
     val isTimerActive = timerStatus != TimerStatus.IDLE
     
-    Column(
+    ConstraintLayout(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(horizontal = 24.dp)
     ) {
-        AnimatedContent(
-            targetState = when {
-                isTimerActive -> "TIMER"
-                robotState == RobotVisualState.IDLE -> "IDLE"
-                else -> "ACTIVE"
-            },
-            transitionSpec = {
-                fadeIn() + scaleIn() togetherWith fadeOut() + scaleOut()
-            },
-            label = "panelContent"
-        ) { state ->
-            when (state) {
-                "IDLE" -> IdleMicButton(
-                    isConnected = isConnected,
-                    audioLevel = audioLevel,
-                    onStartListening = onStartListening
-                )
-                "TIMER" -> TimerControlPanel(
-                    timerStatus = timerStatus,
-                    onTimerControl = onTimerControl
-                )
-                "ACTIVE" -> ActiveStatusPanel(
-                    isListening = isListening,
-                    isThinking = isThinking,
-                    isSpeaking = isSpeaking,
-                    audioLevel = audioLevel,
-                    onStopListening = onStopListening
+        val (contentRef, bubbleRef) = createRefs()
+
+        Box(
+            modifier = Modifier.constrainAs(contentRef) {
+                centerTo(parent)
+            }
+        ) {
+            AnimatedContent(
+                targetState = when {
+                    isTimerActive -> "TIMER"
+                    robotState == RobotVisualState.IDLE -> "IDLE"
+                    else -> "ACTIVE"
+                },
+                transitionSpec = {
+                    fadeIn() + scaleIn() togetherWith fadeOut() + scaleOut()
+                },
+                label = "panelContent"
+            ) { state ->
+                when (state) {
+                    "IDLE" -> IdleMicButton(
+                        isConnected = isConnected,
+                        audioLevel = audioLevel,
+                        onStartListening = onStartListening
+                    )
+                    "TIMER" -> TimerControlPanel(
+                        timerStatus = timerStatus,
+                        onTimerControl = onTimerControl
+                    )
+                    "ACTIVE" -> ActiveStatusPanel(
+                        isListening = isListening,
+                        isThinking = isThinking,
+                        isSpeaking = isSpeaking,
+                        audioLevel = audioLevel,
+                        onStopListening = onStopListening
+                    )
+                }
+            }
+        }
+
+        // 1. 用户气泡放在左侧，与面板中心水平对齐(只在对话状态显示)
+        if(!userMessage.isNullOrBlank() && (robotState == RobotVisualState.LISTENING
+                                || robotState == RobotVisualState.THINKING
+                                || robotState == RobotVisualState.SPEAKING)) {
+            Box(
+                modifier = Modifier.constrainAs(bubbleRef) {
+                    end.linkTo(contentRef.start, margin = 40.dp)
+                    centerVerticallyTo(contentRef)
+                }
+            ) {
+                UserMessageBubble(
+                    message = userMessage
                 )
             }
         }
@@ -139,7 +164,7 @@ private fun IdleMicButton(
         // 麦克风按钮
         Box(
             modifier = Modifier
-                .size(120.dp)
+                .size(140.dp)
                 .clickable(enabled = isConnected) { onStartListening() }, // 点击唤醒
             contentAlignment = Alignment.Center
         ) {
@@ -147,7 +172,7 @@ private fun IdleMicButton(
             if (isConnected) {
                 Box(
                     modifier = Modifier
-                        .size(120.dp)
+                        .size(140.dp)
                         .scale(finalScale)
                         .clip(CircleShape)
                         .background(Color(0xFF6366F1).copy(alpha = ringAlpha))
@@ -157,7 +182,7 @@ private fun IdleMicButton(
             // 按钮主体
             Box(
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(110.dp)
                     .clip(CircleShape)
                     .background(
                         brush = Brush.verticalGradient(
@@ -182,7 +207,7 @@ private fun IdleMicButton(
                 Icon(
                     painter = painterResource(id = R.drawable.mic),
                     contentDescription = "点击唤醒",
-                    modifier = Modifier.size(44.dp),
+                    modifier = Modifier.size(54.dp),
                     tint = if (isConnected) Color.White else Color.White.copy(alpha = 0.5f)
                 )
             }
@@ -190,7 +215,7 @@ private fun IdleMicButton(
         
         // 提示文字
         VoiceHintText(
-            text = if (isConnected) "呼唤\"Hi Robot\"或点击开始" else "等待连接..."
+            text = if (isConnected) "呼唤名字或点击开始" else "等待连接..."
         )
     }
 }
@@ -245,9 +270,9 @@ private fun ActiveStatusPanel(
     ) {
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(28.dp))
+                .clip(RoundedCornerShape(32.dp))
                 .background(Color.White.copy(alpha = 0.1f))
-                .padding(horizontal = 32.dp, vertical = 20.dp) // 增大内边距
+                .padding(horizontal = 40.dp, vertical = 24.dp) // 增大内边距
                 .clickable(enabled = isListening) { onStopListening() },
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -297,7 +322,7 @@ private fun ActiveStatusPanel(
                         dotColor = Color.White
                     )
                     Text(
-                        text = "正在播报",
+                        text = "正说话",
                         color = Color.White.copy(alpha = 0.9f),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Black,

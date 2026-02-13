@@ -25,8 +25,8 @@ fun VoiceWaveform(
     val infiniteTransition = rememberInfiniteTransition(label = "waveform")
 
     Row(
-        modifier = modifier.height(24.dp),
-        horizontalArrangement = Arrangement.spacedBy(3.dp),
+        modifier = modifier.height(30.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         repeat(barCount) { index ->
@@ -56,7 +56,7 @@ fun VoiceWaveform(
 
             Box(
                 modifier = Modifier
-                    .width(3.dp)
+                    .width(4.dp)
                     .fillMaxHeight(totalScale)
                     .background(
                         color = if (isActive) barColor else barColor.copy(alpha = 0.3f),
@@ -79,13 +79,13 @@ fun SpeakingDots(
     
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         repeat(3) { index ->
             val offset by infiniteTransition.animateFloat(
                 initialValue = 0f,
-                targetValue = -6f,
+                targetValue = -10f,
                 animationSpec = infiniteRepeatable(
                     animation = tween(600, delayMillis = index * 150),
                     repeatMode = RepeatMode.Reverse
@@ -95,9 +95,9 @@ fun SpeakingDots(
             
             Box(
                 modifier = Modifier
-                    .size(6.dp)
+                    .size(8.dp)
                     .offset(y = offset.dp)
-                    .background(dotColor, RoundedCornerShape(3.dp))
+                    .background(dotColor, RoundedCornerShape(4.dp))
             )
         }
     }

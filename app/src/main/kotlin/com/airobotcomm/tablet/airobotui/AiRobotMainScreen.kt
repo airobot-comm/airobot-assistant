@@ -26,7 +26,6 @@ import com.airobotcomm.tablet.airobotui.framework.comp.BottomFooter
 import com.airobotcomm.tablet.airobotui.framework.subpage.AiRobotDialog
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.DialogueBubble
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.TypewriterText
-import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.UserMessageBubble
 import com.airobotcomm.tablet.airobotui.robotcomp.robot.*
 import com.airobotcomm.tablet.airobotui.robotcomp.voice.RobotVoiceInputPanel
 import com.airobotcomm.tablet.airobotui.framework.statusbar.RobotTopBar
@@ -209,7 +208,7 @@ fun AiRobotMainScreen(
                         .fillMaxSize()
                         .weight(1f)
                 ) {
-                    val (robotRef, voicePanelRef, aiBubbleRef, userBubbleRef, serviceCardsRef) = createRefs()
+                    val (robotRef, voicePanelRef, aiBubbleRef, serviceCardsRef) = createRefs()
 
                     // 1. 机器人角色 (偏上布局)
                     Box(
@@ -238,7 +237,7 @@ fun AiRobotMainScreen(
                     Box(
                         modifier = Modifier
                             .constrainAs(voicePanelRef) {
-                                bottom.linkTo(parent.bottom, margin = 60.dp)
+                                bottom.linkTo(parent.bottom, margin = 80.dp)
                                 start.linkTo(parent.start)
                                 end.linkTo(parent.end)
                             }
@@ -247,6 +246,7 @@ fun AiRobotMainScreen(
                             robotState = robotUiState.visualState,
                             isConnected = robotUiState.isConnected,
                             timerStatus = robotUiState.timerStatus,
+                            userMessage = currentRoundUserText,
                             audioLevel = audioLevel,
                             onStartListening = {
                                 if (permissionsState.allPermissionsGranted) {
@@ -303,26 +303,9 @@ fun AiRobotMainScreen(
                         )
                     }
 
-                    // 4. 用户消息气泡 (位于语音面板左上方)
-                    // 只要当前轮次有 STT 文本就显示，直到下一轮开始时被重置为 null
-                    if(robotUiState.currentUserMsg != null &&
-                            (robotUiState.visualState == RobotVisualState.LISTENING
-                                    || robotUiState.visualState == RobotVisualState.THINKING
-                                    || robotUiState.visualState == RobotVisualState.SPEAKING)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .constrainAs(userBubbleRef) {
-                                    end.linkTo(voicePanelRef.start, margin = -180.dp)
-                                    bottom.linkTo(voicePanelRef.top, margin = 20.dp)
-                                }
-                        ) {
-                            UserMessageBubble(
-                                message = robotUiState.currentUserMsg ?: "")
-                        }
-                    }
 
-                    // 5. 右侧功能推荐卡片 (非交互/卡片模式时显示)
+
+                    // 4. 右侧功能推荐卡片 (非交互/卡片模式时显示)
                     if (!robotUiState.isInteracting) {
                         Box(
                             modifier = Modifier

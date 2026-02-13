@@ -150,16 +150,15 @@ class ConversationViewModel @Inject constructor(
     private fun handleTtsStop() {
         audioService.stopPlaying()
         viewModelScope.launch {
-            delay(100)
-                if (isAutoMode) {
-                    // 自动模式：继续下一轮
-                    startNextRound()
-                } else {
-                    // 非自动模式：结束对话，回退状态
-                    isActive = false
-                    audioService.deactivate()
-                    robotStateManager.updateRobotState(RobotState.Ready)
-                }
+            // 延时一点时间让对话框展示更长时间
+            delay(200)
+            if (isAutoMode) {
+                // 自动模式：继续下一轮
+                startNextRound()
+            } else {
+                // 非自动模式：彻底清理对话内容并回退状态
+                cleanConversation()
+            }
         }
     }
 
