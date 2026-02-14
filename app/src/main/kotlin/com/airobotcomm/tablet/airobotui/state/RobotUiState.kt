@@ -86,7 +86,8 @@ data class RobotUiState(
      */
     val isInteracting: Boolean
         get() = (visualState != RobotVisualState.IDLE && visualState != RobotVisualState.SLEEPING) 
-                || timerStatus != TimerStatus.IDLE
+                || timerStatus != TimerStatus.IDLE 
+                || activeCard != null
     
     /**
      * 是否为卡片模式

@@ -26,7 +26,6 @@ import com.airobotcomm.tablet.airobotui.framework.comp.BackgroundDecorations
 import com.airobotcomm.tablet.airobotui.framework.comp.BottomFooter
 import com.airobotcomm.tablet.airobotui.framework.subpage.AiRobotDialog
 import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.DialogueBubble
-import com.airobotcomm.tablet.airobotui.robotcomp.dialogue.TypewriterText
 import com.airobotcomm.tablet.airobotui.robotcomp.robot.*
 import com.airobotcomm.tablet.airobotui.robotcomp.voice.RobotVoiceInputPanel
 import com.airobotcomm.tablet.airobotui.framework.statusbar.RobotTopBar
@@ -182,10 +181,10 @@ fun AiRobotMainScreen(
     }
 
     // 机器人水平位移动画
-    // 当 isCardMode 为 true (点击卡片展开) 时，机器人滑向左侧 (bias 0.2f)
+    // 当 isCardMode 为 true (点击卡片展开) 时，机器人滑向左侧 (bias 0.1f)
     // 否则保持在中间 (bias 0.5f)
     val robotHorizontalBias by animateFloatAsState(
-        targetValue = if (robotUiState.isCardMode) 0.15f else 0.5f,
+        targetValue = if (robotUiState.isCardMode) 0.04f else 0.5f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioLowBouncy,
             stiffness = Spring.StiffnessLow
@@ -236,7 +235,7 @@ fun AiRobotMainScreen(
                         .fillMaxSize()
                         .weight(1f)
                 ) {
-                    val (robotRef, voicePanelRef, aiBubbleRef, serviceCardsRef) = createRefs()
+                    val (robotRef, voicePanelRef, aiBubbleRef, serviceCardsRef, activeCardRef) = createRefs()
 
                     // 1. 机器人角色 (偏上布局，可滑动)
                     Box(
@@ -268,8 +267,8 @@ fun AiRobotMainScreen(
                         modifier = Modifier
                             .constrainAs(voicePanelRef) {
                                 bottom.linkTo(parent.bottom, margin = 65.dp)
-                                start.linkTo(parent.start)
-                                end.linkTo(parent.end)
+                                start.linkTo(robotRef.start)
+                                end.linkTo(robotRef.end)
                             }
                     ) {
                         RobotVoiceInputPanel(
@@ -307,17 +306,9 @@ fun AiRobotMainScreen(
                     ) {
                         DialogueBubble(
                             robotState = robotUiState.visualState,
-                            aiMsg = if (robotUiState.interactionType == InteractionType.CHAT)
-                                currentRoundAiText else null,
+                            aiMsg = currentRoundAiText,
                             onAiSpeechComplete = {
-                                if (robotUiState.timerCommand != null &&
-                                    robotUiState.timerStatus == TimerStatus.IDLE
-                                ) {
-                                    robotUiState = robotUiState.copy(
-                                        timerStatus = TimerStatus.RUNNING,
-                                        visualState = RobotVisualState.FOCUS
-                                    )
-                                }
+                                // 语音播报完成
                             },
                             onClose = {
                                 robotUiState = robotUiState.copy(
@@ -368,31 +359,22 @@ fun AiRobotMainScreen(
                             )
                         }
                     }
-                }
 
-                // 功能卡片模式 - 右侧面板
-                if (robotUiState.isCardMode) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(end = 64.dp),
-                            contentAlignment = Alignment.CenterEnd) {
-                        Box(modifier = Modifier.width(420.dp)) {
+                    // 5. 功能卡片详情 (交互/卡片模式时显示)
+                    if (robotUiState.isCardMode) {
+                        Box(
+                            modifier = Modifier
+                                .constrainAs(activeCardRef) {
+                                    end.linkTo(parent.end, margin = 48.dp)
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                }
+                                .width(600.dp) // 更宽的卡片
+                        ) {
                             FunctionalModulePanel(
                                 card = robotUiState.activeCard,
-                                aiMsg = robotUiState.currentAiMsg,
-                                robotState = robotUiState.visualState,
                                 timerCommand = robotUiState.timerCommand,
                                 timerStatus = robotUiState.timerStatus,
-                                onAiSpeechComplete = {
-                                    if (robotUiState.timerCommand != null &&
-                                        robotUiState.timerStatus == TimerStatus.IDLE) {
-                                        robotUiState = robotUiState.copy(
-                                            timerStatus = TimerStatus.RUNNING,
-                                            visualState = RobotVisualState.FOCUS
-                                        )
-                                    }
-                                },
                                 onTimerComplete = {
                                     robotUiState = robotUiState.copy(
                                         timerStatus = TimerStatus.IDLE,
@@ -441,11 +423,8 @@ fun AiRobotMainScreen(
 @Composable
 private fun FunctionalModulePanel(
     card: ServiceCard?,
-    aiMsg: String?,
-    robotState: RobotVisualState,
     timerCommand: TimerCommand?,
     timerStatus: TimerStatus,
-    onAiSpeechComplete: () -> Unit,
     onTimerComplete: () -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
@@ -527,47 +506,7 @@ private fun FunctionalModulePanel(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            AnimatedVisibility(
-                visible = aiMsg != null || robotState == RobotVisualState.THINKING,
-                enter = fadeIn() + slideInVertically(),
-                exit = fadeOut() + slideOutVertically()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0xFF22D3EE).copy(alpha = 0.05f))
-                        .padding(16.dp)
-                ) {
-                    if (robotState == RobotVisualState.THINKING) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            repeat(3) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(8.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFF22D3EE))
-                                )
-                            }
-                            Text(
-                                text = "处理中...",
-                                color = Color(0xFF22D3EE).copy(alpha = 0.5f),
-                                fontSize = 12.sp
-                            )
-                        }
-                    } else if (aiMsg != null) {
-                        TypewriterText(
-                            text = aiMsg,
-                            onComplete = onAiSpeechComplete
-                        )
-                    }
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
+            // Removed text display block
             
             Box(
                 modifier = Modifier

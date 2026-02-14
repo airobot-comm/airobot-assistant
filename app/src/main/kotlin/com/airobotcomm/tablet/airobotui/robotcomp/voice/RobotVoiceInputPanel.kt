@@ -58,8 +58,6 @@ fun RobotVoiceInputPanel(
     
     ConstraintLayout(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp)
     ) {
         val (contentRef, bubbleRef) = createRefs()
 
