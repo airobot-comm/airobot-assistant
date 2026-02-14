@@ -47,8 +47,10 @@ class KwsManager(private val context: Context) {
             config.modelConfig.modelType = "zipformer2"
             
             config.keywordsFile = "$ASSET_DIR/keywords.txt"
-            config.keywordsScore = 1.0f      // 灵敏度阈值，调高可以减少误唤醒
-            config.keywordsThreshold = 0.20f // 检测阈值
+            
+            // 优化参数：降低阈值可以提高灵敏度，但误差也会提升
+            config.keywordsScore = 0.85f      // (原 1.0f) 降低可信度要求
+            config.keywordsThreshold = 0.15f // (原 0.20f) 降低触发概率阈值
             
             Log.d(TAG, "初始化KWS: $ASSET_DIR")
             

@@ -75,6 +75,8 @@ class AudioRecordPipeline(
      * 非阻塞推送数据到 Pipeline
      */
     fun processFrame(pcmData: ByteArray) {
+        // todo:极其轻量的vad检查，只发送人声，以及生源绑定的声音
+
         // 仅负责推送，不再挂起等待，触发后续的2/3步去计算，发送
         inputChannel.trySend(pcmData)
     }

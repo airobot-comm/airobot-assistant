@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.media.*
 import android.media.audiofx.AcousticEchoCanceler
+import android.media.audiofx.AutomaticGainControl
 import android.media.audiofx.NoiseSuppressor
 import android.util.Log
 import androidx.annotation.RequiresPermission
@@ -39,6 +40,7 @@ class DefaultAudioRecorder(private val context: Context) : AudioRecorder {
 
     private var acousticEchoCanceler: AcousticEchoCanceler? = null
     private var noiseSuppressor: NoiseSuppressor? = null
+    private var automaticGainControl: AutomaticGainControl? = null
 
     private lateinit var config: AudioConfig
     private var isRunning = false
@@ -91,6 +93,7 @@ class DefaultAudioRecorder(private val context: Context) : AudioRecorder {
     private fun setupAudioEffects() {
         audioRecord?.let { record ->
             try {
+                // Aec，NS开启，提升 语音质量
                 if (config.enableAec && AcousticEchoCanceler.isAvailable()) {
                     acousticEchoCanceler = AcousticEchoCanceler.create(record.audioSessionId)
                     acousticEchoCanceler?.enabled = true
@@ -98,6 +101,13 @@ class DefaultAudioRecorder(private val context: Context) : AudioRecorder {
                 if (config.enableNs && NoiseSuppressor.isAvailable()) {
                     noiseSuppressor = NoiseSuppressor.create(record.audioSessionId)
                     noiseSuppressor?.enabled = true
+                }
+                
+                // AGC 自动增益，提升 KWS 灵敏度
+                if (AutomaticGainControl.isAvailable()) {
+                    automaticGainControl = AutomaticGainControl.create(record.audioSessionId)
+                    automaticGainControl?.enabled = true
+                    Log.d(TAG, "AutomaticGainControl (AGC) enabled")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to setup audio effects", e)
@@ -159,6 +169,7 @@ class DefaultAudioRecorder(private val context: Context) : AudioRecorder {
         stopRecording()
         acousticEchoCanceler?.release()
         noiseSuppressor?.release()
+        automaticGainControl?.release()
         audioRecord?.release()
         pipeline?.cleanup()
         scope.cancel()
