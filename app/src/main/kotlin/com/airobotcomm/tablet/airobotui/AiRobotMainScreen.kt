@@ -2,6 +2,7 @@ package com.airobotcomm.tablet.airobotui
 
 import android.Manifest
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import kotlinx.coroutines.launch
@@ -49,6 +50,7 @@ import com.airobotcomm.tablet.airobotui.viewmodel.ConversationViewModel
 import com.airobotcomm.tablet.airobotui.viewmodel.ServiceViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import androidx.compose.animation.core.Spring // ADDED IMPORT
 
 /**
  * 机器人服务主屏幕
@@ -101,6 +103,16 @@ fun AiRobotMainScreen(
     val serviceCards = DEFAULT_SERVICE_CARDS
     val currentCard = serviceCards.getOrNull(currentCardIndex) ?: serviceCards.first()
 
+    // 自动轮播逻辑
+    LaunchedEffect(serviceCards.size, robotUiState.isInteracting) {
+        if (serviceCards.isNotEmpty() && !robotUiState.isInteracting) {
+            while (true) {
+                kotlinx.coroutines.delay(10000L)
+                currentCardIndex = (currentCardIndex + 1) % serviceCards.size
+            }
+        }
+    }
+
     // 机器人UI状态汇总同步 - 整合多个来源，避免竞态覆盖
     LaunchedEffect(
         robotState, 
@@ -109,7 +121,7 @@ fun AiRobotMainScreen(
         activeCard, 
         timerCommand, 
         timerStatus,
-        currentCard
+        currentCard // currentCard 随 currentCardIndex 变化
     ) {
         val visualState = when (val s = robotState) {
             is RobotState.Offline -> RobotVisualState.SLEEPING
@@ -132,7 +144,7 @@ fun AiRobotMainScreen(
         val newStatusTip = when (timerStatus) {
             TimerStatus.RUNNING -> "正在专注: ${timerCommand?.task ?: "未知任务"}..."
             TimerStatus.PAUSED -> "已暂停，休息一下..."
-            else -> currentCard.statusTip
+            else -> currentCard.statusTip // 跟随轮播卡片变化
         }
 
         robotUiState = robotUiState.copy(
@@ -168,6 +180,18 @@ fun AiRobotMainScreen(
             conversationViewModel.startConversation()
         }
     }
+
+    // 机器人水平位移动画
+    // 当 isCardMode 为 true (点击卡片展开) 时，机器人滑向左侧 (bias 0.2f)
+    // 否则保持在中间 (bias 0.5f)
+    val robotHorizontalBias by animateFloatAsState(
+        targetValue = if (robotUiState.isCardMode) 0.15f else 0.5f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioLowBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "robotSlide"
+    )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -214,7 +238,7 @@ fun AiRobotMainScreen(
                 ) {
                     val (robotRef, voicePanelRef, aiBubbleRef, serviceCardsRef) = createRefs()
 
-                    // 1. 机器人角色 (偏上布局)
+                    // 1. 机器人角色 (偏上布局，可滑动)
                     Box(
                         modifier = Modifier
                             .constrainAs(robotRef) {
@@ -222,6 +246,8 @@ fun AiRobotMainScreen(
                                 bottom.linkTo(parent.bottom, margin = 300.dp) // 偏上给语音面板留空间
                                 start.linkTo(parent.start)
                                 end.linkTo(parent.end)
+                                // 动态水平偏置实现滑动
+                                horizontalBias = robotHorizontalBias
                                 // 垂直偏置，让机器人视觉上处于最佳位置
                                 verticalBias = 0.5f
                             },
@@ -321,15 +347,20 @@ fun AiRobotMainScreen(
                         ) {
                             ServiceCardCarousel(
                                 cards = serviceCards,
+                                currentIndex = currentCardIndex,
+                                onPageChanged = { currentCardIndex = it },
                                 onCardClick = { card ->
+                                    // 确保点击的是当前显示的卡片
+                                    val targetCard = if (serviceCards.contains(card)) card else serviceCards[currentCardIndex]
+                                    
                                     robotUiState = robotUiState.copy(
                                         interactionType = InteractionType.CARD,
-                                        activeCard = card,
+                                        activeCard = targetCard,
                                         visualState = RobotVisualState.LISTENING,
                                         currentUserMsg = null,
                                         currentAiMsg = null
                                     )
-                                    serviceViewModel.startService(card)
+                                    serviceViewModel.startService(targetCard)
                                     if (permissionsState.allPermissionsGranted) {
                                         conversationViewModel.startConversation()
                                     }

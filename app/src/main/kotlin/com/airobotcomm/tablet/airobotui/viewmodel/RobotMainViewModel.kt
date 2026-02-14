@@ -157,6 +157,9 @@ class RobotMainViewModel @Inject constructor(
                         // 由 handleAiRobotEvent(AiRobotEvent.Connected) 处理
                     }
                     NetworkState.ERROR, NetworkState.IDLE -> {
+                        Log.w("RobotMainViewModel", "Network state is $state. Deactivating Audio Service.")
+                        audioService.deactivate() // 强制回退音频服务
+
                         // 避免在已经 Unauthorized 的情况下切回 Offline，除非确实断开了
                         if (robotStateManager.robotState.value !is RobotState.Unauthorized && 
                             robotStateManager.robotState.value !is RobotState.Initializing) {
@@ -186,9 +189,13 @@ class RobotMainViewModel @Inject constructor(
                 _errorMessage.value = null
             }
             is AiRobotEvent.Disconnected -> {
+                Log.w("RobotMainViewModel", "Received Disconnected event. Deactivating Audio Service.")
+                audioService.deactivate()
                 robotStateManager.updateRobotState(RobotState.Offline)
             }
             is AiRobotEvent.Error -> {
+                Log.e("RobotMainViewModel", "Received Error event: ${event.message}. Deactivating Audio Service.")
+                audioService.deactivate()
                 _errorMessage.value = event.message
             }
             else -> {}

@@ -38,12 +38,12 @@ fun RobotCharacter(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "robotAnimation")
     
-    // 悬浮动画 (Floating)
+    // 悬浮动画 (Floating) - 范围加大，更生动
     val floatOffset by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 12f,
+        targetValue = 18f, // 12 -> 18
         animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = EaseInOutQuad),
+            animation = tween(2500, easing = EaseInOutQuad),
             repeatMode = RepeatMode.Reverse
         ),
         label = "floatOffset"
@@ -79,11 +79,15 @@ fun RobotCharacter(
             .height(headSize * 1.6f),
         contentAlignment = Alignment.Center
     ) {
-        // ... (背景环境光保持不变)
+        // 背景环境光 - 调整透明度和混合模式以增强可视化
         Box(
             modifier = Modifier
                 .size(headSize * 1.5f)
-                .graphicsLayer { alpha = 0.15f }
+                .graphicsLayer { 
+                    alpha = 0.25f // 0.15 -> 0.25 增加亮度
+                    scaleX = 1.1f
+                    scaleY = 1.1f
+                }
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
@@ -92,7 +96,7 @@ fun RobotCharacter(
                         )
                     )
                 )
-                .blur(80.dp)
+                .blur(90.dp) // 80 -> 90 柔和边缘
         )
         
         // 主体结构
@@ -123,7 +127,7 @@ fun RobotCharacter(
                 headSize = headSize
             )
             
-            // ... (地面阴影保持不变)
+            // 地面阴影
             Box(
                 modifier = Modifier
                     .offset(y = (-10).dp)
@@ -168,21 +172,22 @@ private fun RobotHead(
             infiniteTransition = infiniteTransition
         )
         
-        // ... (头部外壳保持不变)
+        // 头部外壳 - 调整颜色以增强与深色背景的对比
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .shadow(
-                    elevation = 20.dp,
+                    elevation = 25.dp, // 20 -> 25
                     shape = RoundedCornerShape(headSize * 0.25f),
-                    ambientColor = Color.Black
+                    ambientColor = Color.Black,
+                    spotColor = Color(0xFF22D3EE).copy(alpha = 0.5f) // 增加一点环境光反射
                 )
                 .clip(RoundedCornerShape(headSize * 0.25f))
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF0F172A), // slate-900
-                            Color(0xFF020617)  // slate-950
+                            Color(0xFF1E293B), // slate-800 check (lighter than slate-900)
+                            Color(0xFF0F172A)  // slate-900
                         )
                     )
                 )
@@ -220,7 +225,7 @@ private fun RobotHead(
                     )
                 }
                 
-                // ... (嘴巴动画保持不变)
+                // 嘴巴动画
                 AnimatedVisibility(
                     visible = state == RobotVisualState.SPEAKING,
                     enter = expandVertically() + fadeIn(),
@@ -237,20 +242,6 @@ private fun RobotHead(
 }
 
 /**
- * 眨眼时的眼睛形状
- */
-@Composable
-private fun BlinkingEye(size: Dp) {
-    Box(
-        modifier = Modifier
-            .width(size * 1.2f) // 稍微宽一点
-            .height(size * 0.1f) // 很扁
-            .clip(RoundedCornerShape(50)) // 胶囊形状
-            .background(Color.White.copy(alpha = 0.8f))
-    )
-}
-
-/**
  * 机器人天线 - 增强发光效果
  */
 @Composable
@@ -260,12 +251,12 @@ private fun RobotAntennas(
     infiniteTransition: InfiniteTransition,
     modifier: Modifier = Modifier
 ) {
-    // ... (旋转动画保持不变)
+    // 旋转动画 - 加大角度
     val antennaRotation by infiniteTransition.animateFloat(
-        initialValue = -5f,
-        targetValue = 5f,
+        initialValue = -12f, // -5 -> -12
+        targetValue = 12f,   // 5 -> 12
         animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = EaseInOutSine),
+            animation = tween(2000, easing = EaseInOutSine), // 3000 -> 2000 speed up
             repeatMode = RepeatMode.Reverse
         ),
         label = "antennaRotation"
@@ -287,6 +278,7 @@ private fun RobotAntennas(
         AntennaItem(color = color2, rotation = -antennaRotation, headSize = headSize)
     }
 }
+// ...
 
 @Composable
 private fun AntennaItem(color: Color, rotation: Float, headSize: Dp) {
@@ -385,4 +377,18 @@ private fun StatusTipBubble(
             fontWeight = FontWeight.Bold
         )
     }
+}
+
+/**
+ * 眨眼时的眼睛形状
+ */
+@Composable
+private fun BlinkingEye(size: Dp) {
+    Box(
+        modifier = Modifier
+            .width(size * 1.2f) // 稍微宽一点
+            .height(size * 0.1f) // 很扁
+            .clip(RoundedCornerShape(50)) // 胶囊形状
+            .background(Color.White.copy(alpha = 0.8f))
+    )
 }

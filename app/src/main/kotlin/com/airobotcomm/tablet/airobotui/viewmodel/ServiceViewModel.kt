@@ -37,6 +37,13 @@ class ServiceViewModel @Inject constructor(
     fun startService(card: ServiceCard) {
         _activeCard.value = card
         _serviceSubState.value = ServiceSubState.IDLE
+        
+        // 如果开启的不是计时器功能，清除后台的计时状态
+        if (card.type != com.airobotcomm.tablet.airobotui.state.ServiceCardType.TIMER) {
+            _timerStatus.value = TimerStatus.IDLE
+            _timerCommand.value = null
+        }
+
         robotStateManager.updateRobotState(RobotState.FunctionService(card.id, _serviceSubState.value))
     }
 

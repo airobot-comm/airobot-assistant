@@ -29,10 +29,10 @@ import java.util.*
 fun ServiceCardCarousel(
     cards: List<ServiceCard>,
     onCardClick: (ServiceCard) -> Unit,
-    modifier: Modifier = Modifier,
-    autoScrollInterval: Long = 10000L
+    currentIndex: Int,
+    onPageChanged: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    var currentIndex by remember { mutableStateOf(0) }
     var currentTime by remember { mutableStateOf(Date()) }
     
     // 时间更新
@@ -40,16 +40,6 @@ fun ServiceCardCarousel(
         while (true) {
             delay(1000L)
             currentTime = Date()
-        }
-    }
-    
-    // 自动轮播
-    LaunchedEffect(cards.size) {
-        if (cards.isNotEmpty()) {
-            while (true) {
-                delay(autoScrollInterval)
-                currentIndex = (currentIndex + 1) % cards.size
-            }
         }
     }
     
