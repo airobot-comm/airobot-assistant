@@ -233,7 +233,7 @@ fun AiRobotMainScreen(
                                 robotUiState.visualState == RobotVisualState.FOCUS
                             )
                                 robotUiState.statusTip else null,
-                            audioLevel = audioLevel, // 传入音频等级用于微表情
+                            audioLevel = { audioLevel }, // 传入音频等级用于微表情
                             headSize = 420.dp
                         )
                     }

@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 fun DynamicEyes(
     state: com.airobotcomm.tablet.airobotui.state.RobotVisualState,
     ttsProgressNormalized: Float = 0f, // 0-1, TTS播放进度
-    audioLevel: Float = 0f, // 传入音频等级 0-1
+    audioLevel: () -> Float = { 0f }, // 传入音频等级 0-1 (Lambda)
     eyeSize: Dp = 48.dp,
     eyeGap: Dp = 56.dp,
     modifier: Modifier = Modifier
@@ -65,13 +65,13 @@ fun DynamicEyes(
 
     // 计算眼睛的实际偏移
     val eyeOffsetX = when (state) {
-        _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.SPEAKING -> speakingEyeLookX.dp
-        _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.THINKING -> thinkingEyeOffsetX.dp
+        com.airobotcomm.tablet.airobotui.state.RobotVisualState.SPEAKING -> speakingEyeLookX.dp
+        com.airobotcomm.tablet.airobotui.state.RobotVisualState.THINKING -> thinkingEyeOffsetX.dp
         else -> 0.dp
     }
 
     val eyeOffsetY = when (state) {
-        _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.THINKING -> thinkingEyeOffsetY.dp
+        com.airobotcomm.tablet.airobotui.state.RobotVisualState.THINKING -> thinkingEyeOffsetY.dp
         else -> 0.dp
     }
 
@@ -104,7 +104,7 @@ private fun EnhancedDynamicEye(
     state: com.airobotcomm.tablet.airobotui.state.RobotVisualState,
     size: Dp,
     ttsProgressNormalized: Float = 0f,
-    audioLevel: Float = 0f,
+    audioLevel: () -> Float = { 0f },
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -129,30 +129,30 @@ private fun EnhancedDynamicEye(
 
         // 核心眼睛组件
         when (state) {
-            _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.IDLE -> IdleEyeEnhanced(size = size)
-            _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.LISTENING -> ListeningEyeEnhanced(size = size, audioLevel = audioLevel)
-            _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.THINKING -> ThinkingEyeEnhanced(size = size)
-            _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.SPEAKING -> SpeakingEyeEnhanced(
+            com.airobotcomm.tablet.airobotui.state.RobotVisualState.IDLE -> IdleEyeEnhanced(size = size)
+            com.airobotcomm.tablet.airobotui.state.RobotVisualState.LISTENING -> ListeningEyeEnhanced(size = size, audioLevel = audioLevel)
+            com.airobotcomm.tablet.airobotui.state.RobotVisualState.THINKING -> ThinkingEyeEnhanced(size = size)
+            com.airobotcomm.tablet.airobotui.state.RobotVisualState.SPEAKING -> SpeakingEyeEnhanced(
                 size = size,
                 ttsProgressNormalized = ttsProgressNormalized,
                 audioLevel = audioLevel
             )
-            _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.FOCUS -> FocusEyeEnhanced(size = size)
-            _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.HAPPY -> HappyEyeEnhanced(size = size)
-            _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.SLEEPING -> SleepingEyeEnhanced(size = size)
+            com.airobotcomm.tablet.airobotui.state.RobotVisualState.FOCUS -> FocusEyeEnhanced(size = size)
+            com.airobotcomm.tablet.airobotui.state.RobotVisualState.HAPPY -> HappyEyeEnhanced(size = size)
+            com.airobotcomm.tablet.airobotui.state.RobotVisualState.SLEEPING -> SleepingEyeEnhanced(size = size)
         }
     }
 }
 
 private fun getEyeColor(state: com.airobotcomm.tablet.airobotui.state.RobotVisualState): Color {
     return when (state) {
-        _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.IDLE -> Color(0xFF6366F1)
-        _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.LISTENING -> Color.White
-        _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.THINKING -> Color(0xFF22D3EE)
-        _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.SPEAKING -> Color.White
-        _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.FOCUS -> Color(0xFF67E8F9)
-        _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.HAPPY -> Color(0xFF10B981)
-        _root_ide_package_.com.airobotcomm.tablet.airobotui.state.RobotVisualState.SLEEPING -> Color(0xFF94A3B8)
+        com.airobotcomm.tablet.airobotui.state.RobotVisualState.IDLE -> Color(0xFF6366F1)
+        com.airobotcomm.tablet.airobotui.state.RobotVisualState.LISTENING -> Color.White
+        com.airobotcomm.tablet.airobotui.state.RobotVisualState.THINKING -> Color(0xFF22D3EE)
+        com.airobotcomm.tablet.airobotui.state.RobotVisualState.SPEAKING -> Color.White
+        com.airobotcomm.tablet.airobotui.state.RobotVisualState.FOCUS -> Color(0xFF67E8F9)
+        com.airobotcomm.tablet.airobotui.state.RobotVisualState.HAPPY -> Color(0xFF10B981)
+        com.airobotcomm.tablet.airobotui.state.RobotVisualState.SLEEPING -> Color(0xFF94A3B8)
     }
 }
 
@@ -197,11 +197,12 @@ private fun IdleEyeEnhanced(
 @Composable
 private fun ListeningEyeEnhanced(
     size: Dp,
-    audioLevel: Float, // 增加音频等级调制
+    audioLevel: () -> Float, // 增加音频等级调制
     modifier: Modifier = Modifier
 ) {
     // 动态计算高度，根据音量在 0.4 到 1.2 之间波动
-    val dynamicHeight = size * (0.4f + audioLevel * 1.0f)
+    // 调用 audioLevel() 来获取当前音量
+    val dynamicHeight = size * (0.4f + audioLevel() * 1.0f)
     
     Box(
         modifier = modifier
@@ -263,7 +264,7 @@ private fun ThinkingEyeEnhanced(
 private fun SpeakingEyeEnhanced(
     size: Dp,
     ttsProgressNormalized: Float = 0f,
-    audioLevel: Float = 0f,
+    audioLevel: () -> Float = { 0f },
     modifier: Modifier = Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "speakingEye")
@@ -280,7 +281,7 @@ private fun SpeakingEyeEnhanced(
     )
 
     // 音频等级调制缩放
-    val dynamicScale = idlePulse + (audioLevel * 0.4f)
+    val dynamicScale = idlePulse + (audioLevel() * 0.4f)
     
     // TTS进度可以额外调制亮度
     val brightness = 0.85f + (ttsProgressNormalized * 0.15f)

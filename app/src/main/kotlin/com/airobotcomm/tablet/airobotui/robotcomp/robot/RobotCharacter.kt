@@ -32,7 +32,7 @@ fun RobotCharacter(
     state: com.airobotcomm.tablet.airobotui.state.RobotVisualState,
     statusTip: String? = null,
     ttsProgressNormalized: Float = 0f,
-    audioLevel: Float = 0f, // 传入音频等级 0-1
+    audioLevel: () -> Float = { 0f }, // 传入音频等级 (Lambda)
     headSize: Dp = 280.dp,
     modifier: Modifier = Modifier
 ) {
@@ -149,7 +149,7 @@ private fun RobotHead(
     state: com.airobotcomm.tablet.airobotui.state.RobotVisualState,
     isBlinking: Boolean,
     ttsProgressNormalized: Float,
-    audioLevel: Float,
+    audioLevel: () -> Float,
     headSize: Dp,
     modifier: Modifier = Modifier
 ) {
