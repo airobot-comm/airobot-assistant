@@ -215,7 +215,7 @@ private fun IdleMicButton(
         
         // 提示文字
         VoiceHintText(
-            text = if (isConnected) "呼唤名字或点击开始" else "等待连接..."
+            text = if (isConnected) "叫名字/点击" else "等待连接..."
         )
     }
 }

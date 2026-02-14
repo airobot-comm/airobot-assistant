@@ -18,7 +18,7 @@ import com.airobotcomm.tablet.audio.recorder.DefaultAudioRecorder
  * 
  * 核心逻辑：
  * 1. 初始化时自动启动录音 Pipeline 并进入 LISTENING 状态。
- * 2. 状态切换仅通过 startWorking/stopWorking 改变数据流向，不停止硬件录音。
+ * 2. 状态切换通过 setWorkState 改变数据流向，不停止硬件录音。
  * 3. 统一使用单路事件流，减少多层转发损耗。
  */
 @Singleton
@@ -42,46 +42,35 @@ class AudioServiceImpl @Inject constructor(
     )
     override val events: SharedFlow<AudioEvent> = _events
 
-    // 全局状态管理
-    private val _state = MutableStateFlow<AudioState>(AudioState.Idle)
-    override val state: StateFlow<AudioState> = _state.asStateFlow()
-
     @RequiresPermission(android.Manifest.permission.RECORD_AUDIO)
     override fun init(config: AudioConfig): Boolean {
         // 1. 初始化音频播放器
         if (!audioPlayer.initialize(config)) {
-             _state.value = AudioState.Error("Player Init Failed")
+             _events.tryEmit(AudioEvent.SystemError("Player Init Failed"))
             return false
         }
 
         // 2. 初始化录音器，直接注入全局事件流
         if (!audioRecorder.initialize(config, _events)) {
-            _state.value = AudioState.Error("Recorder Init Failed")
+            _events.tryEmit(AudioEvent.SystemError("Recorder Init Failed"))
             return false
         }
         
-        // 3. 启动 Pipeline (启动后默认处于 LISTENING/Waiting 状态)
+        // 3. 启动 Pipeline (启动后默认处于 WAITING 状态)
         audioRecorder.startRecording()
         
-        _state.value = AudioState.Waiting
-        Log.d(TAG, "音频系统初始化成功，进入 Waiting 状态")
+        Log.d(TAG, "音频系统初始化成功")
         return true
     }
 
     override fun activate() {
-        if (_state.value == AudioState.Active) return
-        
-        audioRecorder.startWorking()
-        _state.value = AudioState.Active
-        Log.d(TAG, "切换到 Active 状态 (Active Conversation)")
+        Log.d(TAG, "Manual activation requested")
+        audioRecorder.setWorkState(AudioWorkState.ACTIVE)
     }
 
     override fun deactivate() {
-        if (_state.value == AudioState.Waiting) return
-
-        audioRecorder.stopWorking()
-        _state.value = AudioState.Waiting
-        Log.d(TAG, "回退到 Waiting 状态 (KWS Mode)")
+        Log.d(TAG, "Manual deactivation requested - Forcing WAITING state")
+        audioRecorder.setWorkState(AudioWorkState.WAITING)
     }
 
     override fun play(audioData: ByteArray) {
@@ -108,8 +97,7 @@ class AudioServiceImpl @Inject constructor(
         audioRecorder.stopRecording()
         audioRecorder.cleanup()
         audioPlayer.cleanup()
-        _state.value = AudioState.Idle
         scope.cancel()
-        Log.d(TAG, "音频系统已彻底释放 (Idle)")
+        Log.d(TAG, "音频系统已彻底释放")
     }
 }

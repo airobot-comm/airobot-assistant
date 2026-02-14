@@ -74,11 +74,15 @@ fun AiRobotMainScreen(
     val errorMessage by robotMainViewModel.errorMessage.collectAsState()
     val showActivationDialog by robotMainViewModel.showActivationDialog.collectAsState()
     val activationCode by robotMainViewModel.activationCode.collectAsState()
+    val mainVoiceLevel by robotMainViewModel.voiceLevel.collectAsState()
 
     // 从 ConversationViewModel 收集交互状态
-    val audioLevel by conversationViewModel.audioLevel.collectAsState()
+    val convAudioLevel by conversationViewModel.audioLevel.collectAsState()
     val currentRoundUserText by conversationViewModel.currentRoundUserText.collectAsState()
     val currentRoundAiText by conversationViewModel.currentRoundAiText.collectAsState()
+
+    // 组合音量等级：对话时用对话VM的，非对话时用主VM的
+    val audioLevel = if (robotState is RobotState.Conversation) convAudioLevel else mainVoiceLevel
 
     // 从 ServiceViewModel 收集功能状态
     val activeCard by serviceViewModel.activeCard.collectAsState()
@@ -160,8 +164,8 @@ fun AiRobotMainScreen(
 
     // 监听唤醒事件
     LaunchedEffect(Unit) {
-        robotMainViewModel.wakeupEvent.collect { data ->
-            conversationViewModel.startConversation(data)
+        robotMainViewModel.wakeupEvent.collect {
+            conversationViewModel.startConversation()
         }
     }
 

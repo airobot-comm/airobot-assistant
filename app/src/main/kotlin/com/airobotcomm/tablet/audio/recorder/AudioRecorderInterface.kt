@@ -34,14 +34,9 @@ interface AudioRecorder {
     fun isRecording(): Boolean
     
     /**
-     * 启动工作模式（开始发送音频数据）
+     * 设置音频处理工作状态
      */
-    fun startWorking()
-    
-    /**
-     * 停止工作模式（回到监听状态）
-     */
-    fun stopWorking()
+    fun setWorkState(state: com.airobotcomm.tablet.audio.AudioWorkState)
 
     /**
      * 清理资源

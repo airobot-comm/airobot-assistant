@@ -15,8 +15,6 @@ import javax.inject.Inject
 import com.airobotcomm.tablet.system.SysManage
 import com.airobotcomm.tablet.audio.AudioEvent
 import com.airobotcomm.tablet.audio.AudioService
-import com.airobotcomm.tablet.audio.AudioState
-import com.airobotcomm.tablet.airobotui.state.ConversationSubState
 import com.airobotcomm.tablet.system.SysState
 import com.airobotcomm.tablet.system.model.AiAgent
 import com.airobotcomm.tablet.system.model.DeviceInfo
@@ -42,14 +40,17 @@ class RobotMainViewModel @Inject constructor(
     private val _activationCode = MutableStateFlow<String?>(null)
     val activationCode: StateFlow<String?> = _activationCode.asStateFlow()
 
-    private val _wakeupEvent = MutableSharedFlow<ByteArray?>(extraBufferCapacity = 1)
-    val wakeupEvent: SharedFlow<ByteArray?> = _wakeupEvent.asSharedFlow()
+    private val _voiceLevel = MutableStateFlow(0f)
+    val voiceLevel: StateFlow<Float> = _voiceLevel.asStateFlow()
+
+    private val _wakeupEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val wakeupEvent: SharedFlow<Unit> = _wakeupEvent.asSharedFlow()
 
     init {
         // step1: observe core states
         observeNetwork()
         observeSysState()
-        observeAudioState()
+        observeAudioEvents()
 
         // start system
         sysManage.start()
@@ -60,60 +61,42 @@ class RobotMainViewModel @Inject constructor(
      */
     fun initAudioService() {
         viewModelScope.launch {
-            if (audioService.state.value is AudioState.Idle) {
-                audioService.init()
-            }
-        }
+            audioService.init()
+       }
     }
 
-    private fun observeAudioState() {
+    private fun observeAudioEvents() {
         viewModelScope.launch {
             audioService.events.collect { event ->
                 when (event) {
-                    is AudioEvent.Wakeup -> handleWakeup(event)
-                    else -> {}
-                }
-            }
-        }
+                    is AudioEvent.Wakeup -> {
+                        val currentState = robotStateManager.robotState.value
+                        Log.d("RobotMainViewModel",
+                            "Wakeup detected. Current state: $currentState")
 
-        viewModelScope.launch {
-            audioService.state.collect { audioState ->
-                val current = robotStateManager.robotState.value
-                Log.d("RobotMainViewModel", "AudioState changed: $audioState, current RobotState: $current")
-                // 仅在非异常状态下响应音频状态变化
-                if (current is RobotState.Unauthorized || current is RobotState.Initializing || current is RobotState.Offline) {
-                    return@collect
-                }
-                
-                when (audioState) {
-                    is AudioState.Active -> {
-                        if (current !is RobotState.Conversation) {
-                            Log.d("RobotMainViewModel", "Transitioning to Conversation(LISTENING) due to AudioState.Active")
-                            robotStateManager.updateRobotState(RobotState.Conversation(ConversationSubState.LISTENING))
+                        // 核心安全逻辑：检查进入对话的先决条件，只有具备条件才真正启动对话
+                        val isNetworkReady = networkService.isConnected
+                        val isSystemReady = sysManage.state.value is com.airobotcomm.tablet.system.SysState.Ready
+                        if (isNetworkReady && isSystemReady &&
+                            (currentState is RobotState.Ready || currentState is RobotState.Conversation)) {
+                            Log.d("RobotMainViewModel", "Conditions met. Proceeding with wakeup.")
+                            viewModelScope.launch {
+                                _wakeupEvent.emit(Unit)
+                            }
+                        } else {
+                            // 安全回退：不满足条件，强制将音频服务拉回 WAITING 状态，停止数据发送
+                            Log.w("RobotMainViewModel", "Conditions NOT met (Net:$isNetworkReady, Sys:$isSystemReady). Pulling back Audio Service.")
+                            audioService.deactivate()
                         }
                     }
-                    is AudioState.Waiting -> {
-                        // 仅当处于录制/播报子状态，且底层回退到 Waiting 时，才视为对话中断/结束跳转到 Ready
-                        if (current is RobotState.Conversation && 
-                            (current.subState == ConversationSubState.LISTENING || 
-                             current.subState == ConversationSubState.SPEAKING)) {
-                            Log.d("RobotMainViewModel", "Transitioning to Ready due to AudioState.Waiting")
-                            robotStateManager.updateRobotState(RobotState.Ready)
-                        }
+                    is AudioEvent.VoiceLevel -> {
+                        _voiceLevel.value = event.level
+                    }
+                    is AudioEvent.SystemError -> {
+                        _errorMessage.value = event.message
                     }
                     else -> {}
                 }
-            }
-        }
-    }
-
-    private fun handleWakeup(event: AudioEvent.Wakeup) {
-        val currentState = robotStateManager.robotState.value
-        // 只有在 Ready 状态或对话状态，且网络连接正常时才响应唤醒
-        if ((currentState is RobotState.Ready || currentState is RobotState.Conversation) && 
-            networkService.isConnected) {
-            viewModelScope.launch {
-                _wakeupEvent.emit(event.data)
             }
         }
     }
@@ -233,17 +216,6 @@ class RobotMainViewModel @Inject constructor(
             sysManage.configureAiAgent(agentUrl, agentVender)
                 .onFailure { _errorMessage.value = it.message }
         }
-    }
-
-    fun clearError() {
-        _errorMessage.value = null
-    }
-
-    /**
-     * 更新一级状态
-     */
-    fun updateRobotState(newState: RobotState) {
-        robotStateManager.updateRobotState(newState)
     }
 
     // System Info Exposure (Reactive)

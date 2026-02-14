@@ -151,12 +151,8 @@ class DefaultAudioRecorder(private val context: Context) : AudioRecorder {
 
     override fun isRecording(): Boolean = isRunning
 
-    override fun startWorking() {
-        pipeline?.setWorking(true)
-    }
-
-    override fun stopWorking() {
-        pipeline?.setWorking(false)
+    override fun setWorkState(state: com.airobotcomm.tablet.audio.AudioWorkState) {
+        pipeline?.setWorkState(state)
     }
 
     override fun cleanup() {

@@ -237,16 +237,18 @@ class ConversationViewModel @Inject constructor(
     }
 
     private fun cleanConversation(){
+        Log.d(TAG, "cleanConversation: Deactivating audio and resetting state")
         isActive = false
         isAutoMode = false
+        
+        // 核心：强制音频服务回退到等待状态，停止任何数据发送
         audioService.deactivate()
         audioService.stopPlaying()
 
         // clean conversation text
         resetRoundText()
 
-        // 显式重置状态（是否必要？）
-        _subState.value = ConversationSubState.LISTENING
+        // 显式重置全局状态到 Ready
         robotStateManager.updateRobotState(RobotState.Ready)
     }
 

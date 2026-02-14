@@ -9,8 +9,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import com.airobotcomm.tablet.audio.AudioConfig
 import com.airobotcomm.tablet.audio.AudioEvent
+import com.airobotcomm.tablet.audio.AudioWorkState
 import com.airobotcomm.tablet.audio.tools.codec.OpusEncoder
 import com.airobotcomm.tablet.audio.tools.kws.KwsManager
+import java.util.LinkedList
 import kotlin.math.min
 import kotlin.math.sqrt
 
@@ -21,7 +23,7 @@ import kotlin.math.sqrt
  * 1. 计算音频强度 (Level)
  * 2. KWS 关键词检测
  * 3. 音频编码 (Opus)
- * 4. 维护唤醒上下文音频缓存 (PCM) 并输出编码后的唤醒数据
+ * 4. 维护 32 帧历史音频缓存 (PCM)，唤醒后逐帧发送
  */
 class AudioRecordPipeline(
     private val context: Context,
@@ -30,11 +32,7 @@ class AudioRecordPipeline(
 ) {
     companion object {
         private const val TAG = "AudioRecordPipeline"
-        private const val WAKEUP_BUFFER_DURATION_SEC = 1
-        
-        // 内部状态
-        const val STATE_LISTENING = 1
-        const val STATE_WORKING = 2
+        private const val MAX_HISTORY_FRAMES = 32 // 维护 32 帧缓存 (约2s，太小会丢数据)
     }
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -43,13 +41,11 @@ class AudioRecordPipeline(
     private val kwsManager = KwsManager(context)
     private val encoder = OpusEncoder(config.recordSampleRate, config.channels, config.frameDurationMs)
     
-    // 状态
-    private var currentState = STATE_LISTENING
+    // 统一使用 AudioWorkState
+    private var currentState = AudioWorkState.WAITING
     
-    // 唤醒缓存 (PCM 原始数据)
-    private val wakeupBufferSize = config.recordSampleRate * WAKEUP_BUFFER_DURATION_SEC * 2 // 16bit = 2 bytes
-    private val pcmBuffer = ByteArray(wakeupBufferSize)
-    private var bufferHead = 0
+    // 历史帧缓存 (PCM 原始数据帧队列)
+    private val historyBuffer = LinkedList<ByteArray>()
 
     init {
         if (!kwsManager.init()) {
@@ -58,7 +54,7 @@ class AudioRecordPipeline(
     }
 
     /**
-     * 处理一帧 PCM 数据，确保是串行的音频数据处理（数据帧不能异步处理）
+     * 处理一帧 PCM 数据
      */
     suspend fun processFrame(pcmData: ByteArray) {
         // 1. 计算 Level (异步发送)
@@ -66,79 +62,75 @@ class AudioRecordPipeline(
         scope.launch { events.emit(AudioEvent.VoiceLevel(audioLevel)) }
 
         when (currentState) {
-            STATE_LISTENING -> {
-                // 监听状态：更新缓存并进行 KWS
-                addToBuffer(pcmData)
+            AudioWorkState.WAITING -> {
+                // 监听状态：更新历史缓存并进行 KWS
+                addToHistory(pcmData)
                 
                 val keyword = kwsManager.process(pcmData)
                 if (keyword != null) {
-                    Log.d(TAG, "KWS Detected keyword: $keyword. Switch to WORKING.")
-                    // 必须先编码并发送唤醒上下文，然后再切状态，确保顺序
-                    handleWakeupAndSwitchState()
+                    Log.d(TAG, "KWS Detected keyword: $keyword. Initializing internal transition.")
+                    // 内部触发状态切换与缓存处理
+                    handleWakeupInternal()
                 }
             }
-            STATE_WORKING -> {
+            AudioWorkState.ACTIVE -> {
                 // 工作状态：编码当前帧并发送 SpeechData
-                val opusData = encoder.encode(pcmData)
-                if (opusData != null) {
-                    events.emit(AudioEvent.SpeechData(opusData))
-                }
+                encodeAndEmit(pcmData)
             }
+            else -> {}
         }
     }
 
-    private suspend fun handleWakeupAndSwitchState() {
+    private suspend fun handleWakeupInternal() {
         try {
-            // 1. 获取原始缓存音频
-            val rawPcm = getFullBuffer()
+            // 1. 立即触发 Wakeup 事件
+            events.emit(AudioEvent.Wakeup)
+            
+            // 2. 切换状态，防止后续帧在处理缓存时进入 WAITING
+            currentState = AudioWorkState.ACTIVE
 
-            // 2. 对缓存音频进行分帧编码（不能异步线程处理）
-            val opusContext = encodeLargeBuffer(rawPcm)
-            if (opusContext.isNotEmpty()) {
-                Log.d(TAG, "Emitting Wakeup event with context size: ${opusContext.size}")
-                events.emit(AudioEvent.Wakeup(opusContext))
+            // 3. 逐帧编码并发送历史缓存
+            Log.d(TAG, "Sending ${historyBuffer.size} historical frames...")
+            while (historyBuffer.isNotEmpty()) {
+                val historicalPcm = historyBuffer.removeFirst()
+                encodeAndEmit(historicalPcm)
             }
-
-            // 3. 切换状态 (阻止后续 frame 在 encodeLargeBuffer 完成前进入 WORKING 发送数据)
-            // 注意：由于 processFrame 是由 runReadLoop 顺序调用的，这里阻塞会延迟下一帧
-            // 但这正是我们想要的：确保 Wakeup 先于任何 SpeechData
-            currentState = STATE_WORKING
+            Log.d(TAG, "Historical frames sent.")
+            
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to process wakeup audio encoding", e)
-            currentState = STATE_LISTENING // 失败则回退
+            Log.e(TAG, "Failed to process internal wakeup transition", e)
+            // 如果处理失败，根据需要决定是否回退或上报错误
         }
     }
 
-    /**
-     * 将大的 PCM 缓存按帧大小进行切分编码
-     */
-    private suspend fun encodeLargeBuffer(pcmData: ByteArray): ByteArray {
-        val frameSize = (config.recordSampleRate * config.frameDurationMs) / 1000 * 2
-        val outStream = java.io.ByteArrayOutputStream()
-        
-        var offset = 0
-        while (offset + frameSize <= pcmData.size) {
-            val frame = pcmData.copyOfRange(offset, offset + frameSize)
-            val encoded = encoder.encode(frame)
-            if (encoded != null) {
-                // 这里按顺序拼接 Opus 帧包（通常上层或服务器能识别这种流式拼接）
-                outStream.write(encoded)
-            }
-            offset += frameSize
+    private suspend fun encodeAndEmit(pcmData: ByteArray) {
+        val opusData = encoder.encode(pcmData)
+        if (opusData != null) {
+            events.emit(AudioEvent.SpeechData(opusData))
         }
-        
-        return outStream.toByteArray()
     }
 
-    fun setWorking(working: Boolean) {
-        currentState = if (working) STATE_WORKING else STATE_LISTENING
-        Log.d(TAG, "Pipeline state changed to: ${if (working) "WORKING" else "LISTENING"}")
+    private fun addToHistory(pcmData: ByteArray) {
+        if (historyBuffer.size >= MAX_HISTORY_FRAMES) {
+            historyBuffer.removeFirst()
+        }
+        historyBuffer.addLast(pcmData.copyOf())
+    }
+
+    fun setWorkState(newState: AudioWorkState) {
+        if (currentState == newState) return
+        
+        currentState = newState
+        if (newState == AudioWorkState.WAITING) {
+            historyBuffer.clear()
+        }
+        Log.d(TAG, "Pipeline state set to: $newState")
     }
 
     fun cleanup() {
         kwsManager.cleanup()
         encoder.release()
-        // 不再取消 scope，因为 pipeline 可能伴随整改录音生命周期
+        historyBuffer.clear()
     }
 
     // --- 内部辅助方法 ---
@@ -155,33 +147,5 @@ class AudioRecordPipeline(
         }
         val rms = sqrt(sumOfSquares / shorts.size)
         return min(1.0, rms * 3.0).toFloat()
-    }
-
-    private fun addToBuffer(data: ByteArray) {
-        val buffer = pcmBuffer
-        val bufferSize = wakeupBufferSize
-        
-        if (data.size >= bufferSize) {
-            System.arraycopy(data, data.size - bufferSize, buffer, 0, bufferSize)
-            bufferHead = 0
-            return
-        }
-        val spaceToEnd = bufferSize - bufferHead
-        if (data.size <= spaceToEnd) {
-            System.arraycopy(data, 0, buffer, bufferHead, data.size)
-            bufferHead = (bufferHead + data.size) % bufferSize
-        } else {
-            System.arraycopy(data, 0, buffer, bufferHead, spaceToEnd)
-            System.arraycopy(data, spaceToEnd, buffer, 0, data.size - spaceToEnd)
-            bufferHead = data.size - spaceToEnd
-        }
-    }
-
-    private fun getFullBuffer(): ByteArray {
-        val result = ByteArray(wakeupBufferSize)
-        val spaceToEnd = wakeupBufferSize - bufferHead
-        System.arraycopy(pcmBuffer, bufferHead, result, 0, spaceToEnd)
-        System.arraycopy(pcmBuffer, 0, result, spaceToEnd, bufferHead)
-        return result
     }
 }
