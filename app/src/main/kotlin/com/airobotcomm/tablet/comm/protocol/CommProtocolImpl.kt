@@ -9,29 +9,30 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.airobotcomm.tablet.comm.NetCommEvent
 
 /**
  * AiRobot 通信协议的具体实现
  * 负责手握手 (Hello)、业务消息封装和会话管理
  */
 @Singleton
-class AiRobotProtocolImpl @Inject constructor() : AiRobotProtocol {
+class CommProtocolImpl @Inject constructor() : CommProtocol {
     companion object {
-        private const val TAG = "AiRobotProtocol"
+        private const val TAG = "CommProtocol"
         private const val HELLO_TIMEOUT = 15000L
     }
 
     private val gson = Gson()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     
-    private val _events = MutableSharedFlow<AiRobotEvent>(replay = 0)
-    override val events: SharedFlow<AiRobotEvent> = _events.asSharedFlow()
+    private val _events = MutableSharedFlow<NetCommEvent>(replay = 0)
+    override val events: SharedFlow<NetCommEvent> = _events.asSharedFlow()
 
     private var sessionId: String? = null
     private var isHandshakeComplete = false
     private var helloTimeoutJob: Job? = null
 
-    // 回调，由 NetworkService 设置，用于发送原始文本
+    // 回调，由 NetCommService 设置，用于发送原始文本
     private var onSendRawText: ((String) -> Unit)? = null
 
     override fun setRawSender(sender: (String) -> Unit) {
@@ -82,12 +83,12 @@ class AiRobotProtocolImpl @Inject constructor() : AiRobotProtocol {
             helloTimeoutJob?.cancel()
             Log.d(TAG, "AiRobot 协议握手成功, sessionId: $sessionId")
             scope.launch {
-                _events.emit(AiRobotEvent.Connected)
+                _events.emit(NetCommEvent.Connected)
             }
         } else {
             Log.e(TAG, "握手失败: transport 不匹配")
             scope.launch {
-                _events.emit(AiRobotEvent.Error("Protocol Handshake Failed: transport mismatch"))
+                _events.emit(NetCommEvent.Error("Protocol Handshake Failed: transport mismatch"))
             }
         }
     }
@@ -97,7 +98,7 @@ class AiRobotProtocolImpl @Inject constructor() : AiRobotProtocol {
             delay(HELLO_TIMEOUT)
             if (!isHandshakeComplete) {
                 Log.e(TAG, "AiRobot 握手协议超时")
-                _events.emit(AiRobotEvent.Error("Protocol Handshake Timeout"))
+                _events.emit(NetCommEvent.Error("Protocol Handshake Timeout"))
             }
         }
     }

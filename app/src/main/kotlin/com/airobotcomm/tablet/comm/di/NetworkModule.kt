@@ -1,8 +1,8 @@
 package com.airobotcomm.tablet.comm.di
 
 import android.content.Context
-import com.airobotcomm.tablet.comm.NetworkService
-import com.airobotcomm.tablet.comm.NetworkServiceImpl
+import com.airobotcomm.tablet.comm.NetCommService
+import com.airobotcomm.tablet.comm.NetCommServiceImpl
 import com.airobotcomm.tablet.comm.protocol.ProtocolAdapter
 import com.airobotcomm.tablet.comm.transport.SingletonWebSocket
 import dagger.Binds
@@ -19,11 +19,11 @@ abstract class NetworkModule {
 
     @Binds
     @Singleton
-    abstract fun bindNetworkService(impl: NetworkServiceImpl): NetworkService
+    abstract fun bindNetworkService(impl: NetCommServiceImpl): NetCommService
 
     @Binds
     @Singleton
-    abstract fun bindAiRobotProtocol(impl: com.airobotcomm.tablet.comm.protocol.AiRobotProtocolImpl): com.airobotcomm.tablet.comm.protocol.AiRobotProtocol
+    abstract fun bindAiRobotProtocol(impl: com.airobotcomm.tablet.comm.protocol.CommProtocolImpl): com.airobotcomm.tablet.comm.protocol.CommProtocol
 
     companion object {
         @Provides

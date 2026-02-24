@@ -10,8 +10,8 @@ import com.airobotcomm.tablet.audio.AudioEvent
 import com.airobotcomm.tablet.audio.AudioService
 import com.airobotcomm.tablet.system.model.Message
 import com.airobotcomm.tablet.system.model.MessageRole
-import com.airobotcomm.tablet.comm.NetworkService
-import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
+import com.airobotcomm.tablet.comm.NetCommService
+import com.airobotcomm.tablet.comm.NetCommEvent
 import com.airobotcomm.tablet.airobotui.state.ConversationSubState
 import com.airobotcomm.tablet.airobotui.state.RobotState
 import com.airobotcomm.tablet.airobotui.state.RobotStateManager
@@ -25,7 +25,7 @@ import kotlinx.coroutines.delay
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
     application: Application,
-    private val networkService: NetworkService,
+    private val netCommService: NetCommService,
     private val audioService: AudioService, // Use Interface
     private val robotStateManager: RobotStateManager
 ) : AndroidViewModel(application) {
@@ -57,7 +57,7 @@ class ConversationViewModel @Inject constructor(
     init {
         // startEventListening for airobot-comm
         viewModelScope.launch {
-            networkService.events.collect { event ->
+            netCommService.events.collect { event ->
                 // 注意：只处理对话情况的网络通信事件，其他的交mainviewModel处理
                 if (isActive){
                     handleAiRobotCommEvent(event)
@@ -77,24 +77,24 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    private fun handleAiRobotCommEvent(event: AiRobotEvent) {
+    private fun handleAiRobotCommEvent(event: NetCommEvent) {
         when (event) {
-            is AiRobotEvent.STT -> {
+            is NetCommEvent.STT -> {
                 handleSttResult(event.text)
             }
-            is AiRobotEvent.TtsStart -> {
+            is NetCommEvent.TtsStart -> {
                 handleTtsStart()
             }
-            is AiRobotEvent.TtsStop -> {
+            is NetCommEvent.TtsStop -> {
                 handleTtsStop()
             }
-            is AiRobotEvent.TtsSentence -> {
+            is NetCommEvent.TtsSentence -> {
                 handleTtsSentence(event.text)
             }
-            is AiRobotEvent.AudioFrame -> {
+            is NetCommEvent.AudioFrame -> {
                 handleTtsAudioFrame(event.data)
             }
-            is AiRobotEvent.DialogueEnd -> {
+            is NetCommEvent.DialogueEnd -> {
                 handleDialogueEnd()
             }
             else -> {
@@ -106,7 +106,7 @@ class ConversationViewModel @Inject constructor(
     private fun handleAudioEvent(event: AudioEvent) {
         when (event) {
             is AudioEvent.SpeechData -> {
-                networkService.sendAudio(event.data)
+                netCommService.sendAudio(event.data)
             }
             is AudioEvent.VoiceLevel -> {
                 _audioLevel.value = event.level
@@ -204,7 +204,7 @@ class ConversationViewModel @Inject constructor(
      * @param contextData 唤醒时的上下文音频数据（可选）
      */
     fun startConversation(contextData: ByteArray? = null) {
-        if (!networkService.isConnected) return
+        if (!netCommService.isConnected) return
         isActive = true
         isAutoMode = true
         resetRoundText()
@@ -212,22 +212,22 @@ class ConversationViewModel @Inject constructor(
         syncSubState()
         
         // 1. 激活网络侦听
-        networkService.startListening("auto")
+        netCommService.startListening("auto")
         
         // 2. 如果有上下文音频，发送之
-        contextData?.let { networkService.sendAudio(it) }
+        contextData?.let { netCommService.sendAudio(it) }
         
         // 3. 激活音频硬件
         audioService.activate()
     }
 
     fun interrupt() {
-        networkService.abort("user_interrupt")
+        netCommService.abort("user_interrupt")
         cleanConversation()
     }
 
     fun stopAutoConversation() {
-        networkService.abort("stop_auto_mode")
+        netCommService.abort("stop_auto_mode")
         cleanConversation()
     }
 
@@ -253,7 +253,7 @@ class ConversationViewModel @Inject constructor(
     }
 
     private fun startNextRound() {
-        if (!isAutoMode || !networkService.isConnected) {
+        if (!isAutoMode || !netCommService.isConnected) {
             isActive = false
             audioService.deactivate()
             return
@@ -264,7 +264,7 @@ class ConversationViewModel @Inject constructor(
         syncSubState()
 
         // 开启新轮次网络侦听
-        networkService.startListening("auto")
+        netCommService.startListening("auto")
         audioService.activate()
     }
 }

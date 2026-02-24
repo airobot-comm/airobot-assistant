@@ -3,22 +3,22 @@ package com.airobotcomm.tablet.airobotui.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.airobotcomm.tablet.comm.NetworkService
-import com.airobotcomm.tablet.comm.NetworkState
-import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
-import com.airobotcomm.tablet.airobotui.state.RobotState
-import com.airobotcomm.tablet.airobotui.state.RobotStateManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.airobotcomm.tablet.system.SysManage
-import com.airobotcomm.tablet.audio.AudioEvent
-import com.airobotcomm.tablet.audio.AudioService
 import com.airobotcomm.tablet.system.SysState
 import com.airobotcomm.tablet.system.model.AiAgent
 import com.airobotcomm.tablet.system.model.DeviceInfo
 import com.airobotcomm.tablet.system.model.SystemInfo
+import com.airobotcomm.tablet.comm.NetCommService
+import com.airobotcomm.tablet.comm.NetworkState
+import com.airobotcomm.tablet.comm.NetCommEvent
+import com.airobotcomm.tablet.airobotui.state.RobotState
+import com.airobotcomm.tablet.airobotui.state.RobotStateManager
+import com.airobotcomm.tablet.audio.AudioEvent
+import com.airobotcomm.tablet.audio.AudioService
 
 /**
  * 主控制 ViewModel
@@ -26,7 +26,7 @@ import com.airobotcomm.tablet.system.model.SystemInfo
  */
 @HiltViewModel
 class RobotMainViewModel @Inject constructor(
-    private val networkService: NetworkService,
+    private val netCommService: NetCommService,
     private val robotStateManager: RobotStateManager,
     private val sysManage: SysManage,
     private val audioService: AudioService
@@ -75,7 +75,7 @@ class RobotMainViewModel @Inject constructor(
                             "Wakeup detected. Current state: $currentState")
 
                         // 核心安全逻辑：检查进入对话的先决条件，只有具备条件才真正启动对话
-                        val isNetworkReady = networkService.isConnected
+                        val isNetworkReady = netCommService.isConnected
                         val isSystemReady = sysManage.state.value is com.airobotcomm.tablet.system.SysState.Ready
                         if (isNetworkReady && isSystemReady &&
                             (currentState is RobotState.Ready || currentState is RobotState.Conversation)) {
@@ -124,7 +124,7 @@ class RobotMainViewModel @Inject constructor(
                         _showActivationDialog.value = false
                         _activationCode.value = null
                         // OTA 激活/检查完成后，尝试连接网络
-                        networkService.connect()
+                        netCommService.connect()
                         // 尝试初始化音频服务 (配置可从 SystemInfo 获取，此处暂用默认)
                         // 注意：音频初始化可能需要权限，通常在 UI 层或确保权限后调用。
                         // 这里暂时不调用 audioService.init，由 ConversationViewModel 或 MainViewModel 的 UI Event 触发
@@ -133,7 +133,7 @@ class RobotMainViewModel @Inject constructor(
                         // TODO: 处理更新提示
                         robotStateManager.updateRobotState(RobotState.Ready)
                         // Also try to connect if update is available, assuming it functions
-                        networkService.connect()
+                        netCommService.connect()
                     }
                     is SysState.Error -> {
                         _errorMessage.value = state.message
@@ -148,13 +148,13 @@ class RobotMainViewModel @Inject constructor(
     private fun observeNetwork() {
         // 监听网络状态
         viewModelScope.launch {
-            networkService.state.collect { state ->
+            netCommService.state.collect { state ->
                 when (state) {
                     NetworkState.CONNECTING, NetworkState.RECONNECTING -> {
                         robotStateManager.updateRobotState(RobotState.Connecting)
                     }
                     NetworkState.CONNECTED -> {
-                        // 由 handleAiRobotEvent(AiRobotEvent.Connected) 处理
+                        // 由 handleAiRobotEvent(NetCommEvent.Connected) 处理
                     }
                     NetworkState.ERROR, NetworkState.IDLE -> {
                         Log.w("RobotMainViewModel", "Network state is $state. Deactivating Audio Service.")
@@ -172,15 +172,15 @@ class RobotMainViewModel @Inject constructor(
 
         // 监听特定事件
         viewModelScope.launch {
-            networkService.events.collect { event ->
+            netCommService.events.collect { event ->
                 handleAiRobotEvent(event)
             }
         }
     }
 
-    private fun handleAiRobotEvent(event: AiRobotEvent) {
+    private fun handleAiRobotEvent(event: NetCommEvent) {
         when (event) {
-            is AiRobotEvent.Connected -> {
+            is NetCommEvent.Connected -> {
                 // 仅在非对话状态下切回 Ready，防止覆盖对话状态
                 if (robotStateManager.robotState.value !is RobotState.Conversation) {
                     Log.d("RobotMainViewModel", "Safe transitioning to Ready due to Connected event")
@@ -188,12 +188,12 @@ class RobotMainViewModel @Inject constructor(
                 }
                 _errorMessage.value = null
             }
-            is AiRobotEvent.Disconnected -> {
+            is NetCommEvent.Disconnected -> {
                 Log.w("RobotMainViewModel", "Received Disconnected event. Deactivating Audio Service.")
                 audioService.deactivate()
                 robotStateManager.updateRobotState(RobotState.Offline)
             }
-            is AiRobotEvent.Error -> {
+            is NetCommEvent.Error -> {
                 Log.e("RobotMainViewModel", "Received Error event: ${event.message}. Deactivating Audio Service.")
                 audioService.deactivate()
                 _errorMessage.value = event.message
@@ -249,6 +249,6 @@ class RobotMainViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         audioService.release()
-        networkService.disconnect()
+        netCommService.disconnect()
     }
 }

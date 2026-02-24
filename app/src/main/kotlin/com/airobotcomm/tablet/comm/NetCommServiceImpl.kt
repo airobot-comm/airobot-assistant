@@ -6,24 +6,23 @@ import javax.inject.Singleton
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import com.airobotcomm.tablet.system.SysManage
-import com.airobotcomm.tablet.comm.protocol.AiRobotEvent
-import com.airobotcomm.tablet.comm.protocol.AiRobotProtocol
+import com.airobotcomm.tablet.comm.protocol.CommProtocol
 import com.airobotcomm.tablet.comm.protocol.ProtocolAdapter
 import com.airobotcomm.tablet.comm.transport.ConnectivityMonitor
 import com.airobotcomm.tablet.comm.transport.WebSocketEvent
 import com.airobotcomm.tablet.comm.transport.SingletonWebSocket
 
 @Singleton
-class NetworkServiceImpl @Inject constructor(
+class NetCommServiceImpl @Inject constructor(
     private val singletonWebSocket: SingletonWebSocket,
     private val sysManage: SysManage,
     private val protocolAdapter: ProtocolAdapter,
     private val connectivityMonitor: ConnectivityMonitor,
-    private val protocol: AiRobotProtocol
-) : NetworkService {
+    private val protocol: CommProtocol
+) : NetCommService {
 
     companion object {
-        private const val TAG = "NetworkService"
+        private const val TAG = "NetCommService"
     }
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -31,8 +30,8 @@ class NetworkServiceImpl @Inject constructor(
     private val _state = MutableStateFlow(NetworkState.IDLE)
     override val state: StateFlow<NetworkState> = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<AiRobotEvent>(replay = 0)
-    override val events: SharedFlow<AiRobotEvent> = _events.asSharedFlow()
+    private val _events = MutableSharedFlow<NetCommEvent>(replay = 0)
+    override val events: SharedFlow<NetCommEvent> = _events.asSharedFlow()
 
     override val isConnected: Boolean
         get() = singletonWebSocket.isConnected()
@@ -62,7 +61,7 @@ class NetworkServiceImpl @Inject constructor(
                     is WebSocketEvent.Reconnecting -> {
                         _state.value = NetworkState.RECONNECTING
                         protocol.close()
-                        _events.emit(AiRobotEvent.Disconnected)
+                        _events.emit(NetCommEvent.Disconnected)
                     }
                     is WebSocketEvent.TextMessage -> {
                         // 1. 交给协议层处理握手等控制逻辑
@@ -73,7 +72,7 @@ class NetworkServiceImpl @Inject constructor(
                         }
                     }
                     is WebSocketEvent.BinaryMessage -> {
-                        _events.emit(AiRobotEvent.AudioFrame(wsEvent.data))
+                        _events.emit(NetCommEvent.AudioFrame(wsEvent.data))
                     }
                 }
             }
@@ -82,7 +81,7 @@ class NetworkServiceImpl @Inject constructor(
         // 桥接协议层高层事件
         scope.launch {
             protocol.events.collect { protocolEvent ->
-                if (protocolEvent is AiRobotEvent.Connected) {
+                if (protocolEvent is NetCommEvent.Connected) {
                     _state.value = NetworkState.CONNECTED
                 }
                 _events.emit(protocolEvent)
@@ -105,14 +104,14 @@ class NetworkServiceImpl @Inject constructor(
             // 1. Check device activation
             if (!sysManage.isDeviceActivated()) {
                 _state.value = NetworkState.ERROR
-                _events.emit(AiRobotEvent.Error("设备未激活，请先进行系统认证"))
+                _events.emit(NetCommEvent.Error("设备未激活，请先进行系统认证"))
                 return@launch
             }
 
             // 2. Check AIRobot activation
             if (!sysManage.isAiRobotActivated()) {
                 _state.value = NetworkState.ERROR
-                _events.emit(AiRobotEvent.Error("智能体未激活，请先在配置页完成激活"))
+                _events.emit(NetCommEvent.Error("智能体未激活，请先在配置页完成激活"))
                 return@launch
             }
 
@@ -122,7 +121,7 @@ class NetworkServiceImpl @Inject constructor(
             
             if (credentials == null || credentials.url.isBlank()) {
                 _state.value = NetworkState.ERROR
-                _events.emit(AiRobotEvent.Error("获取通信凭证失败，请重试"))
+                _events.emit(NetCommEvent.Error("获取通信凭证失败，请重试"))
                 return@launch
             }
 
@@ -136,7 +135,7 @@ class NetworkServiceImpl @Inject constructor(
                 )
             } catch (e: Exception) {
                 _state.value = NetworkState.ERROR
-                _events.emit(AiRobotEvent.Error(e.message ?: "连接失败"))
+                _events.emit(NetCommEvent.Error(e.message ?: "连接失败"))
             }
         }
     }
