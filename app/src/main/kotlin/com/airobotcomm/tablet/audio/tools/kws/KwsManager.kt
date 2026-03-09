@@ -18,7 +18,7 @@ class KwsManager(private val context: Context) {
     companion object {
         private const val TAG = "KwsManager"
         private const val SAMPLE_RATE = 16000
-        private const val ASSET_DIR = "sherpa-onnx-kws-zipformer-zh-en-3M-2025-12-20"
+        private const val ASSET_DIR = "kws-zipformer-zh-en-3M-2025-12-20"
     }
 
     private var spotter: KeywordSpotter? = null
