@@ -17,7 +17,7 @@ import com.airobot.assistant.audio.AudioConfig
 import com.airobot.assistant.audio.AudioEvent
 
 /**
- * 录音器实现 - 负责硬件采集与生命周期管理
+ * 录音器实现 - 负责硬件采集与生命周期 management
  * 
  * 职责：
  * 1. 管理 AudioRecord 硬件状态
@@ -73,20 +73,30 @@ class DefaultAudioRecorder(private val context: Context) : AudioRecorder {
             throw SecurityException("Permissions denied for audio recording")
         }
 
-        val bufferSize = AudioRecord.getMinBufferSize(
+        val minBufferSize = AudioRecord.getMinBufferSize(
             config.recordSampleRate,
             if (config.channels == 1) AudioFormat.CHANNEL_IN_MONO else AudioFormat.CHANNEL_IN_STEREO,
             config.audioFormat
         )
+        
+        if (minBufferSize <= 0) {
+            throw IllegalStateException("Invalid buffer size: $minBufferSize. Check sample rate: ${config.recordSampleRate}")
+        }
 
-        audioRecord = AudioRecord(
+        val record = AudioRecord(
             MediaRecorder.AudioSource.VOICE_COMMUNICATION,
             config.recordSampleRate,
             if (config.channels == 1) AudioFormat.CHANNEL_IN_MONO else AudioFormat.CHANNEL_IN_STEREO,
             config.audioFormat,
-            bufferSize * 2
+            minBufferSize * 2
         )
 
+        if (record.state != AudioRecord.STATE_INITIALIZED) {
+            record.release()
+            throw IllegalStateException("AudioRecord failed to initialize. State: ${record.state}")
+        }
+
+        audioRecord = record
         setupAudioEffects()
     }
 
@@ -118,6 +128,12 @@ class DefaultAudioRecorder(private val context: Context) : AudioRecorder {
     override fun startRecording() {
         if (isRunning) return
         val record = audioRecord ?: return
+        
+        if (record.state != AudioRecord.STATE_INITIALIZED) {
+            Log.e(TAG, "AudioRecord is not initialized, cannot start recording")
+            externalEvents?.tryEmit(AudioEvent.SystemError("Recorder not initialized"))
+            return
+        }
 
         isRunning = true
         recordingJob = scope.launch {
@@ -131,7 +147,14 @@ class DefaultAudioRecorder(private val context: Context) : AudioRecorder {
                 Log.e(TAG, "Error in recording job", e)
                 externalEvents?.emit(AudioEvent.SystemError("Recording error: ${e.message}"))
             } finally {
-                record.stop()
+                try {
+                    if (record.state == AudioRecord.STATE_INITIALIZED && 
+                        record.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
+                        record.stop()
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error stopping record", e)
+                }
                 _onRecordingStateChanged.emit(false)
                 Log.d(TAG, "Recording stopped")
             }

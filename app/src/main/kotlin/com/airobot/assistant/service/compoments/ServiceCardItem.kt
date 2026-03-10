@@ -210,7 +210,7 @@ fun getServiceCardIcon(type: ServiceCardType): Int {
 /**
  * 预定义的服务卡片池
  */
-private const val DEMO_CONTENT = "ai功能卡片需要小智ai / coze / JoyAgent 等Agent平台支持，并配套开发；\n\n或获取社区商业版 AiRobot Tablet"
+private const val DEMO_CONTENT = "ai服务卡片需要小智ai / coze 等Agent平台支持，并配套MCP服务；\n\n 或联系社区获取商业版 AiRobot-Tablet支持"
 
 val DEFAULT_SERVICE_CARDS = listOf(
     ServiceCard(
