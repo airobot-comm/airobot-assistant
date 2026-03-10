@@ -514,11 +514,29 @@ private fun FunctionalModulePanel(
                     .fillMaxWidth()
                 ) {
                 if (card.type == ServiceCardType.TIMER) {
-                    FocusTimerWidget(
-                        command = timerCommand,
-                        timerStatus = timerStatus,
-                        onTimerComplete = onTimerComplete
-                    )
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            FocusTimerWidget(
+                                command = timerCommand,
+                                timerStatus = timerStatus,
+                                onTimerComplete = onTimerComplete
+                            )
+                        }
+                        card.demoContent?.let {
+                            Text(
+                                text = it,
+                                color = Color.White.copy(alpha = 0.6f),
+                                fontSize = 16.sp,
+                                lineHeight = 24.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                modifier = Modifier.padding(bottom = 8.dp, start = 32.dp, end = 32.dp)
+                            )
+                        }
+                    }
                 } else {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -526,19 +544,22 @@ private fun FunctionalModulePanel(
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             Icon(
                                 painter = painterResource(id = getServiceCardIcon(card.type)),
                                 contentDescription = null,
-                                modifier = Modifier.size(48.dp),
+                                modifier = Modifier.size(56.dp),
                                 tint = Color.White.copy(alpha = 0.2f)
                             )
                             Text(
-                                text = "${card.type.name} 功能开发中",
-                                color = Color.White.copy(alpha = 0.3f),
-                                fontSize = 14.sp,
-                                letterSpacing = 2.sp
+                                text = card.demoContent ?: "${card.type.name} 功能开发中",
+                                color = Color.White.copy(alpha = 0.6f),
+                                fontSize = 18.sp,
+                                lineHeight = 28.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 32.dp)
                             )
                         }
                     }

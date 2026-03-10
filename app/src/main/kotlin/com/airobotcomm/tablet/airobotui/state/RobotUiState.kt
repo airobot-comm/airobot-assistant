@@ -64,7 +64,8 @@ data class ServiceCard(
     val title: String,
     val content: String,
     val statusTip: String,
-    val iconResId: Int
+    val iconResId: Int,
+    val demoContent: String? = null
 )
 
 /**

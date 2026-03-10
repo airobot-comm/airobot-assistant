@@ -130,7 +130,8 @@ fun ServiceCardItem(
                     text = card.content,
                     color = Color.White.copy(alpha = 0.4f),
                     fontSize = 12.sp,
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
             }
             
@@ -209,6 +210,8 @@ fun getServiceCardIcon(type: ServiceCardType): Int {
 /**
  * 预定义的服务卡片池
  */
+private const val DEMO_CONTENT = "ai功能卡片需要小智ai / coze / JoyAgent 等Agent平台支持，并配套开发；\n\n或获取社区商业版 AiRobot Tablet"
+
 val DEFAULT_SERVICE_CARDS = listOf(
     ServiceCard(
         id = "card-timer",
@@ -216,7 +219,8 @@ val DEFAULT_SERVICE_CARDS = listOf(
         title = "专注时钟",
         content = "番茄工作法助手",
         statusTip = "该专注一会了",
-        iconResId = R.drawable.timer
+        iconResId = R.drawable.timer,
+        demoContent = DEMO_CONTENT
     ),
     ServiceCard(
         id = "card-story",
@@ -224,7 +228,8 @@ val DEFAULT_SERVICE_CARDS = listOf(
         title = "故事时间",
         content = "一起探索比特森林的奥秘",
         statusTip = "想听个故事吗？",
-        iconResId = R.drawable.book
+        iconResId = R.drawable.book,
+        demoContent = DEMO_CONTENT
     ),
     ServiceCard(
         id = "card-chat",
@@ -232,7 +237,8 @@ val DEFAULT_SERVICE_CARDS = listOf(
         title = "随心聊天",
         content = "今天过得怎么样？",
         statusTip = "找我聊聊天吧",
-        iconResId = R.drawable.chat
+        iconResId = R.drawable.chat,
+        demoContent = DEMO_CONTENT
     ),
     ServiceCard(
         id = "card-game",
@@ -240,7 +246,8 @@ val DEFAULT_SERVICE_CARDS = listOf(
         title = "益智小游戏",
         content = "寻找隐藏的星星",
         statusTip = "来玩个游戏？",
-        iconResId = R.drawable.game
+        iconResId = R.drawable.game,
+        demoContent = DEMO_CONTENT
     ),
     ServiceCard(
         id = "card-draw",
@@ -248,7 +255,8 @@ val DEFAULT_SERVICE_CARDS = listOf(
         title = "涂鸦创作",
         content = "画一架太空飞船",
         statusTip = "我们来画画吧",
-        iconResId = R.drawable.palette
+        iconResId = R.drawable.palette,
+        demoContent = DEMO_CONTENT
     ),
     ServiceCard(
         id = "card-quiz",
@@ -256,6 +264,7 @@ val DEFAULT_SERVICE_CARDS = listOf(
         title = "趣味问答",
         content = "空间知识大挑战",
         statusTip = "考考你的知识",
-        iconResId = R.drawable.star
+        iconResId = R.drawable.star,
+        demoContent = DEMO_CONTENT
     )
 )
