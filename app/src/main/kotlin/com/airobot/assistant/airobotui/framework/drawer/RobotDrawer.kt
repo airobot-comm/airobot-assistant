@@ -1,4 +1,4 @@
-﻿package com.airobot.assistant.airobotui.framework.drawer
+package com.airobot.assistant.airobotui.framework.drawer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,6 +24,7 @@ import com.airobot.assistant.airobotui.framework.theme.RobotPrimaryCyan
 import com.airobot.assistant.airobotui.framework.theme.RobotSurface
 import com.airobot.assistant.airobotui.framework.theme.RobotTextPrimary
 import com.airobot.assistant.airobotui.framework.subpage.AiRobotConfig
+import com.airobot.assistant.airobotui.framework.subpage.RoleConfig
 import com.airobot.assistant.airobotui.framework.subpage.SystemAuth
 
 /**
@@ -34,7 +35,7 @@ import com.airobot.assistant.airobotui.framework.subpage.SystemAuth
 fun RobotDrawerContent(
     onClose: () -> Unit
 ) {
-    var selectedTab by remember { mutableStateOf(0) } // 0: 系统认证， 1: 服务配置
+    var selectedTab by remember { mutableStateOf(0) } // 0: 系统认证, 1: 角色管理, 2: Ai智能体
 
     Surface(
         modifier = Modifier
@@ -63,10 +64,19 @@ fun RobotDrawerContent(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 DrawerMenuItem(
-                    icon = Icons.Default.Settings,
-                    label = "Ai机器人",
+                    icon = Icons.Default.Person,
+                    label = "角色管理",
                     isSelected = selectedTab == 1,
                     onClick = { selectedTab = 1 }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                DrawerMenuItem(
+                    icon = Icons.Default.Settings,
+                    label = "Ai智能体",
+                    isSelected = selectedTab == 2,
+                    onClick = { selectedTab = 2 }
                 )
             }
 
@@ -85,7 +95,11 @@ fun RobotDrawerContent(
                 ) {
                     Column {
                         Text(
-                            text = if (selectedTab == 0) "系统认证信息" else "Ai机器人配置",
+                            text = when (selectedTab) {
+                                0 -> "系统认证信息"
+                                1 -> "角色管理"
+                                else -> "Ai智能体配置"
+                            },
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Black,
                             color = RobotTextPrimary,
@@ -118,10 +132,10 @@ fun RobotDrawerContent(
 
                 // 统一风格的子页面容器
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    if (selectedTab == 0) {
-                        SystemAuth()
-                    } else {
-                        AiRobotConfig()
+                    when (selectedTab) {
+                        0 -> SystemAuth()
+                        1 -> RoleConfig()
+                        else -> AiRobotConfig()
                     }
                 }
             }

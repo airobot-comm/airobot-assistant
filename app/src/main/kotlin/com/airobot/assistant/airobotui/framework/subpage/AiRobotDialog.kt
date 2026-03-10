@@ -39,7 +39,7 @@ fun AiRobotDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "设备Ai机器人激活",
+                        text = "设备Ai智能体激活",
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         fontSize = MaterialTheme.typography.headlineSmall.fontSize
@@ -60,7 +60,7 @@ fun AiRobotDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = "使用以下激活码激活AI机器人：",
+                    text = "使用以下激活码激活Ai智能体：",
                     color = Color.White.copy(alpha = 0.7f),
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize
                 )

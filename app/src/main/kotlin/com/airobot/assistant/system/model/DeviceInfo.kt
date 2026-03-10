@@ -1,4 +1,4 @@
-﻿package com.airobot.assistant.system.model
+package com.airobot.assistant.system.model
 
 import android.content.Context
 import android.provider.Settings
@@ -45,14 +45,14 @@ data class DeviceInfo(
                  version = "1.0.0",
                  deviceId = deviceId,
                  macAddress = generateStableMac(deviceId),
-                 activation = ActiveInfo(productKey = "", secretKey = "", time = "", isActivated = false)
+                 activation = ActiveInfo(productKey = "airobot-2026", secretKey = "", time = "", isActivated = false)
              )
         }
 
         fun empty(): DeviceInfo {
             return DeviceInfo(
                 "", "", "", "", "",
-                ActiveInfo(productKey = "", secretKey = "", time = "", isActivated = false)
+                ActiveInfo(productKey = "airobot-2026", secretKey = "", time = "", isActivated = false)
             )
         }
 
