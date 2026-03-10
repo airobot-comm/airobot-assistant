@@ -8,15 +8,15 @@ plugins {
 }
 
 android {
-    namespace = "com.airobotcomm.tablet"
+    namespace = "com.airobot.assistant"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.airobotcomm.tablet"
+        applicationId = "com.airobot.assistant"
         minSdk = 29
         targetSdk = 36
         versionCode = 10020
-        versionName = "1.2.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
