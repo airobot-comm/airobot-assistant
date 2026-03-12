@@ -1,11 +1,11 @@
-# AIRobot Android Tablet
+# AIRobot Assistant Architecture
 
-ai机器人项目Android版系统架构，技术设计等概要说明
+ai机器人Android Assistant系统架构，技术设计等概要说明
 
 ## 📱 功能特性
 
-- **角色管理**: airobot角色形象，支持微表情互动
-- **实时语音**: 支持语音录制、实时传输和TTS播放
+- **角色管理**: airobot卡通角色，支持微表情互动
+- **实时语音**: 支持vad，语音录制、传输和TTS播放
 - **多轮对话**: 基于ai-Agent的自动语音对话模式
 - **功能卡片**: 基于ai意图理解的功能卡片主动服务
 
@@ -17,29 +17,29 @@ ai机器人项目Android版系统架构，技术设计等概要说明
 - AiRobotUi组件化设计，使用jetpack compose开发
 - 语音与协议通信模块独立，设计高性能，自愈合、高可靠
 - 系统管理模块负责系统配置与ota管理、角色配置等功能
-- AiRobotUI、各业务模块间通过Hilt DI机制解耦，调用
+- AiRobotUI、各业务模块间通过Hilt DI机制解耦调用
 
 ### 项目架构
 ```
 app/src/main/kotlin/com/airobotcomm/tablet/
 ├── airobotui/                # airobot单页UI层 (Presentation Layer)
-│   ├── framework/                 # ui框架如topbar，menu菜单,通用小组件...
+│   ├── framework/                 # ui框架如topbar，menu菜单,通用小组件,主题...
 │   ├── robotcomp/                 # robot头像，眼睛，对话气泡等核心组件
 │   ├── state/                     # ui状态数据模型
-│   ├── theme/                     # 主题配置 
-│   ├── subpages/                  # 菜单功能、对话弹框页面模块
 │   ├── viewmodel/                 # airobot viewmodel协调各业务状态    
 ├── audio/                    # 音频处理模块（集成asr，vod，播放等功能）
 │   ├── di/                        # audio模块hilt di服务
-│   ├── utils/                     # 音频基础功能
-│   ├── EnhancedAudioManager.kt    # 增强音频管理器
-│   └── OpusCodec.kt               # Opus编解码器
+│   ├── palyer/                    # 音频播放功能
+│   ├── recorder/                  # 音频录音功能    
+│   ├── tools/                     # 音频基础功能
+│   ├── AudioService.kt            # 音频服务接口
+│   └── AudioServiceImpl.kt        # 音频服务接口实现
 ├── comm/                    # 协议通信模块（多协议，多传输方式，自身维护）
 │   ├── di/                        # comm通信模块hilt di服务
 │   ├── protocol/                  # 机器人交互协议
 │   ├── transport/                 # 底层ws，mqtt传输服务
-│   ├── CommService.kt             # 通信服务接口
-│   └── commServiceImpl.kt         # 网络服务接口实现 
+│   ├── NetCommService.kt          # 网络通信服务接口
+│   └── NetCommServiceImpl.kt      # 网络服务接口实现 
 ├── service/                 # service卡片容器与功能卡片组件
 │   ├── compoments/                # 功能服务卡片容器组件
 │   ├── times/                     # 定时器服务功能
@@ -51,7 +51,6 @@ app/src/main/kotlin/com/airobotcomm/tablet/
 │   ├── repository/                # 本地仓库服务
 │   ├── SysManager.kt              # 系统管理接口
 │   └── SysManageImpl.kt          # 系统管理接口实现 
-├── utils/                    # 通用工具类
 ├── MainActivity.kt           # 主活动 (Activity)
 └── RobotApplication.kt       # Hilt Application 入口
 ```
@@ -100,7 +99,7 @@ app/src/main/cpp/
   - `ACCESS_NETWORK_STATE` - 网络状态
   - `MODIFY_AUDIO_SETTINGS` - 音频设置
 
-## 📚 文档
+## 📚 基于小智ai的对话通信协议
 
 - [对话流程](./protocol/flow.md) - 对话流程实现和状态管理
 - [通信协议](./protocol/protocol.md) - websocket协议

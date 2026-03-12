@@ -17,4 +17,4 @@ AIRobot团队vibe_code执行规则，以及项目编程与技术规则
 ## 项目规则
 
 - 遵循项目编程规则：../doc/rules.md
-- 遵循项目技术规范：../doc/architect/*.md
+- 遵循项目技术规范：../doc/architect.md
