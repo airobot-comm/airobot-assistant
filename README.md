@@ -13,6 +13,29 @@
 
 ---
 
+## 📸 应用截图
+
+<div align="center">
+  <table style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td align="center" style="width: 33%;">
+        <b>首页效果</b><br/>
+        <img src="./doc/design/home_page.png" width="100%" />
+      </td>
+      <td align="center" style="width: 33%;">
+        <b>对话交互</b><br/>
+        <img src="./doc/design/speak_bubble.png" width="100%" />
+      </td>
+      <td align="center" style="width: 33%;">
+        <b>功能卡片</b><br/>
+        <img src="./doc/design/function_card.png" width="100%" />
+      </td>
+    </tr>
+  </table>
+</div>
+
+---
+
 ## 📖 项目简介
 
 **AiRobot Assistant** 是一款高度可定制、支持多种领先 Agent 平台（如小智AI、Coze、Dify等）无缝接入的实体 AI 机器人客户端系统。本项目专为大屏安卓平板及具有屏幕的桌面级机器人硬件设计。
@@ -64,6 +87,25 @@
 ### 🧓 养老关怀
 - **生活提醒利器**：以极大字体和清晰提示下发吃药提醒面板、每日重点新闻卡板。
 - **温暖陪伴守护**：打破老年群体的触控障碍，全语音顺畅沟通，提供零门槛的老年谈心与信息问询通道。
+
+---
+
+## 🔖 使用方法
+
+使用方案主要分为两步：
+
+1. **第一步：系统设备激活**
+   安装应用后，首先在“系统设置”的系统认证页内点击激活设备。**备注：当前系统仅支持小智 AI 智能体**（对 Coze/JoyAgent、Dify 等平台的支持已规划在后续版本中）。
+   
+   <img src="./doc/design/system_auth.png" width="600" alt="系统认证信息" />
+
+2. **第二步：小智后台智能体绑定**
+   进入 AI 智能体配置项获取界面上弹出的“设备 Ai 智能体激活码”（如：`642225`），随后前往小智 AI 后台，将该激活码加入到您创建好的智能体配置当中，完成设备与云端智能体的绑定。
+
+   <img src="./doc/design/agent_activation.png" width="600" alt="设备Ai智能体激活" />
+
+> **💡 备注**：小智 AI 的智能体具体配置，请详细参考小智 AI 官方使用手册。
+> - **小智 AI 官方后台管理**：[xiaozhi.me](https://xiaozhi.me)
 
 ---
 
