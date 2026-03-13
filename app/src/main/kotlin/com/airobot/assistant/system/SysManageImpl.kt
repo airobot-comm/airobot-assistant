@@ -245,9 +245,6 @@ class SysManageImpl @Inject constructor(
         // todo：For now, simple update.
         _systemInfo = info
         _systemInfoFlow.value = info
-
     }
-
-
 }
 
