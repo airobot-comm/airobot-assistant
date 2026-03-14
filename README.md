@@ -1,13 +1,17 @@
 <div align="center">
 
+<img src="./doc/assets/logo.webp" width="128" height="128" alt="AiRobot Logo" />
+
+# AiRobot Assistant
+
 ![AiRobot Assistant Logo](https://img.shields.io/badge/AiRobot-Assistant-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/platform-Android-green?style=for-the-badge)
 ![API](https://img.shields.io/badge/API-24%2B-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-purple?style=for-the-badge)
 
-**基于多智能体平台、极具生命力的动画互动与全语音交互airobot系统**
+**基于多智能体平台、极具生命力的动画互动与全语音交互 airobot 系统**
 
-[📖 项目简介](#-项目简介) • [✨ 核心功能](#-核心功能) • [🚀 快速开始](#-快速开始) • [📱 应用场景](#-应用场景) • [📅 开发计划](#-开发计划) • [🤝 社区贡献](#-社区贡献)
+[📖 项目简介](#-项目简介) • [✨ 核心功能](#-核心功能) • [📱 应用场景](#-应用场景) • [🔖 使用方法](#-使用方法) • [🚀 开发计划](#-开发计划) • [🤝 社区贡献](#-社区贡献)
 
 </div>
 
@@ -86,9 +90,7 @@
 - **生活提醒利器**：以极大字体和清晰提示下发吃药提醒面板、每日重点新闻卡板。
 - **温暖陪伴守护**：打破老年群体的触控障碍，全语音顺畅沟通，提供零门槛的老年谈心与信息问询通道。
 
----
-
-## 🔖 使用方法
+### 🔖 使用方法
 
 使用方案主要分为两步：
 
@@ -107,7 +109,7 @@
 
 ---
 
-## 🚀 快速开始
+## 🚀 开发计划
 
 ### 📋 环境要求
 - **IDE**：推荐 Android Studio 最新稳定版 (Koala 或更新)
@@ -129,9 +131,7 @@
    - 编译并推送 `app` 安装：点击 Android Studio 的 **Run** 按钮。
    - 打开设备联网，设置好 Agent 后端地址环境，唤醒即可体验极致顺滑的交互和卡片推送。
 
----
-
-## 📅 开发计划
+### 📅 功能规划
 
 - [x] **v1.0：表现引擎与单向联动基座建设**
   - [x] 确立基础架构与系统 Vibe 流程标准
