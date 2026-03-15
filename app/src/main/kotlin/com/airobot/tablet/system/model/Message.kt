@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.system.model
+package com.airobot.tablet.system.model
 
 import java.util.*
 
@@ -6,7 +6,7 @@ import java.util.*
  * 消息角色枚举
  */
 enum class MessageRole {
-    USER, ASSISTANT, SYSTEM
+    USER, AGENT, SYSTEM
 }
 
 /**

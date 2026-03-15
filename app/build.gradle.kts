@@ -40,16 +40,16 @@ val orgKeystoreFile = if (orgDir != null && localProps.containsKey("keystore_rel
 } else null
 
 // 3. Project Metadata Constants
-val appName = localProps.getProperty("app_name") ?: "AiRobot-Assistant"
+val appName = localProps.getProperty("app_name") ?: "AiRobot-Tablet"
 val verName = localProps.getProperty("version_name") ?: "1.0.0"
 val verCode = (localProps.getProperty("version_code") ?: "10020").toInt()
 
 android {
-    namespace = "com.airobot.assistant"
+    namespace = "com.airobot.tablet"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.airobot.assistant"
+        applicationId = "com.airobot.tablet"
         minSdk = 29
         targetSdk = 36
         versionCode = verCode

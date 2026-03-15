@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.viewmodel
+package com.airobot.tablet.airobotui.viewmodel
 
 import android.app.Application
 import android.util.Log
@@ -177,7 +177,7 @@ class ConversationViewModel @Inject constructor(
 
     private fun handleTtsSentence(text: String) {
         _currentRoundAiText.value = text
-        addMessage(Message(role = MessageRole.tablet, content = text))
+        addMessage(Message(role = MessageRole.AGENT, content = text))
 
         // 兜底：如果收到句子但还没切到 SPEAKING，补切一下
         if (_subState.value != ConversationSubState.SPEAKING) {

@@ -1,6 +1,6 @@
-# AIRobot Assistant Architecture
+# AIRobot Tablet Architecture
 
-ai机器人Android Assistant系统架构，技术设计等概要说明
+ai机器人Android Tablet系统架构，技术设计等概要说明
 
 ## 📱 功能特性
 
@@ -21,7 +21,7 @@ ai机器人Android Assistant系统架构，技术设计等概要说明
 
 ### 项目架构
 ```
-app/src/main/kotlin/com/airobotcomm/tablet/
+app/src/main/kotlin/com/airobot/tablet/
 ├── airobotui/                # airobot单页UI层 (Presentation Layer)
 │   ├── framework/                 # ui框架如topbar，menu菜单,通用小组件,主题...
 │   ├── robotcomp/                 # robot头像，眼睛，对话气泡等核心组件

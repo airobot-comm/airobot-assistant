@@ -1,5 +1,5 @@
 # ============================================================================
-# AiRobot Assistant - ProGuard / R8 Rules
+# AiRobot Tablet - ProGuard / R8 Rules
 # ============================================================================
 
 # ---- General ---------------------------------------------------------------
@@ -14,11 +14,11 @@
 # ---- JNI / Native Methods -------------------------------------------------
 # OpusEncoder & OpusDecoder use native JNI methods - class & method names
 # must match the C/C++ function signatures exactly.
--keep class com.airobot.assistant.audio.tools.codec.OpusEncoder {
+-keep class com.airobot.tablet.audio.tools.codec.OpusEncoder {
     native <methods>;
     *;
 }
--keep class com.airobot.assistant.audio.tools.codec.OpusDecoder {
+-keep class com.airobot.tablet.audio.tools.codec.OpusDecoder {
     native <methods>;
     *;
 }
@@ -31,11 +31,11 @@
 # ---- Kotlin Serialization --------------------------------------------------
 # Keep @Serializable classes and their companion serializers
 -keepattributes RuntimeVisibleAnnotations
--keep,includedescriptorclasses class com.airobot.assistant.**$$serializer { *; }
--keepclassmembers class com.airobot.assistant.** {
+-keep,includedescriptorclasses class com.airobot.tablet.**$$serializer { *; }
+-keepclassmembers class com.airobot.tablet.** {
     *** Companion;
 }
--keepclasseswithmembers class com.airobot.assistant.** {
+-keepclasseswithmembers class com.airobot.tablet.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
 
@@ -49,9 +49,9 @@
     @com.google.gson.annotations.SerializedName <fields>;
 }
 # Keep data classes in model packages used with Gson
--keep class com.airobot.assistant.system.model.** { *; }
--keep class com.airobot.assistant.system.remote.** { *; }
--keep class com.airobot.assistant.comm.** { <fields>; }
+-keep class com.airobot.tablet.system.model.** { *; }
+-keep class com.airobot.tablet.system.remote.** { *; }
+-keep class com.airobot.tablet.comm.** { <fields>; }
 
 # ---- OkHttp ----------------------------------------------------------------
 -dontwarn okhttp3.**
