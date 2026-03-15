@@ -104,6 +104,9 @@
 
    <img src="./doc/design/agent_activation.png" width="600" alt="设备Ai智能体激活" />
 
+3. **第三步：唤醒即刻对话**
+   无需繁琐的云端平台激活，直接通过唤醒词（如“小叶，小叶”）即可开始交流。
+
 > **💡 备注**：小智 AI 的智能体具体配置，请详细参考小智 AI 官方使用手册。
 > - **小智 AI 官方后台管理**：[xiaozhi.me](https://xiaozhi.me)
 
