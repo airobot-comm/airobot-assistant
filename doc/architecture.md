@@ -13,55 +13,39 @@ ai机器人Android Tablet系统架构，技术设计等概要说明
 
 ### 设计原则
 
-- 采用服务化模块 + MVVM的clear Architecture
-- AiRobotUi组件化设计，使用jetpack compose开发
-- 语音与协议通信模块独立，设计高性能，自愈合、高可靠
-- 系统管理模块负责系统配置与ota管理、角色配置等功能
-- AiRobotUI、各业务模块间通过Hilt DI机制解耦调用
+- 采用多模块化 (Multi-module) + MVVM 的 Clear Architecture
+- AiRobotUi 组件化设计，使用 Jetpack Compose 开发
+- 语音 (`audio`) 与协议通信 (`comm`) 模块物理隔离，设计高性能、自愈合、高可靠
+- 系统管理模块负责系统配置与 OTA 管理、角色配置等功能
+- 各个业务模块间通过 Hilt DI 机制解耦调用
 
 ### 项目架构
 ```
-app/src/main/kotlin/com/airobot/tablet/
-├── airobotui/                # airobot单页UI层 (Presentation Layer)
-│   ├── framework/                 # ui框架如topbar，menu菜单,通用小组件,主题...
-│   ├── robotcomp/                 # robot头像，眼睛，对话气泡等核心组件
-│   ├── state/                     # ui状态数据模型
-│   ├── viewmodel/                 # airobot viewmodel协调各业务状态    
-├── audio/                    # 音频处理模块（集成asr，vod，播放等功能）
-│   ├── di/                        # audio模块hilt di服务
-│   ├── palyer/                    # 音频播放功能
-│   ├── recorder/                  # 音频录音功能    
-│   ├── tools/                     # 音频基础功能
-│   ├── AudioService.kt            # 音频服务接口
-│   └── AudioServiceImpl.kt        # 音频服务接口实现
-├── comm/                    # 协议通信模块（多协议，多传输方式，自身维护）
-│   ├── di/                        # comm通信模块hilt di服务
-│   ├── protocol/                  # 机器人交互协议
-│   ├── transport/                 # 底层ws，mqtt传输服务
-│   ├── NetCommService.kt          # 网络通信服务接口
-│   └── NetCommServiceImpl.kt      # 网络服务接口实现 
-├── service/                 # service卡片容器与功能卡片组件
-│   ├── compoments/                # 功能服务卡片容器组件
-│   ├── times/                     # 定时器服务功能
-│   └── xxx.kt                     # 待定 
-├──system/                    # 系统管理模块（系统配置、ota管理功能模块）
-│   ├── di/                        # 系统管理模块hilt di服务
-│   ├── model/                     # 业务模型
-│   ├── remote/                    # 远程数据仓库
-│   ├── repository/                # 本地仓库服务
-│   ├── SysManager.kt              # 系统管理接口
-│   └── SysManageImpl.kt          # 系统管理接口实现 
-├── MainActivity.kt           # 主活动 (Activity)
-└── RobotApplication.kt       # Hilt Application 入口
+airobot-tablet/
+├── app/                          # 主壳工程模块 (App Shell)
+│   ├── src/main/kotlin/com/airobot/tablet/
+│   │   ├── airobotui/            # airobot单页UI层 (Presentation Layer)
+│   │   ├── comm/                 # 协议通信业务实现
+│   │   ├── service/              # service卡片容器与功能卡片组件
+│   │   ├── system/               # 系统管理业务实现
+│   │   ├── MainActivity.kt
+│   │   └── RobotApplication.kt
+├── audio/                        # 🎙️ 音频处理子模块 (Android Library)
+│   ├── src/main/kotlin/com/airobot/audio/
+│   │   ├── player/               # 音频播放
+│   │   ├── recorder/             # 音频录制与 KWS
+│   │   ├── tools/                # 编解码实现 (Opus)
+│   │   ├── AudioService.kt       # 通用音频服务接口
+│   │   └── AudioServiceImpl.kt   # 接口实现
+│   ├── src/main/cpp/             # C++ JNI 实现
+│   └── src/main/assets/          # 语音识别/唤醒离线模型
+└── agent/                        # 🧠 AI 智能体模块 (Future: Rust Integration)
 ```
 
-### Native模块
-```
-app/src/main/cpp/
-├── opus_encoder.cpp         # Opus编码器JNI
-├── opus_decoder.cpp         # Opus解码器JNI
-└── CMakeLists.txt           # CMake构建配置
-```
+### 语音模块 (audio module)
+- **解耦设计**: 通用路径 `com.airobot.audio`，可供不同终端复用。
+- **性能优化**: C++ 核心逻辑下沉，减少对 JVM 依赖。
+- **资源隔离**: 携带独立的离线 AI 模型资源，不占用主包编译资源空间。
 
 ## 🛠️ 技术设计
 

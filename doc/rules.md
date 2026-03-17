@@ -12,11 +12,11 @@ AIRobot vibe_code规则
 - ui开发见原型设计：../prototype/**
 
 ## 技术要求
-- 分层架构，遵循clearArchitecture + MVVM要求
-- ui要求组件化设计，并使用jetpack compose开发
-- 语音与通信模块独立，设计要高性能，自愈合、高可靠
-- System层负责ota认证，系统与ai机器人等的配置
-- 各个业务模块通过Hilt DI机制解耦，ui服务调用
+- 分层架构，物理上采用多模块 (Multi-module) 隔离，遵循 ClearArchitecture + MVVM 要求
+- UI 要求组件化设计，并使用 Jetpack Compose 开发
+- 语音 (`audio`)、通信 (`comm`)、智能体 (`agent`) 模块完全独立，设计要高性能，自愈合、高可靠
+- System 层负责 OTA 认证，系统与 AI 机器人等的配置
+- 各个业务模块通过 Hilt DI 机制解耦，供 UI 或其他模块调用
 - 技术选型参考：architect/architecture.md
 
 ## 质量要求
