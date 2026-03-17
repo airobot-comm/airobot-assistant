@@ -15,3 +15,4 @@ interface OtaNetRepo {
      */
     fun createDeviceReportRequest(clientId: String, deviceId: String): DeviceReportRequest
 }
+

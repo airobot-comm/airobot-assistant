@@ -22,3 +22,4 @@ val TechLightBlue40 = Color(0xFF039BE5) // 深色主题第三色
 val ConnectionRed = Color(0xFFE53935) // 表示断开连接的状态
 val ConnectedGreen = Color(0xFF00FF04) // 表示已连接的状态
 
+

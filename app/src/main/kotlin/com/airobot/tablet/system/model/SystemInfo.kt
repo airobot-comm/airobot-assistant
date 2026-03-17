@@ -47,3 +47,4 @@ data class SystemInfo (
         return result
     }
 }
+

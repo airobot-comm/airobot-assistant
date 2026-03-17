@@ -22,3 +22,4 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun bindOtaRepository(impl: OtaNetXiaozhi): OtaNetRepo
 }
+

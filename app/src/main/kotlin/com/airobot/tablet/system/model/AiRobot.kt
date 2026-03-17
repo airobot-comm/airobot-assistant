@@ -44,3 +44,4 @@ data class AiRobot(
 ){
    // AiRobot initialized with default values
 }
+

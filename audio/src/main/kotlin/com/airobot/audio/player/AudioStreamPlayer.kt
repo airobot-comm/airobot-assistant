@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.audio.player
+﻿package com.airobot.audio.player
 
 import android.content.Context
 import android.media.AudioAttributes
@@ -285,3 +285,4 @@ class AudioStreamPlayer(
         release()
     }
 }
+

@@ -17,6 +17,9 @@
 /.idea/assetWizardSettings.xml
 /.idea
 /build
+/*/build
+.cxx
+/*/.cxx
 /captures
 /app/release/
 local.properties

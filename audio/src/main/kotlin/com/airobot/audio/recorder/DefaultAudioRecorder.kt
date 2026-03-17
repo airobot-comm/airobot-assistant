@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.audio.recorder
+package com.airobot.audio.recorder
 
 import android.Manifest
 import android.content.Context
@@ -13,8 +13,8 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import com.airobot.tablet.audio.AudioConfig
-import com.airobot.tablet.audio.AudioEvent
+import com.airobot.audio.AudioConfig
+import com.airobot.audio.AudioEvent
 
 /**
  * 录音器实现 - 负责硬件采集与生命周期 management
@@ -184,7 +184,7 @@ class DefaultAudioRecorder(private val context: Context) : AudioRecorder {
 
     override fun isRecording(): Boolean = isRunning
 
-    override fun setWorkState(state: com.airobot.tablet.audio.AudioWorkState) {
+    override fun setWorkState(state: com.airobot.audio.AudioWorkState) {
         pipeline?.setWorkState(state)
     }
 
@@ -203,3 +203,4 @@ class DefaultAudioRecorder(private val context: Context) : AudioRecorder {
             Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     }
 }
+

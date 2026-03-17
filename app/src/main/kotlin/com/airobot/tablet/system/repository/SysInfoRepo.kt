@@ -19,3 +19,4 @@ interface SysInfoRepo {
      */
     suspend fun loadConfig(): SystemInfo
 }
+

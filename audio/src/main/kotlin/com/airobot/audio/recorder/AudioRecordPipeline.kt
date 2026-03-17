@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.audio.recorder
+﻿package com.airobot.audio.recorder
 
 import android.content.Context
 import android.util.Log
@@ -10,11 +10,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.cancel
-import com.airobot.tablet.audio.AudioConfig
-import com.airobot.tablet.audio.AudioEvent
-import com.airobot.tablet.audio.AudioWorkState
-import com.airobot.tablet.audio.tools.codec.OpusEncoder
-import com.airobot.tablet.audio.tools.kws.KwsManager
+import com.airobot.audio.AudioConfig
+import com.airobot.audio.AudioEvent
+import com.airobot.audio.AudioWorkState
+import com.airobot.audio.tools.codec.OpusEncoder
+import com.airobot.audio.tools.kws.KwsManager
 import java.util.LinkedList
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -222,4 +222,5 @@ class AudioRecordPipeline(
         return min(1.0, rms * 3.0).toFloat()
     }
 }
+
 

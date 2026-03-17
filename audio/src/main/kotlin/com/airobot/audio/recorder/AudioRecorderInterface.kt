@@ -1,12 +1,12 @@
-﻿package com.airobot.tablet.audio.recorder
+package com.airobot.audio.recorder
 
 import android.Manifest
 import android.content.Context
 import androidx.annotation.RequiresPermission
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import com.airobot.tablet.audio.AudioConfig
-import com.airobot.tablet.audio.AudioEvent
+import com.airobot.audio.AudioConfig
+import com.airobot.audio.AudioEvent
 
 /**
  * 音频录制器接口
@@ -36,7 +36,7 @@ interface AudioRecorder {
     /**
      * 设置音频处理工作状态
      */
-    fun setWorkState(state: com.airobot.tablet.audio.AudioWorkState)
+    fun setWorkState(state: com.airobot.audio.AudioWorkState)
 
     /**
      * 清理资源
@@ -48,3 +48,4 @@ interface AudioRecorder {
      */
     val onRecordingStateChanged: SharedFlow<Boolean>
 }
+

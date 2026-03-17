@@ -1,8 +1,8 @@
-﻿package com.airobot.tablet.audio.player
+﻿package com.airobot.audio.player
 
 import android.content.Context
 import kotlinx.coroutines.flow.SharedFlow
-import com.airobot.tablet.audio.AudioConfig
+import com.airobot.audio.AudioConfig
 
 /**
  * 音频播放器接口
@@ -53,3 +53,4 @@ interface AudioPlayer {
      */
     val onPlayingStateChanged: SharedFlow<Boolean>
 }
+

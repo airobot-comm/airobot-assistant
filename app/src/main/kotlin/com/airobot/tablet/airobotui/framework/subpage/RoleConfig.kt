@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.framework.subpage
+﻿package com.airobot.tablet.airobotui.framework.subpage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -107,3 +107,4 @@ fun RoleConfig() {
         }
     }
 }
+

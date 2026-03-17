@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.audio.tools.codec
+﻿package com.airobot.audio.tools.codec
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -74,3 +74,4 @@ class OpusDecoder(
 
     private external fun nativeReleaseDecoder(decoderHandle: Long)
 }
+

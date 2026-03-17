@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.audio
+﻿package com.airobot.audio
 
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -92,4 +92,5 @@ interface AudioService {
      */
     suspend fun waitForPlaybackCompletion()
 }
+
 

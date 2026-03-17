@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.audio
+﻿package com.airobot.audio
 
 import android.content.Context
 import android.util.Log
@@ -8,10 +8,10 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.airobot.tablet.audio.player.AudioPlayer
-import com.airobot.tablet.audio.player.DefaultAudioPlayer
-import com.airobot.tablet.audio.recorder.AudioRecorder
-import com.airobot.tablet.audio.recorder.DefaultAudioRecorder
+import com.airobot.audio.player.AudioPlayer
+import com.airobot.audio.player.DefaultAudioPlayer
+import com.airobot.audio.recorder.AudioRecorder
+import com.airobot.audio.recorder.DefaultAudioRecorder
 
 /**
  * 音频服务实现类 - 轻量级编排层
@@ -101,3 +101,4 @@ class AudioServiceImpl @Inject constructor(
         Log.d(TAG, "音频系统已彻底释放")
     }
 }
+

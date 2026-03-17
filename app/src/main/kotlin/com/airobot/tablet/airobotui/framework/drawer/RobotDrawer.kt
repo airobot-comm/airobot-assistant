@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.framework.drawer
+﻿package com.airobot.tablet.airobotui.framework.drawer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -179,3 +179,4 @@ private fun DrawerMenuItem(
         )
     }
 }
+

@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.audio.tools.kws
+﻿package com.airobot.audio.tools.kws
 
 import android.content.Context
 import android.util.Log
@@ -120,4 +120,5 @@ class KwsManager(private val context: Context) {
         Log.d(TAG, "KWS已清理")
     }
 }
+
 

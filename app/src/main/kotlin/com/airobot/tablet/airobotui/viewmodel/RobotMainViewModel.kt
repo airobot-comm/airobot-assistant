@@ -17,8 +17,8 @@ import com.airobot.tablet.comm.NetworkState
 import com.airobot.tablet.comm.NetCommEvent
 import com.airobot.tablet.airobotui.state.RobotState
 import com.airobot.tablet.airobotui.state.RobotStateManager
-import com.airobot.tablet.audio.AudioEvent
-import com.airobot.tablet.audio.AudioService
+import com.airobot.audio.AudioEvent
+import com.airobot.audio.AudioService
 
 /**
  * 主控制 ViewModel
@@ -252,4 +252,5 @@ class RobotMainViewModel @Inject constructor(
         netCommService.disconnect()
     }
 }
+
 

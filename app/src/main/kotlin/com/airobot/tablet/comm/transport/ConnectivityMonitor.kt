@@ -57,3 +57,4 @@ class ConnectivityMonitor @Inject constructor(
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 }
+

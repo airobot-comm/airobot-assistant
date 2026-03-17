@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.viewmodel
+﻿package com.airobot.tablet.airobotui.viewmodel
 
 import android.app.Application
 import android.util.Log
@@ -6,8 +6,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import com.airobot.tablet.audio.AudioEvent
-import com.airobot.tablet.audio.AudioService
+import com.airobot.audio.AudioEvent
+import com.airobot.audio.AudioService
 import com.airobot.tablet.system.model.Message
 import com.airobot.tablet.system.model.MessageRole
 import com.airobot.tablet.comm.NetCommService
@@ -268,4 +268,5 @@ class ConversationViewModel @Inject constructor(
         audioService.activate()
     }
 }
+
 

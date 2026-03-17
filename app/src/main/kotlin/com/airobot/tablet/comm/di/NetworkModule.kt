@@ -36,3 +36,4 @@ abstract class NetworkModule {
         fun provideProtocolAdapter(): ProtocolAdapter = ProtocolAdapter()
     }
 }
+

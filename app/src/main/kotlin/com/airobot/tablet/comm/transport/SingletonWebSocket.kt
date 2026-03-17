@@ -268,3 +268,4 @@ class SingletonWebSocket(context: Context) {
         currentRetryAttempt = 0
     }
 }
+

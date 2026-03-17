@@ -1,4 +1,4 @@
-package com.airobot.tablet.system.model
+﻿package com.airobot.tablet.system.model
 
 import android.content.Context
 import android.provider.Settings
@@ -87,3 +87,4 @@ data class DeviceInfo(
         }
     }
 }
+

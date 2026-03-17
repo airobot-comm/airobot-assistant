@@ -14,14 +14,17 @@
 # ---- JNI / Native Methods -------------------------------------------------
 # OpusEncoder & OpusDecoder use native JNI methods - class & method names
 # must match the C/C++ function signatures exactly.
--keep class com.airobot.tablet.audio.tools.codec.OpusEncoder {
+-keep class com.airobot.audio.tools.codec.OpusEncoder {
     native <methods>;
     *;
 }
--keep class com.airobot.tablet.audio.tools.codec.OpusDecoder {
+-keep class com.airobot.audio.tools.codec.OpusDecoder {
     native <methods>;
     *;
 }
+
+# Generic rule for the audio module
+-keep class com.airobot.audio.** { *; }
 
 # Keep all classes that declare native methods
 -keepclasseswithmembernames class * {

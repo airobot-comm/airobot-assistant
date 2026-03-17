@@ -1,12 +1,12 @@
-﻿package com.airobot.tablet.audio.player
+﻿package com.airobot.audio.player
 
 import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import com.airobot.tablet.audio.AudioConfig
-import com.airobot.tablet.audio.tools.codec.OpusDecoder
+import com.airobot.audio.AudioConfig
+import com.airobot.audio.tools.codec.OpusDecoder
 
 /**
  * 默认音频播放器实现
@@ -128,3 +128,4 @@ class DefaultAudioPlayer(private val context: Context) : AudioPlayer {
         streamPlayer?.start(pcmFlow)
     }
 }
+

@@ -1,7 +1,7 @@
-﻿package com.airobot.tablet.audio.di
+﻿package com.airobot.audio.di
 
-import com.airobot.tablet.audio.AudioService
-import com.airobot.tablet.audio.AudioServiceImpl
+import com.airobot.audio.AudioService
+import com.airobot.audio.AudioServiceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -21,3 +21,4 @@ abstract class AudioModule {
         audioServiceImpl: AudioServiceImpl
     ): AudioService
 }
+

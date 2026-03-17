@@ -161,3 +161,4 @@ class CommProtocolImpl @Inject constructor() : CommProtocol {
         onSendRawText?.invoke(gson.toJson(message))
     }
 }
+

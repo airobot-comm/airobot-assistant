@@ -54,3 +54,4 @@ class ProtocolAdapter(private val gson: Gson = Gson()) {
         }
     }
 }
+
