@@ -43,8 +43,8 @@ val RobotAntennaFocus = Color(0xFF34D399)
 val RobotAntennaStemLight = Color(0xFFCBD5E1)
 val RobotAntennaStemDark = Color(0xFF94A3B8)
 
-/** Robot neck — slate-300/50% */
-val RobotNeckColor = Color(0xFFCBD5E1).copy(alpha = 0.5f)
+/** Robot neck — slate-600 */
+val RobotNeckColor = Color(0xFF475569)
 
 /** Robot collar — sky-200 (same as head) */
 val RobotCollarColor = RobotHeadColor

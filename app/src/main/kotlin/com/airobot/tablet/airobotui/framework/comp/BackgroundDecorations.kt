@@ -41,10 +41,21 @@ fun BackgroundDecorations() {
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .offset(x = 100.dp, y = 100.dp)
-                .size(350.dp)
+                .size(300.dp)
                 .clip(CircleShape)
                 .background(RobotTheme.colors.backgroundShapes.copy(alpha = RobotTheme.colors.backgroundShapes.alpha * 1.5f))
                 .blur(100.dp)
+        )
+
+        // 左侧小气泡 (还原原型图左侧装饰，位于机器人左侧)
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .offset(x = 140.dp, y = (-40).dp)
+                .size(80.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.03f))
+                .blur(30.dp)
         )
     }
 }

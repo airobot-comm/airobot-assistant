@@ -227,7 +227,7 @@ fun AiRobotMainScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
-                    .navigationBarsPadding()
+                    // 移除此处导航栏内边距，让背景贯穿
             ) {
                 RobotTopBar(
                     robotState = robotState,
@@ -245,17 +245,16 @@ fun AiRobotMainScreen(
                 ) {
                     val (robotRef, voicePanelRef, aiBubbleRef, serviceCardsRef, activeCardRef) = createRefs()
 
-                    // 1. 机器人角色 (偏上布局，可滑动)
+                    // 1. 机器人角色 (居中偏上)
                     Box(
                         modifier = Modifier
                             .constrainAs(robotRef) {
                                 top.linkTo(parent.top)
-                                bottom.linkTo(parent.bottom, margin = 260.dp) // 300 -> 260 稍微调低基准
+                                bottom.linkTo(parent.bottom, margin = 200.dp)
                                 start.linkTo(parent.start)
                                 end.linkTo(parent.end)
-                                // 动态水平偏置实现滑动
                                 horizontalBias = robotHorizontalBias
-                                verticalBias = 0.45f // 0.5 -> 0.45 稍微往上移一点，避免与语音面板重合
+                                verticalBias = 0.35f // 继续上移，给下方腾出逻辑空间
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -265,11 +264,11 @@ fun AiRobotMainScreen(
                             headSize = 400.dp // 420 -> 400 稍微缩小一点点
                         )
                     }
-                    // 2. 语音输入面板 (底部保持一定距离)
+                    // 2. 语音输入面板 (下移 15%，增大底部间距)
                     Box(
                         modifier = Modifier
                             .constrainAs(voicePanelRef) {
-                                bottom.linkTo(parent.bottom, margin = 48.dp) // 65 -> 48 稍微线下移一点
+                                bottom.linkTo(parent.bottom, margin = 40.dp) // 80 -> 40 显著下移
                                 start.linkTo(robotRef.start)
                                 end.linkTo(robotRef.end)
                             }
@@ -295,6 +294,16 @@ fun AiRobotMainScreen(
                             },
                             onTimerControl = { action ->
                                 serviceViewModel.handleTimerAction(action)
+                            },
+                            onCommandClick = { command -> 
+                                if (permissionsState.allPermissionsGranted) {
+                                    robotUiState = robotUiState.copy(
+                                        interactionType = InteractionType.CHAT,
+                                        currentUserMsg = command,
+                                        currentAiMsg = null
+                                    )
+                                    conversationViewModel.startConversation()
+                                }
                             }
                         )
                     }

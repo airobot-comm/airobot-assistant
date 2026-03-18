@@ -21,30 +21,13 @@ fun BottomFooter(modifier: Modifier = Modifier) {
             .padding(vertical = 16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(4.dp)
-                    .clip(CircleShape)
-                    .background(RobotTheme.colors.accent.copy(alpha = 0.3f))
-            )
-            Text(
-                text = "POWER BY AIROBOT_COMM.",
-                color = RobotTheme.colors.textPrimary.copy(alpha = 0.4f),
-                fontSize = 8.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 3.sp
-            )
-            Box(
-                modifier = Modifier
-                    .size(4.dp)
-                    .clip(CircleShape)
-                    .background(RobotTheme.colors.accent.copy(alpha = 0.3f))
-            )
-        }
+        Text(
+            text = "·  A E T H E R   C O M P A N I O N  ·",
+            color = RobotTheme.colors.textPrimary.copy(alpha = 0.25f), // 极低透明度，匹配原型
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 4.sp
+        )
     }
 }
 

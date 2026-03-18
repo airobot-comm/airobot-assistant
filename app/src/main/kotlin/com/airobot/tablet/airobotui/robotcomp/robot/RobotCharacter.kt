@@ -121,19 +121,19 @@ fun RobotCharacter(
                 headSize = headSize
             )
             
-            // 地面阴影
+            // 地面阴影 - 跟随浮动轻微缩放
             Box(
                 modifier = Modifier
                     .offset(y = (-10).dp)
-                    .width(headSize * 0.7f)
-                    .height(24.dp)
+                    .width(headSize * 0.6f)
+                    .height(20.dp)
                     .graphicsLayer { 
-                        alpha = if (state == RobotVisualState.IDLE) 0.3f else 0.5f
-                        scaleX = if (state == RobotVisualState.IDLE) 0.8f + (floatOffset / 60f) else 1f
+                        alpha = if (state == RobotVisualState.IDLE) 0.2f else 0.4f
+                        scaleX = if (state == RobotVisualState.IDLE) 0.85f + (floatOffset / 120f) else 1f
                     }
                     .clip(CircleShape)
                     .background(Color.Black)
-                    .blur(15.dp)
+                    .blur(20.dp)
             )
             
             // 底部脖子和领子
@@ -158,8 +158,8 @@ private fun RobotHead(
     
     Box(
         modifier = modifier
-            .width(headSize)
-            .height(headSize * 0.74f), // 310/420 approx 0.74
+            .width(headSize * 1.1f) // 扩宽容器，容纳突出的耳朵
+            .height(headSize * 0.74f),
         contentAlignment = Alignment.Center
     ) {
         // 天线 (放置在头部后面)
@@ -168,6 +168,56 @@ private fun RobotHead(
             headSize = headSize,
             infiniteTransition = infiniteTransition
         )
+        
+        // 耳朵 (移出头部裁剪 Box，并添加 3D 轮廓层)
+        Box(
+            modifier = Modifier.width(headSize * 1.08f),
+            contentAlignment = Alignment.Center
+        ) {
+            // 左耳 (两层叠加实现突起的边框感)
+            Box(
+                modifier = Modifier.align(Alignment.CenterStart)
+            ) {
+                // 外边框/背板
+                Box(
+                    modifier = Modifier
+                        .size(width = headSize * 0.08f, height = headSize * 0.19f)
+                        .clip(RoundedCornerShape(topStart = headSize * 0.1f, bottomStart = headSize * 0.1f))
+                        .background(RobotHeadBorder.copy(alpha = 0.4f))
+                        .blur(0.5.dp)
+                )
+                // 内主体
+                Box(
+                    modifier = Modifier
+                        .padding(start = 2.dp, top = 2.dp, bottom = 2.dp)
+                        .size(width = headSize * 0.065f, height = headSize * 0.165f)
+                        .clip(RoundedCornerShape(topStart = headSize * 0.08f, bottomStart = headSize * 0.08f))
+                        .background(RobotHeadColor)
+                )
+            }
+            
+            // 右耳
+            Box(
+                modifier = Modifier.align(Alignment.CenterEnd)
+            ) {
+                // 外边框/背板
+                Box(
+                    modifier = Modifier
+                        .size(width = headSize * 0.08f, height = headSize * 0.19f)
+                        .clip(RoundedCornerShape(topEnd = headSize * 0.1f, bottomEnd = headSize * 0.1f))
+                        .background(RobotHeadBorder.copy(alpha = 0.4f))
+                        .blur(0.5.dp)
+                )
+                // 内主体
+                Box(
+                    modifier = Modifier
+                        .padding(end = 2.dp, top = 2.dp, bottom = 2.dp)
+                        .size(width = headSize * 0.065f, height = headSize * 0.165f)
+                        .clip(RoundedCornerShape(topEnd = headSize * 0.08f, bottomEnd = headSize * 0.08f))
+                        .background(RobotHeadColor)
+                )
+            }
+        }
         
         // 头部外壳 - 改为浅蓝色 (sky-200)
         Box(
@@ -183,45 +233,12 @@ private fun RobotHead(
                 .clip(RoundedCornerShape(headSize * 0.28f))
                 .background(RobotHeadColor) // 固定浅蓝色
         ) {
-            // 耳朵 (Anthropomorphic touch) - 改为全圆角
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                // 左耳
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .offset(x = (-headSize * 0.04f))
-                        .size(width = headSize * 0.08f, height = headSize * 0.22f)
-                        .clip(RoundedCornerShape(topStart = 100.dp, bottomStart = 100.dp))
-                        .background(RobotHeadColor)
-                        .border(
-                            width = 1.dp, 
-                            color = Color(0xFF38BDF8).copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(topStart = 100.dp, bottomStart = 100.dp)
-                        )
-                )
-                // 右耳
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .offset(x = (headSize * 0.04f))
-                        .size(width = headSize * 0.08f, height = headSize * 0.22f)
-                        .clip(RoundedCornerShape(topEnd = 100.dp, bottomEnd = 100.dp))
-                        .background(RobotHeadColor)
-                        .border(
-                            width = 1.dp, 
-                            color = Color(0xFF38BDF8).copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(topEnd = 100.dp, bottomEnd = 100.dp)
-                        )
-                )
-            }
 
             // 高光 (Glossy effect)
             Box(
                 modifier = Modifier
-                    .padding(top = 16.dp, start = 40.dp)
-                    .size(width = headSize * 0.25f, height = headSize * 0.08f)
+                    .padding(top = headSize * 0.05f, start = headSize * 0.15f)
+                    .size(width = headSize * 0.3f, height = headSize * 0.08f)
                     .clip(CircleShape)
                     .background(
                         brush = Brush.verticalGradient(
@@ -280,15 +297,34 @@ private fun RobotHead(
                     )
                 
                 // 嘴巴动画
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = state == com.airobot.tablet.airobotui.state.RobotVisualState.SPEAKING,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
-                ) {
-                    SpeakingMouth(
-                        infiniteTransition = infiniteTransition,
-                        modifier = Modifier.padding(top = headSize * 0.1f)
-                    )
+                val isSpeaking = state == com.airobot.tablet.airobotui.state.RobotVisualState.SPEAKING
+                val isIdle = state == com.airobot.tablet.airobotui.state.RobotVisualState.IDLE || state == com.airobot.tablet.airobotui.state.RobotVisualState.LISTENING
+
+                Box(modifier = Modifier.padding(top = headSize * 0.1f)) {
+                    androidx.compose.animation.AnimatedContent(
+                        targetState = state,
+                        transitionSpec = {
+                            fadeIn() togetherWith fadeOut()
+                        },
+                        label = "mouthTransition"
+                    ) { targetState ->
+                        when (targetState) {
+                            com.airobot.tablet.airobotui.state.RobotVisualState.SPEAKING -> {
+                                SpeakingMouth(
+                                    infiniteTransition = infiniteTransition,
+                                    modifier = Modifier
+                                )
+                            }
+                            com.airobot.tablet.airobotui.state.RobotVisualState.IDLE, 
+                            com.airobot.tablet.airobotui.state.RobotVisualState.LISTENING -> {
+                                StaticMouth(size = 32.dp)
+                            }
+                            else -> {
+                                // Other states might hide mouth or use static
+                                Spacer(modifier = Modifier.size(1.dp))
+                            }
+                        }
+                    }
                 }
             }
                 }
@@ -319,8 +355,8 @@ private fun RobotAntennas(
     )
 
     val isFocus = state == com.airobot.tablet.airobotui.state.RobotVisualState.FOCUS
-    val antennaColor1 = if (isFocus) Color(0xFFF87171) else Color(0xFF22D3EE) // cyan
-    val antennaColor2 = if (isFocus) Color(0xFFF87171) else Color(0xFF818CF8) // indigo
+    val antennaColor1 = if (isFocus) Color(0xFFF87171) else Color(0xFF7DD3FC) // sky-300 for neutral
+    val antennaColor2 = if (isFocus) Color(0xFFF87171) else Color(0xFF7DD3FC) // same for neutral as per prototype
 
     Row(
         modifier = modifier
@@ -364,7 +400,7 @@ private fun AntennaItem(color: Color, rotation: Float, headSize: Dp) {
         // 天线杆 - 渐变灰色
         Box(
             modifier = Modifier
-                .width(10.dp)
+                .width(headSize * 0.025f) // 约 8-10dp
                 .height(headSize * 0.35f)
                 .clip(RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp))
                 .background(
@@ -385,8 +421,8 @@ private fun SpeakingMouth(
     modifier: Modifier = Modifier
 ) {
     val mouthScale by infiniteTransition.animateFloat(
-        initialValue = 0.5f,
-        targetValue = 2.0f,
+        initialValue = 0.8f,
+        targetValue = 2.4f,
         animationSpec = infiniteRepeatable(
             animation = tween(200, easing = EaseInOutQuad),
             repeatMode = RepeatMode.Reverse
@@ -397,10 +433,27 @@ private fun SpeakingMouth(
     Box(
         modifier = modifier
             .width(32.dp * mouthScale)
-            .height(8.dp)
+            .height(10.dp) // 稍微加厚一点
             .clip(CircleShape)
-            .background(Color.White)
-            .blur(0.5.dp)
+            .background(Color(0xFF334155)) // 改为深灰色，匹配原型风格 (slate-700)
+            .blur(0.3.dp)
+    )
+}
+
+/**
+ * 静态嘴巴 (IDLE 状态)
+ */
+@Composable
+private fun StaticMouth(
+    size: Dp,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .width(size)
+            .height(5.dp)
+            .clip(CircleShape)
+            .background(Color(0xFF334155).copy(alpha = 0.8f)) // 深灰色横线
     )
 }
 
@@ -429,24 +482,23 @@ private fun RobotNeck(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.offset(y = (-8).dp),
+        modifier = modifier.offset(y = (-15).dp), // 向上稍微缩进，显得脖子更短更稳固
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 脖子立管
+        // 脖子立管 - 配合新颜色
         Box(
             modifier = Modifier
-                .width(headSize * 0.15f)
-                .height(headSize * 0.1f)
+                .width(headSize * 0.14f)
+                .height(headSize * 0.08f) // 缩短
                 .background(RobotNeckColor)
         )
-        // 领子/底座
+        // 领子/底座 - 极高圆角模仿原型粘土感
         Box(
             modifier = Modifier
-                .width(headSize * 0.45f)
-                .height(headSize * 0.12f)
-                .clip(RoundedCornerShape(topStart = headSize * 0.1f, topEnd = headSize * 0.1f))
+                .width(headSize * 0.55f) // 加宽
+                .height(headSize * 0.14f)
+                .clip(RoundedCornerShape(topStart = 100.dp, topEnd = 100.dp)) // 完美半圆顶
                 .background(RobotCollarColor)
-                .shadow(4.dp, RoundedCornerShape(topStart = headSize * 0.1f, topEnd = headSize * 0.1f))
         )
     }
 }

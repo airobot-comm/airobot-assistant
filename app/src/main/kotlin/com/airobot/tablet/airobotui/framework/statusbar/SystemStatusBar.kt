@@ -110,19 +110,21 @@ private fun NetworkStatusIcon(tint: Color) {
     
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = if (wifiConnected) "ONLINE" else "OFFLINE",
-            color = tint,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold
-        )
+        val statusColor = if (wifiConnected) StatusCyan else Color(0xFFEF4444).copy(alpha = 0.6f)
         Icon(
             painter = painterResource(id = if (wifiConnected) R.drawable.wifi else R.drawable.wifi_off),
-            contentDescription = if (wifiConnected) "WiFi已连接" else "WiFi未连接",
-            modifier = Modifier.size(14.dp),
-            tint = if (wifiConnected) tint else Color(0xFFEF4444).copy(alpha = 0.5f)
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = statusColor
+        )
+        Text(
+            text = if (wifiConnected) "ONLINE" else "OFFLINE",
+            color = statusColor,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Black,
+            letterSpacing = 1.2.sp
         )
     }
 }
@@ -163,19 +165,21 @@ private fun BatteryLevelIcon(tint: Color) {
     
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Icon(
-            painter = painterResource(id = iconRes),
-            contentDescription = "电量: $batteryLevel%",
-            modifier = Modifier.size(20.dp),
-            tint = if (batteryLevel <= 20 && !isCharging) Color(0xFFEF4444).copy(alpha = 0.6f) else tint
-        )
+        val statusColor = if (batteryLevel <= 20 && !isCharging) Color(0xFFEF4444) else StatusEmerald
         Text(
             text = "$batteryLevel%",
-            color = tint,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold
+            color = statusColor,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Black,
+            letterSpacing = 0.5.sp
+        )
+        Icon(
+            painter = painterResource(id = iconRes),
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+            tint = statusColor
         )
     }
 }

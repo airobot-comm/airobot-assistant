@@ -1,8 +1,9 @@
-﻿package com.airobot.tablet.airobotui.robotcomp.robot
+package com.airobot.tablet.airobotui.robotcomp.robot
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,8 +13,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.airobot.tablet.airobotui.framework.theme.*
+import androidx.compose.foundation.Canvas
 
 /**
  * 增强的动态眼睛组件 - 支持微表情同步
@@ -146,10 +152,10 @@ private fun EnhancedDynamicEye(
 
 private fun getEyeColor(state: com.airobot.tablet.airobotui.state.RobotVisualState): Color {
     return when (state) {
-        com.airobot.tablet.airobotui.state.RobotVisualState.IDLE -> Color(0xFF6366F1)
-        com.airobot.tablet.airobotui.state.RobotVisualState.LISTENING -> Color.White
-        com.airobot.tablet.airobotui.state.RobotVisualState.THINKING -> Color(0xFF22D3EE)
-        com.airobot.tablet.airobotui.state.RobotVisualState.SPEAKING -> Color.White
+        com.airobot.tablet.airobotui.state.RobotVisualState.IDLE -> RobotEyeDefault
+        com.airobot.tablet.airobotui.state.RobotVisualState.LISTENING -> StatusCyan
+        com.airobot.tablet.airobotui.state.RobotVisualState.THINKING -> RobotEyeActive // Orange
+        com.airobot.tablet.airobotui.state.RobotVisualState.SPEAKING -> RobotEyeActive // Orange
         com.airobot.tablet.airobotui.state.RobotVisualState.FOCUS -> Color(0xFF67E8F9)
         com.airobot.tablet.airobotui.state.RobotVisualState.HAPPY -> Color(0xFF10B981)
         com.airobot.tablet.airobotui.state.RobotVisualState.SLEEPING -> Color(0xFF94A3B8)
@@ -167,26 +173,18 @@ private fun IdleEyeEnhanced(
     Box(
         modifier = modifier
             .width(size)
-            .height(size * 0.85f)
-            .clip(RoundedCornerShape(50))
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFF6366F1), // indigo-500
-                        Color(0xFF1D4ED8)  // blue-700
-                    )
-                )
-            ),
+            .height(size * 0.95f) // 更圆一点，匹配原型
+            .clip(CircleShape)
+            .background(RobotEyeDefault),
         contentAlignment = Alignment.Center
     ) {
-        // 高光 - 也要变椭圆
+        // 单个明亮高光 - 匹配原型
         Box(
             modifier = Modifier
-                .size(width = size * 0.45f, height = size * 0.35f)
-                .offset(x = (size * 0.1f), y = (-size * 0.1f))
-                .clip(RoundedCornerShape(50))
+                .size(size * 0.35f)
+                .offset(x = (size * 0.15f), y = (-size * 0.15f))
+                .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.9f))
-                .blur(1.dp)
         )
     }
 }
@@ -200,16 +198,13 @@ private fun ListeningEyeEnhanced(
     audioLevel: () -> Float, // 增加音频等级调制
     modifier: Modifier = Modifier
 ) {
-    // 动态计算高度，根据音量在 0.4 到 1.2 之间波动
-    // 调用 audioLevel() 来获取当前音量
     val dynamicHeight = size * (0.4f + audioLevel() * 1.0f)
-    
     Box(
         modifier = modifier
             .width(size * 0.9f)
             .height(dynamicHeight)
             .clip(RoundedCornerShape(50))
-            .background(Color.White.copy(alpha = 0.95f))
+            .background(getEyeColor(com.airobot.tablet.airobotui.state.RobotVisualState.LISTENING).copy(alpha = 0.95f))
             .blur(0.5.dp)
     )
 }
@@ -222,38 +217,33 @@ private fun ThinkingEyeEnhanced(
     size: Dp,
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "thinkingEye")
-    val rotation by infiniteTransition.animateFloat(
+    val infiniteTransition = rememberInfiniteTransition(label = "thinkingEyeArch")
+    
+    // 呼吸感：粗细与位置轻微变动
+    val breath by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 360f,
+        targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+            animation = tween(1200, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
         ),
-        label = "thinkingRotation"
+        label = "breath"
     )
 
     Box(
-        modifier = modifier
-            .size(size)
-            .graphicsLayer { rotationZ = rotation },
+        modifier = modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
-        // 旋转外圈 (椭圆路径感)
-        Box(
-            modifier = Modifier
-                .width(size)
-                .height(size * 0.8f)
-                .clip(RoundedCornerShape(50))
-                .background(
-                    brush = Brush.sweepGradient(
-                        colors = listOf(
-                            Color(0xFF22D3EE),     // cyan-400
-                            Color(0xFF22D3EE).copy(alpha = 0f)
-                        )
-                    )
-                )
-        )
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val strokeWidth = (size.toPx() * 0.15f) + (breath * 2.dp.toPx())
+            drawArc(
+                color = RobotEyeActive,
+                startAngle = 180f,
+                sweepAngle = 180f, // 拱形（开口向下）
+                useCenter = false,
+                style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+            )
+        }
     }
 }
 
@@ -267,34 +257,28 @@ private fun SpeakingEyeEnhanced(
     audioLevel: () -> Float = { 0f },
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "speakingEye")
-
-    // 基础脉冲 (减弱，更多靠音频调制)
-    val idlePulse by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "speakingPulse"
-    )
-
-    // 音频等级调制缩放
-    val dynamicScale = idlePulse + (audioLevel() * 0.4f)
+    val audioEffect = audioLevel()
     
-    // TTS进度可以额外调制亮度
-    val brightness = 0.85f + (ttsProgressNormalized * 0.15f)
-
+    // 说话时也是橙色拱形，但会随着声音波动“张合”
     Box(
-        modifier = modifier
-            .width(size * dynamicScale)
-            .height(size * dynamicScale * 0.8f)
-            .clip(RoundedCornerShape(50))
-            .background(
-                Color.White.copy(alpha = brightness)
+        modifier = modifier.size(size),
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val strokeWidth = (size.toPx() * 0.15f) + (audioEffect * 5.dp.toPx())
+            // 扫过角度随声音变化，产生眨动感
+            val sweep = 180f - (audioEffect * 20f)
+            val start = 180f + (audioEffect * 10f)
+            
+            drawArc(
+                color = RobotEyeActive,
+                startAngle = start,
+                sweepAngle = sweep,
+                useCenter = false,
+                style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
             )
-    )
+        }
+    }
 }
 
 /**

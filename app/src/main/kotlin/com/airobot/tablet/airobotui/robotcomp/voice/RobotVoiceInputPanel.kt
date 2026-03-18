@@ -13,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.blur
+import androidx.compose.foundation.border
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
@@ -50,6 +52,7 @@ fun RobotVoiceInputPanel(
     onStartListening: () -> Unit,
     onStopListening: () -> Unit,
     onTimerControl: (String) -> Unit, // "PAUSE", "RESUME", "STOP"
+    onCommandClick: (String) -> Unit = {}, // 新增：点击推荐指令的回调
     modifier: Modifier = Modifier
 ) {
     val isListening = robotState == RobotVisualState.LISTENING
@@ -93,7 +96,8 @@ fun RobotVoiceInputPanel(
                         isThinking = isThinking,
                         isSpeaking = isSpeaking,
                         audioLevel = audioLevel,
-                        onStopListening = onStopListening
+                        onStopListening = onStopListening,
+                        onCommandClick = onCommandClick
                     )
                 }
             }
@@ -132,9 +136,9 @@ private fun IdleMicButton(
     val infiniteTransition = rememberInfiniteTransition(label = "micPulse")
     val baseScale by infiniteTransition.animateFloat(
         initialValue = 1.0f,
-        targetValue = 1.05f,
+        targetValue = 1.05f, // 略微增加呼吸感
         animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
+            animation = tween(2000, easing = EaseInOutQuad),
             repeatMode = RepeatMode.Reverse
         ),
         label = "baseScale"
@@ -143,7 +147,7 @@ private fun IdleMicButton(
     // 动态声浪缩放 (叠加在呼吸之上)
     // audioLevel (0~1) -> extraScale (0~0.8)
     val dynamicScale by animateFloatAsState(
-        targetValue = 1.0f + (audioLevel * 0.8f),
+        targetValue = 1.0f + (audioLevel * 0.4f), // 减小声浪灵敏度，更稳重
         animationSpec = spring(stiffness = Spring.StiffnessLow),
         label = "audioScale"
     )
@@ -156,9 +160,9 @@ private fun IdleMicButton(
     )
     
     Column(
-        modifier = modifier,
+        modifier = modifier.height(180.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp) // 20 -> 16
+        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically) // 增加间距 16 -> 24，防止重叠
     ) {
         // 麦克风按钮
         Box(
@@ -167,54 +171,97 @@ private fun IdleMicButton(
                 .clickable(enabled = isConnected) { onStartListening() }, // 点击唤醒
             contentAlignment = Alignment.Center
         ) {
-            // 动态响应环
+            // 动态响应环 - 分层光圈，移除突兀的蓝色实线圈
             if (isConnected) {
+                // 底层大光晕 (130 -> 120)
                 Box(
                     modifier = Modifier
-                        .size(110.dp) // 140 -> 110
+                        .size(120.dp)
                         .scale(finalScale)
                         .clip(CircleShape)
-                        .background(RobotTheme.colors.accent.copy(alpha = ringAlpha))
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    Color(0xFF818CF8).copy(alpha = 0.15f),
+                                    Color.Transparent
+                                )
+                            )
+                        )
+                        .blur(16.dp)
+                )
+                // 中层核心光圈 (100 -> 92)
+                Box(
+                    modifier = Modifier
+                        .size(92.dp)
+                        .clip(CircleShape)
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    Color(0xFF818CF8).copy(alpha = 0.35f),
+                                    Color(0xFF3B82F6).copy(alpha = 0.08f),
+                                    Color.Transparent
+                                )
+                            )
+                        )
+                        .blur(4.dp)
+                )
+                // 新增：深蓝色声音感应色块圈 (Donut-style band) - 提高亮度与对比度
+                Box(
+                    modifier = Modifier
+                        .size(105.dp) // 尺寸介于核心光圈和按钮之间
+                        .scale(finalScale)
+                        .clip(CircleShape)
+                        .background(
+                            brush = Brush.radialGradient(
+                                radius = 200f, // 增大渐变范围
+                                colors = listOf(
+                                    Color(0xFF3B82F6).copy(alpha = 0.6f), // Blue-500 亮蓝色
+                                    Color(0xFF2563EB).copy(alpha = 0.3f), // Blue-600
+                                    Color.Transparent
+                                )
+                            )
+                        )
                 )
             }
             
-            // 按钮主体
+            // 按钮主体 (76 -> 70, 减小约 8%)
             Box(
                 modifier = Modifier
-                    .size(86.dp) // 110 -> 86
+                    .size(70.dp) 
+                    .border(1.5.dp, Color.White.copy(alpha = 0.7f), CircleShape)
                     .clip(CircleShape)
                     .background(
                         brush = Brush.verticalGradient(
                             colors = if (isConnected) {
                                 listOf(
-                                    RobotTheme.colors.surfaceOverlay,
-                                    RobotTheme.colors.cardBg
+                                    Color(0xFF334155), 
+                                    Color(0xFF1E293B)
                                 )
                             } else {
                                 listOf(
-                                    Color(0xFF374151),
-                                    Color(0xFF4B5563)
+                                    Color(0xFF1F2937),
+                                    Color(0xFF111827)
                                 )
                             }
                         )
                     )
                     .clickable(enabled = isConnected)
-                    { if (isConnected) onStartListening() } // 点击唤醒
+                    { if (isConnected) onStartListening() }
                     ,
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.mic),
                     contentDescription = "点击唤醒",
-                    modifier = Modifier.size(42.dp), // 54 -> 42
-                    tint = if (isConnected) Color.White else Color.White.copy(alpha = 0.5f)
+                    modifier = Modifier.size(28.dp), // 32 -> 28
+                    tint = if (isConnected) Color(0xFF818CF8) else Color.White.copy(alpha = 0.2f)
                 )
             }
         }
         
-        // 提示文字
+        // 提示文字 - 增加透明胶囊感
         VoiceHintText(
-            text = if (isConnected) "叫名字/点击" else "等待连接..."
+            text = if (isConnected) "叫名字，开始对话" else "等待连接..."
         )
     }
 }
@@ -226,24 +273,25 @@ private fun IdleMicButton(
 private fun VoiceHintText(text: String) {
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
-            .background(RobotTheme.colors.surfaceOverlay.copy(alpha = 0.1f))
-            .padding(horizontal = 20.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+            .clip(RoundedCornerShape(32.dp))
+            .background(Color(0xFF0F172A).copy(alpha = 0.9f)) // 极深背景
+            .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(32.dp)) // 新增：细致边框
+            .padding(horizontal = 24.dp, vertical = 10.dp), // 增加内边距
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = painterResource(id = R.drawable.chat),
             contentDescription = null,
-            modifier = Modifier.size(18.dp),
-            tint = RobotTheme.colors.accent
+            modifier = Modifier.size(16.dp),
+            tint = Color(0xFF818CF8)
         )
         Text(
             text = text,
-            color = RobotTheme.colors.textSecondary,
+            color = Color.White.copy(alpha = 0.85f), // 调亮文字
             fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.2.sp
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.8.sp
         )
     }
 }
@@ -258,20 +306,22 @@ private fun ActiveStatusPanel(
     isSpeaking: Boolean,
     audioLevel: Float,
     onStopListening: () -> Unit,
+    onCommandClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "activeStatus")
     
     Column(
-        modifier = modifier,
+        modifier = modifier.height(180.dp), // 同步高度
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
     ) {
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(32.dp))
-                .background(RobotTheme.colors.cardBg.copy(alpha = 0.9f))
-                .padding(horizontal = 40.dp, vertical = 24.dp)                .clickable(enabled = isListening) { onStopListening() },
+                .background(Color(0xFF1E293B).copy(alpha = 0.6f)) // 修改为深蓝色胶囊，匹配原型
+                .padding(horizontal = 32.dp, vertical = 18.dp)
+                .clickable(enabled = isListening) { onStopListening() },
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -279,15 +329,15 @@ private fun ActiveStatusPanel(
                 isListening -> {
                         VoiceWaveform(
                             isActive = true,
-                            barColor = Color(0xFF22D3EE),
+                            barColor = Color(0xFF818CF8), // 紫色波形
                             audioLevel = audioLevel
                         )
                         Text(
-                            text = "倾听中",
-                            color = Color(0xFF22D3EE),
+                            text = "请说话...",
+                            color = Color.White.copy(alpha = 0.8f),
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 2.sp
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.2.sp
                         )
                     }
                 isThinking -> {
@@ -303,30 +353,66 @@ private fun ActiveStatusPanel(
                         painter = painterResource(id = R.drawable.settings),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(22.dp)
                             .graphicsLayer { rotationZ = rotation },
-                        tint = Color(0xFF6366F1)
+                        tint = Color(0xFF818CF8)
                     )
                     Text(
                         text = "思考中",
-                        color = Color(0xFF6366F1),
+                        color = Color.White.copy(alpha = 0.8f),
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 2.sp
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.2.sp
                     )
                 }
                 isSpeaking -> {
                     SpeakingDots(
-                        dotColor = Color.White
+                        dotColor = Color(0xFF818CF8)
                     )
                     Text(
-                        text = "正说话",
-                        color = Color.White.copy(alpha = 0.9f),
+                        text = "讲个笑话吧", // 模拟对话文本
+                        color = Color.White,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 2.sp
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.2.sp
                     )
                 }
+            }
+        }
+
+        // 快捷建议指令 - 紧随胶囊下方
+        QuickCommandChips(
+            commands = listOf("打开知识问答", "打开互助播报", "讲个笑话吧"),
+            onCommandClick = onCommandClick
+        )
+    }
+}
+
+/**
+ * 快捷命令芯片组
+ */
+@Composable
+private fun QuickCommandChips(
+    commands: List<String>,
+    onCommandClick: (String) -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        commands.forEach { text ->
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(Color(0xFF1E293B).copy(alpha = 0.5f))
+                    .clickable { onCommandClick(text) }
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = text, 
+                    color = Color.White.copy(alpha = 0.7f), 
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.robotcomp.voice
+package com.airobot.tablet.airobotui.robotcomp.voice
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -25,18 +25,18 @@ fun VoiceWaveform(
     val infiniteTransition = rememberInfiniteTransition(label = "waveform")
 
     Row(
-        modifier = modifier.height(30.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier.height(36.dp), // 稍微增加高度
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         repeat(barCount) { index ->
             // 基础动画，模拟不同频率的波动
             val baseScale by infiniteTransition.animateFloat(
-                initialValue = 0.3f,
-                targetValue = 0.7f,
+                initialValue = 0.2f,
+                targetValue = 0.6f,
                 animationSpec = infiniteRepeatable(
                     animation = tween(
-                        durationMillis = 400 + (index * 100),
+                        durationMillis = 500 + (index * 120),
                         easing = FastOutSlowInEasing
                     ),
                     repeatMode = RepeatMode.Reverse
@@ -44,23 +44,20 @@ fun VoiceWaveform(
                 label = "baseHeight"
             )
             
-            // 音频强度影响，实际音频强度会放大波形效果
-            val audioInfluence = audioLevel * 0.5f // 音频强度贡献0-50%的高度
-            
             // 总高度：基础动画 + 音频强度影响
             val totalScale = if (isActive) {
-                baseScale + audioInfluence + (index * 0.1f) // 每个柱子有不同的基础高度
+                (baseScale + audioLevel * 1.2f + (index * 0.05f)).coerceIn(0.15f, 1f)
             } else {
-                0.2f
+                0.15f
             }
 
             Box(
                 modifier = Modifier
-                    .width(4.dp)
+                    .width(6.dp) // 更宽一点
                     .fillMaxHeight(totalScale)
                     .background(
-                        color = if (isActive) barColor else barColor.copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(2.dp)
+                        color = if (isActive) barColor else barColor.copy(alpha = 0.2f),
+                        shape = RoundedCornerShape(100) // 完全圆角
                     )
             )
         }
