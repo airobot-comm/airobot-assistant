@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.framework.drawer
+package com.airobot.tablet.airobotui.framework.drawer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,10 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airobot.tablet.airobotui.framework.theme.RobotBackgroundDark
-import com.airobot.tablet.airobotui.framework.theme.RobotPrimaryCyan
-import com.airobot.tablet.airobotui.framework.theme.RobotSurface
-import com.airobot.tablet.airobotui.framework.theme.RobotTextPrimary
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
+import com.airobot.tablet.airobotui.framework.theme.StatusCyan
 import com.airobot.tablet.airobotui.framework.subpage.AiRobotConfig
 import com.airobot.tablet.airobotui.framework.subpage.RoleConfig
 import com.airobot.tablet.airobotui.framework.subpage.SystemAuth
@@ -33,24 +31,24 @@ import com.airobot.tablet.airobotui.framework.subpage.SystemAuth
  */
 @Composable
 fun RobotDrawerContent(
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    onToggleTheme: () -> Unit = {}
 ) {
     var selectedTab by remember { mutableStateOf(0) } // 0: 系统认证, 1: 角色管理, 2: Ai智能体
 
     Surface(
         modifier = Modifier
             .fillMaxHeight()
-            .width(640.dp), // 扩大到半屏左右
-        color = RobotBackgroundDark,
+            .width(640.dp),
+        color = RobotTheme.colors.background,
         shape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp)
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
-            // 左侧：菜单选项 (保持窄边)
             Column(
                 modifier = Modifier
                     .width(100.dp)
                     .fillMaxHeight()
-                    .background(RobotSurface.copy(alpha = 0.5f))
+                    .background(RobotTheme.colors.surfaceOverlay.copy(alpha = if (RobotTheme.isDark) 0.05f else 0.1f))
                     .padding(vertical = 40.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -78,6 +76,16 @@ fun RobotDrawerContent(
                     isSelected = selectedTab == 2,
                     onClick = { selectedTab = 2 }
                 )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // 主题切换按钮
+                DrawerMenuItem(
+                    icon = if (RobotTheme.isDark) Icons.Default.WbSunny else Icons.Default.NightsStay,
+                    label = if (RobotTheme.isDark) "浅色模式" else "深色模式",
+                    isSelected = false,
+                    onClick = onToggleTheme
+                )
             }
 
             // 右侧：子页面展示区域
@@ -102,7 +110,7 @@ fun RobotDrawerContent(
                             },
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Black,
-                            color = RobotTextPrimary,
+                            color = RobotTheme.colors.textPrimary,
                             letterSpacing = 1.sp
                         )
                         Box(
@@ -110,7 +118,7 @@ fun RobotDrawerContent(
                                 .padding(top = 4.dp)
                                 .size(width = 40.dp, height = 4.dp)
                                 .clip(RoundedCornerShape(2.dp))
-                                .background(RobotPrimaryCyan)
+                                .background(RobotTheme.colors.accent)
                         )
                     }
                     
@@ -123,7 +131,7 @@ fun RobotDrawerContent(
                         Icon(
                             Icons.Default.Close,
                             contentDescription = "关闭",
-                            tint = RobotTextPrimary.copy(alpha = 0.5f)
+                            tint = RobotTheme.colors.textMuted
                         )
                     }
                 }
@@ -150,8 +158,8 @@ private fun DrawerMenuItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val backgroundColor = if (isSelected) RobotPrimaryCyan.copy(alpha = 0.15f) else Color.Transparent
-    val contentColor = if (isSelected) RobotPrimaryCyan else RobotTextPrimary.copy(alpha = 0.4f)
+    val backgroundColor = if (isSelected) RobotTheme.colors.accent.copy(alpha = 0.15f) else Color.Transparent
+    val contentColor = if (isSelected) RobotTheme.colors.accent else RobotTheme.colors.textMuted
 
     Column(
         modifier = Modifier

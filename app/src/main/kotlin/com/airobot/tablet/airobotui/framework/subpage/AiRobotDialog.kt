@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.framework.subpage
+package com.airobot.tablet.airobotui.framework.subpage
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.airobot.tablet.R
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 
 @Composable
 fun AiRobotDialog(
@@ -26,7 +27,7 @@ fun AiRobotDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp),
-            color = Color(0xFF1E293B),
+            color = RobotTheme.colors.cardBg,
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(
@@ -41,7 +42,7 @@ fun AiRobotDialog(
                     Text(
                         text = "设备Ai智能体激活",
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = RobotTheme.colors.textPrimary,
                         fontSize = MaterialTheme.typography.headlineSmall.fontSize
                     )
                     
@@ -52,7 +53,7 @@ fun AiRobotDialog(
                         Icon(
                             painter = painterResource(id = R.drawable.close),
                             contentDescription = "关闭",
-                            tint = Color.White
+                            tint = RobotTheme.colors.textMuted
                         )
                     }
                 }
@@ -61,7 +62,7 @@ fun AiRobotDialog(
                 
                 Text(
                     text = "使用以下激活码激活Ai智能体：",
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = RobotTheme.colors.textSecondary,
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize
                 )
                 
@@ -69,13 +70,13 @@ fun AiRobotDialog(
                 
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    color = Color.White.copy(alpha = 0.1f),
+                    color = RobotTheme.colors.surfaceOverlay.copy(alpha = 0.05f),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
                         text = activationCode,
                         modifier = Modifier.padding(16.dp),
-                        color = Color(0xFF22D3EE),
+                        color = RobotTheme.colors.accent,
                         fontSize = MaterialTheme.typography.headlineSmall.fontSize,
                         fontWeight = FontWeight.Bold
                     )
@@ -90,7 +91,7 @@ fun AiRobotDialog(
                     Button(
                         onClick = onConfirm,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF22D3EE)
+                            containerColor = RobotTheme.colors.accent
                         )
                     ) {
                         Text("我已激活", color = Color.White)

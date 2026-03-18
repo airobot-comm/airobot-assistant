@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.robotcomp.dialogue
+package com.airobot.tablet.airobotui.robotcomp.dialogue
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.tablet.R
 import com.airobot.tablet.airobotui.state.RobotVisualState
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 
 /**
  * AI对话气泡组件 - 增强设计版
@@ -56,7 +57,7 @@ fun DialogueBubble(
                 modifier = Modifier
                     .size(width = 12.dp, height = 24.dp)
                     .clip(BubblePointerShape())
-                    .background(Color(0xFF0F172A).copy(alpha = 0.95f))
+                    .background(RobotTheme.colors.cardBg.copy(alpha = 0.95f))
             )
 
             // 气泡主体
@@ -72,14 +73,14 @@ fun DialogueBubble(
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
-                                Color(0xFF0F172A).copy(alpha = 0.92f), // slate-900
-                                Color(0xFF1E293B).copy(alpha = 0.88f)  // slate-800
+                                RobotTheme.colors.cardBg.copy(alpha = 0.95f),
+                                RobotTheme.colors.surfaceOverlay.copy(alpha = 0.1f)
                             )
                         )
                     )
                     .border(
                         width = 1.dp,
-                        color = Color.White.copy(alpha = 0.08f),
+                        color = RobotTheme.colors.accent.copy(alpha = 0.1f),
                         shape = RoundedCornerShape(24.dp)
                     )
             ) {
@@ -144,7 +145,7 @@ private fun BubbleHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White.copy(alpha = 0.05f))
+            .background(RobotTheme.colors.surfaceOverlay.copy(alpha = 0.05f))
             .padding(horizontal = 20.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -157,11 +158,11 @@ private fun BubbleHeader(
                 painter = painterResource(id = R.drawable.cloud_on),
                 contentDescription = null,
                 modifier = Modifier.size(16.dp),
-                tint = Color(0xFF22D3EE)
+                tint = RobotTheme.colors.accent
             )
             Text(
                 text = "AETHER SYSTEM",
-                color = Color(0xFF22D3EE),
+                color = RobotTheme.colors.accent,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Black,
                 letterSpacing = 2.sp
@@ -174,7 +175,7 @@ private fun BubbleHeader(
                     painter = painterResource(id = R.drawable.volume_up),
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = Color.White.copy(alpha = 0.6f)
+                    tint = RobotTheme.colors.textSecondary
                 )
                 Spacer(modifier = Modifier.width(12.dp))
             }
@@ -187,7 +188,7 @@ private fun BubbleHeader(
                     Icons.Default.Close,
                     contentDescription = "关闭",
                     modifier = Modifier.size(14.dp),
-                    tint = Color.White.copy(alpha = 0.4f)
+                    tint = RobotTheme.colors.textMuted
                 )
             }
         }
@@ -216,7 +217,7 @@ private fun ThinkingIndicator() {
                 modifier = Modifier
                     .size(10.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF22D3EE).copy(alpha = alpha))
+                    .background(RobotTheme.colors.accent.copy(alpha = alpha))
             )
         }
     }
@@ -238,14 +239,14 @@ private fun SpeakingProgressBar() {
         modifier = Modifier
             .fillMaxWidth()
             .height(2.dp)
-            .background(Color.White.copy(alpha = 0.05f))
+            .background(RobotTheme.colors.surfaceOverlay.copy(alpha = 0.1f))
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.3f)
                 .fillMaxHeight()
                 .offset(x = (progress * 340).dp)
-                .background(Color(0xFF22D3EE))
+                .background(RobotTheme.colors.accent)
         )
     }
 }

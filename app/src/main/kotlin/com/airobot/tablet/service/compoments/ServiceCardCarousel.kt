@@ -1,7 +1,9 @@
-﻿package com.airobot.tablet.service.compoments
+package com.airobot.tablet.service.compoments
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.tablet.airobotui.state.ServiceCard
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,25 +34,25 @@ fun ServiceCardCarousel(
     onCardClick: (ServiceCard) -> Unit,
     currentIndex: Int,
     onPageChanged: (Int) -> Unit,
+    statusTip: String? = null,
     modifier: Modifier = Modifier
 ) {
-    var currentTime by remember { mutableStateOf(Date()) }
     
-    // 时间更新
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(1000L)
-            currentTime = Date()
-        }
-    }
+    // 已经移除了时间显示，首页时间由 TopBar 统一负责
     
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
-        // 时钟显示
-        ClockDisplay(currentTime = currentTime)
+        // 状态提示 (从 Airobot 模型迁移到此处)
+        AnimatedVisibility(
+            visible = statusTip != null,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            StatusTipHeader(tip = statusTip ?: "")
+        }
         
         // 卡片轮播
         if (cards.isNotEmpty()) {
@@ -73,35 +76,32 @@ fun ServiceCardCarousel(
 }
 
 /**
- * 时钟显示组件
+ * 状态提示头部 (迁移自 RobotCharacter)
  */
 @Composable
-private fun ClockDisplay(
-    currentTime: Date,
+private fun StatusTipHeader(
+    tip: String,
     modifier: Modifier = Modifier
 ) {
-    val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
-    
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Row(
+        modifier = modifier
+            .padding(bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // 时间
-        Text(
-            text = timeFormat.format(currentTime),
-            color = Color.White.copy(alpha = 0.8f),
-            fontSize = 56.sp,
-            fontWeight = FontWeight.Light,
-            letterSpacing = (-2).sp
+        // 小圆点指示器
+        Box(
+            modifier = Modifier
+                .size(6.dp)
+                .background(RobotTheme.colors.accent, CircleShape)
         )
         
-        // 系统标识
         Text(
-            text = "AETHER SYSTEM CLOCK",
-            color = Color(0xFF22D3EE).copy(alpha = 0.3f), // cyan-400
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Black,
-            letterSpacing = 3.sp
+            text = tip,
+            color = RobotTheme.colors.textPrimary.copy(alpha = 0.9f),
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            letterSpacing = 0.5.sp
         )
     }
 }

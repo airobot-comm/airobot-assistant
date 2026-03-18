@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet
+package com.airobot.tablet
 
 import android.os.Bundle
 import android.util.Log
@@ -6,13 +6,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.airobot.tablet.airobotui.AiRobotMainScreen
-import com.airobot.tablet.airobotui.framework.theme.DarkColorScheme
-import com.airobot.tablet.airobotui.framework.theme.YTheme
+import com.airobot.tablet.airobotui.framework.theme.AiRobotTheme
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
+import com.airobot.tablet.airobotui.framework.theme.RobotThemeMode
 
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,7 +34,7 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.apply {
             statusBarColor = android.graphics.Color.TRANSPARENT
-            navigationBarColor = android.graphics.Color.parseColor("#0F172A") // slate-900
+            navigationBarColor = android.graphics.Color.TRANSPARENT
         }
         
         // 隐藏状态栏
@@ -41,17 +46,26 @@ class MainActivity : ComponentActivity() {
         Log.d(TAG, "应用启动，开始初始化...")
         
         setContent {
-            YTheme(
-                darkTheme = true
-            ) {
+            var themeMode by remember { mutableStateOf(RobotThemeMode.DARK) }
+            
+            AiRobotTheme(themeMode = themeMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = DarkColorScheme.background
+                    color = RobotTheme.colors.background
                 ) {
-                    AiRobotMainScreen()
+                    AiRobotMainScreen(
+                        themeMode = themeMode,
+                        onToggleTheme = {
+                            themeMode = if (themeMode == RobotThemeMode.DARK) {
+                                RobotThemeMode.LIGHT
+                            } else {
+                                RobotThemeMode.DARK
+                            }
+                            Log.d(TAG, "主题切换: $themeMode")
+                        }
+                    )
                 }
             }
         }
     }
 }
-

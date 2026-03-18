@@ -1,4 +1,8 @@
-﻿package com.airobot.tablet.airobotui
+package com.airobot.tablet.airobotui
+
+import com.airobot.tablet.airobotui.framework.theme.*
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
+import com.airobot.tablet.airobotui.framework.theme.RobotThemeMode
 
 import android.Manifest
 import androidx.compose.animation.*
@@ -29,6 +33,7 @@ import com.airobot.tablet.airobotui.robotcomp.dialogue.DialogueBubble
 import com.airobot.tablet.airobotui.robotcomp.robot.*
 import com.airobot.tablet.airobotui.robotcomp.voice.RobotVoiceInputPanel
 import com.airobot.tablet.airobotui.framework.statusbar.RobotTopBar
+import com.airobot.tablet.airobotui.framework.statusbar.SystemStatusBar
 import com.airobot.tablet.airobotui.framework.drawer.RobotDrawerContent
 import com.airobot.tablet.service.compoments.DEFAULT_SERVICE_CARDS
 import com.airobot.tablet.service.FocusTimerWidget
@@ -58,6 +63,8 @@ import androidx.compose.animation.core.Spring // ADDED IMPORT
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun AiRobotMainScreen(
+    themeMode: RobotThemeMode = RobotThemeMode.DARK,
+    onToggleTheme: () -> Unit = {},
     robotMainViewModel: RobotMainViewModel = hiltViewModel(),
     conversationViewModel: ConversationViewModel = hiltViewModel(),
     serviceViewModel: ServiceViewModel = hiltViewModel()
@@ -196,7 +203,8 @@ fun AiRobotMainScreen(
         drawerState = drawerState,
         drawerContent = {
             RobotDrawerContent(
-                onClose = { scope.launch { drawerState.close() } }
+                onClose = { scope.launch { drawerState.close() } },
+                onToggleTheme = onToggleTheme
             )
         },
         gesturesEnabled = drawerState.isOpen
@@ -207,8 +215,8 @@ fun AiRobotMainScreen(
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF0F172A),
-                            Color(0xFF020617)
+                            RobotTheme.colors.backgroundGradientStart,
+                            RobotTheme.colors.backgroundGradientEnd
                         )
                     )
                 )
@@ -242,31 +250,26 @@ fun AiRobotMainScreen(
                         modifier = Modifier
                             .constrainAs(robotRef) {
                                 top.linkTo(parent.top)
-                                bottom.linkTo(parent.bottom, margin = 300.dp) // 偏上给语音面板留空间
+                                bottom.linkTo(parent.bottom, margin = 260.dp) // 300 -> 260 稍微调低基准
                                 start.linkTo(parent.start)
                                 end.linkTo(parent.end)
                                 // 动态水平偏置实现滑动
                                 horizontalBias = robotHorizontalBias
-                                // 垂直偏置，让机器人视觉上处于最佳位置
-                                verticalBias = 0.5f
+                                verticalBias = 0.45f // 0.5 -> 0.45 稍微往上移一点，避免与语音面板重合
                             },
                         contentAlignment = Alignment.Center
                     ) {
                         RobotCharacter(
                             state = robotUiState.visualState,
-                            statusTip = if (robotUiState.visualState == RobotVisualState.IDLE ||
-                                robotUiState.visualState == RobotVisualState.FOCUS
-                            )
-                                robotUiState.statusTip else null,
                             audioLevel = { audioLevel }, // 传入音频等级用于微表情
-                            headSize = 420.dp
+                            headSize = 400.dp // 420 -> 400 稍微缩小一点点
                         )
                     }
                     // 2. 语音输入面板 (底部保持一定距离)
                     Box(
                         modifier = Modifier
                             .constrainAs(voicePanelRef) {
-                                bottom.linkTo(parent.bottom, margin = 65.dp)
+                                bottom.linkTo(parent.bottom, margin = 48.dp) // 65 -> 48 稍微线下移一点
                                 start.linkTo(robotRef.start)
                                 end.linkTo(robotRef.end)
                             }
@@ -340,6 +343,7 @@ fun AiRobotMainScreen(
                                 cards = serviceCards,
                                 currentIndex = currentCardIndex,
                                 onPageChanged = { currentCardIndex = it },
+                                statusTip = robotUiState.statusTip, // 传递状态提示到卡片区域
                                 onCardClick = { card ->
                                     // 确保点击的是当前显示的卡片
                                     val targetCard = if (serviceCards.contains(card)) card else serviceCards[currentCardIndex]
@@ -435,7 +439,7 @@ private fun FunctionalModulePanel(
         modifier = modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(32.dp))
-            .background(Color(0xFF0F172A).copy(alpha = 0.5f))
+            .background(RobotTheme.colors.cardBg.copy(alpha = 0.5f))
             .padding(20.dp)
     ) {
         Column {
@@ -474,13 +478,13 @@ private fun FunctionalModulePanel(
                     Column {
                         Text(
                             text = card.title,
-                            color = Color.White,
+                            color = RobotTheme.colors.textPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = "AETHER SYSTEM MODULE",
-                            color = Color(0xFF22D3EE).copy(alpha = 0.6f),
+                            color = RobotTheme.colors.accent.copy(alpha = 0.6f),
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.sp
@@ -493,13 +497,13 @@ private fun FunctionalModulePanel(
                     modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color.White.copy(alpha = 0.05f))
+                    .background(RobotTheme.colors.surfaceOverlay.copy(alpha = 0.05f))
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.close),
                         contentDescription = "关闭",
                         modifier = Modifier.size(16.dp),
-                        tint = Color.White.copy(alpha = 0.6f)
+                        tint = RobotTheme.colors.textMuted
                     )
                 }
             }
@@ -528,7 +532,7 @@ private fun FunctionalModulePanel(
                         card.demoContent?.let {
                             Text(
                                 text = it,
-                                color = Color.White.copy(alpha = 0.6f),
+                                color = RobotTheme.colors.textSecondary,
                                 fontSize = 16.sp,
                                 lineHeight = 24.sp,
                                 fontWeight = FontWeight.SemiBold,
@@ -550,11 +554,11 @@ private fun FunctionalModulePanel(
                                 painter = painterResource(id = getServiceCardIcon(card.type)),
                                 contentDescription = null,
                                 modifier = Modifier.size(56.dp),
-                                tint = Color.White.copy(alpha = 0.2f)
+                                tint = RobotTheme.colors.textMuted.copy(alpha = 0.3f)
                             )
                             Text(
                                 text = card.demoContent ?: "${card.type.name} 功能开发中",
-                                color = Color.White.copy(alpha = 0.6f),
+                                color = RobotTheme.colors.textSecondary,
                                 fontSize = 18.sp,
                                 lineHeight = 28.sp,
                                 fontWeight = FontWeight.SemiBold,

@@ -1,85 +1,106 @@
-﻿package com.airobot.tablet.airobotui.framework.theme
+package com.airobot.tablet.airobotui.framework.theme
 
 import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
+/**
+ * Material3 深色配色方案
+ */
 val DarkColorScheme = darkColorScheme(
-    primary = RobotPrimaryCyan,
-    secondary = RobotSecondaryIndigo,
-    tertiary = RobotPrimaryCyan,
-    background = RobotBackgroundDark,
-    surface = RobotSurface,
-    surfaceVariant = RobotSurface,
-    onPrimary = RobotTextPrimary,
-    onSecondary = RobotTextPrimary,
-    onTertiary = RobotTextPrimary,
-    onBackground = RobotTextPrimary,
-    onSurface = RobotTextPrimary,
-    onSurfaceVariant = RobotTextSecondary,
-    outline = RobotTextSecondary,
-    error = Color(0xFFEF4444) // red-500
+    primary = StatusCyan,
+    secondary = DarkAccentBg,
+    tertiary = StatusCyan,
+    background = DarkBackground,
+    surface = DarkCardBg,
+    surfaceVariant = DarkCardBg,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = DarkTextPrimary,
+    onSurface = DarkTextPrimary,
+    onSurfaceVariant = DarkTextSecondary,
+    outline = DarkTextSecondary,
+    error = StatusRed
 )
 
+/**
+ * Material3 浅色配色方案
+ */
 val LightColorScheme = lightColorScheme(
-    primary = TechBlue40,
-    secondary = TechBlueGrey40,
-    tertiary = TechLightBlue40,
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+    primary = LightAccent,
+    secondary = LightAccentBg,
+    tertiary = LightAccent,
+    background = LightBackground,
+    surface = LightCardBg,
     surfaceVariant = Color(0xFFF5F5F5),
     onPrimary = Color.White,
     onSecondary = Color.White,
     onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    onSurfaceVariant = Color(0xFF49454F),
-    outline = Color(0xFF79747E),
-    error = Color(0xFFBA1A1A)
+    onBackground = LightTextPrimary,
+    onSurface = LightTextPrimary,
+    onSurfaceVariant = LightTextSecondary,
+    outline = LightTextMuted,
+    error = StatusRed
 )
 
+/**
+ * AIRobot 统一主题入口
+ *
+ * 同时提供 Material3 MaterialTheme 和自定义 RobotTheme，
+ * 各组件可选用 MaterialTheme.colorScheme 或 RobotTheme.colors。
+ *
+ * @param themeMode 主题模式 (LIGHT / DARK)
+ */
 @Composable
-fun YTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+fun AiRobotTheme(
+    themeMode: RobotThemeMode = RobotThemeMode.DARK,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+    val isDark = themeMode == RobotThemeMode.DARK
+    val materialScheme = if (isDark) DarkColorScheme else LightColorScheme
+    val robotColors = if (isDark) DarkRobotColors else LightRobotColors
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    // 动态更新状态栏颜色
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // 使用深色背景色（slate-900）而不是蓝色
-            window.statusBarColor = Color(0xFF0F172A).toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            window.statusBarColor = robotColors.background.toArgb()
+            window.navigationBarColor = robotColors.background.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDark
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
+    CompositionLocalProvider(
+        LocalRobotThemeColors provides robotColors,
+        LocalRobotThemeMode provides themeMode
+    ) {
+        MaterialTheme(
+            colorScheme = materialScheme,
+            typography = Typography,
+            content = content
+        )
+    }
+}
+
+// Keep legacy alias for backward compatibility during migration
+@Composable
+fun YTheme(
+    darkTheme: Boolean = true,
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit
+) {
+    AiRobotTheme(
+        themeMode = if (darkTheme) RobotThemeMode.DARK else RobotThemeMode.LIGHT,
         content = content
     )
 }
-

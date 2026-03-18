@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.framework.statusbar
+package com.airobot.tablet.airobotui.framework.statusbar
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -8,33 +8,39 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.os.BatteryManager
 import androidx.compose.animation.*
-import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.airobot.tablet.R
-import com.airobot.tablet.airobotui.framework.theme.RobotTextPrimary
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
+import com.airobot.tablet.airobotui.framework.theme.StatusCyan
+import com.airobot.tablet.airobotui.framework.theme.*
+import androidx.compose.ui.platform.LocalContext
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * 系统状态栏组件 - 负责网络、电量等基础状态展示
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SystemStatusBar(
     errorMessage: String? = null,
-    modifier: Modifier = Modifier,
-    tint: Color = RobotTextPrimary.copy(alpha = 0.3f)
+    modifier: Modifier = Modifier
 ) {
+    val tint = RobotTheme.colors.textMuted
+    
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(24.dp), // 增加间距
         verticalAlignment = Alignment.CenterVertically
     ) {
         AnimatedVisibility(
@@ -42,27 +48,40 @@ fun SystemStatusBar(
             enter = fadeIn() + expandHorizontally(),
             exit = fadeOut() + shrinkHorizontally()
         ) {
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                tooltip = {
-                    PlainTooltip {
-                        Text(errorMessage ?: "")
-                    }
-                },
-                state = rememberTooltipState()
-            ) {
-                Icon(
-                    Icons.Default.Warning,
-                    contentDescription = "网络错误",
-                    modifier = Modifier.size(18.dp),
-                    tint = Color(0xFFEF4444)
-                )
-            }
+            Icon(
+                Icons.Default.Warning,
+                contentDescription = "错误",
+                modifier = Modifier.size(18.dp),
+                tint = Color(0xFFEF4444)
+            )
         }
         
-        NetworkStatusIcon(tint = tint)
         BatteryLevelIcon(tint = tint)
+        NetworkStatusIcon(tint = tint)
+        TimeDisplay()
     }
+}
+
+@Composable
+private fun TimeDisplay() {
+    var currentTime by remember { mutableStateOf(System.currentTimeMillis()) }
+    
+    LaunchedEffect(Unit) {
+        while (true) {
+            currentTime = System.currentTimeMillis()
+            kotlinx.coroutines.delay(1000L)
+        }
+    }
+    
+    val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    
+    Text(
+        text = timeFormat.format(Date(currentTime)),
+        color = RobotTheme.colors.textPrimary,
+        fontSize = 22.sp, // 增大字体
+        fontWeight = FontWeight.Black,
+        letterSpacing = 1.sp
+    )
 }
 
 @Composable
@@ -89,12 +108,23 @@ private fun NetworkStatusIcon(tint: Color) {
         })
     }
     
-    Icon(
-        painter = painterResource(id = if (wifiConnected) R.drawable.wifi else R.drawable.wifi_off),
-        contentDescription = if (wifiConnected) "WiFi已连接" else "WiFi未连接",
-        modifier = Modifier.size(16.dp),
-        tint = if (wifiConnected) tint else Color(0xFFEF4444).copy(alpha = 0.3f)
-    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = if (wifiConnected) "ONLINE" else "OFFLINE",
+            color = tint,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Icon(
+            painter = painterResource(id = if (wifiConnected) R.drawable.wifi else R.drawable.wifi_off),
+            contentDescription = if (wifiConnected) "WiFi已连接" else "WiFi未连接",
+            modifier = Modifier.size(14.dp),
+            tint = if (wifiConnected) tint else Color(0xFFEF4444).copy(alpha = 0.5f)
+        )
+    }
 }
 
 @Composable
@@ -131,12 +161,23 @@ private fun BatteryLevelIcon(tint: Color) {
         else -> R.drawable.battery_low
     }
     
-    Icon(
-        painter = painterResource(id = iconRes),
-        contentDescription = "电量: $batteryLevel%",
-        modifier = Modifier.size(16.dp),
-        tint = if (batteryLevel <= 20 && !isCharging) Color(0xFFEF4444).copy(alpha = 0.3f) else tint
-    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = iconRes),
+            contentDescription = "电量: $batteryLevel%",
+            modifier = Modifier.size(20.dp),
+            tint = if (batteryLevel <= 20 && !isCharging) Color(0xFFEF4444).copy(alpha = 0.6f) else tint
+        )
+        Text(
+            text = "$batteryLevel%",
+            color = tint,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
 }
 
 

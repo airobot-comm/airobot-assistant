@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.framework.statusbar
+package com.airobot.tablet.airobotui.framework.statusbar
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -19,9 +19,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.tablet.R
 import com.airobot.tablet.airobotui.state.RobotState
-import com.airobot.tablet.airobotui.framework.theme.RobotPrimaryCyan
-import com.airobot.tablet.airobotui.framework.theme.RobotSecondaryIndigo
-import com.airobot.tablet.airobotui.framework.theme.RobotTextPrimary
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
+import com.airobot.tablet.airobotui.framework.theme.StatusRed
+import com.airobot.tablet.airobotui.framework.theme.StatusAmber
+import com.airobot.tablet.airobotui.framework.theme.StatusEmerald
+import com.airobot.tablet.airobotui.framework.theme.StatusCyan
 
 /**
  * 集中化 TopBar 组件
@@ -53,8 +55,8 @@ fun RobotTopBar(
                     .background(
                         Brush.linearGradient(
                             listOf(
-                                RobotPrimaryCyan,
-                                RobotSecondaryIndigo
+                                RobotTheme.colors.accent,
+                                RobotTheme.colors.accentBg
                             )
                         )
                     )
@@ -65,13 +67,13 @@ fun RobotTopBar(
                     painter = painterResource(id = R.drawable.cloud_on),
                     contentDescription = "菜单",
                     modifier = Modifier.size(18.dp),
-                    tint = RobotTextPrimary
+                    tint = Color.White
                 )
             }
             
             Text(
                 text = "AETHER",
-                color = RobotTextPrimary.copy(alpha = 0.9f),
+                color = RobotTheme.colors.textPrimary,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Black,
                 letterSpacing = 3.sp
@@ -107,12 +109,12 @@ private fun RobotStateBadge(robotState: RobotState) {
     }
     
     val stateColor = when (robotState) {
-        is RobotState.Offline -> Color(0xFFEF4444)           // 红色
-        is RobotState.Initializing -> Color(0xFFFBBF24)      // 琥珀色
-        is RobotState.Unauthorized -> Color(0xFFF87171)      // 浅红
-        is RobotState.Connecting -> RobotPrimaryCyan.copy(alpha = 0.8f) 
-        is RobotState.Ready -> RobotPrimaryCyan
-        else -> Color(0xFF34D399)                           // 运行中（翠绿色）
+        is RobotState.Offline -> StatusRed
+        is RobotState.Initializing -> StatusAmber
+        is RobotState.Unauthorized -> StatusRed
+        is RobotState.Connecting -> StatusCyan
+        is RobotState.Ready -> StatusCyan
+        else -> StatusEmerald
     }
 
     Surface(

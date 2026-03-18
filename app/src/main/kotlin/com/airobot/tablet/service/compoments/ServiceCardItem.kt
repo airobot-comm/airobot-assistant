@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.service.compoments
+package com.airobot.tablet.service.compoments
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.airobot.tablet.R
 import com.airobot.tablet.airobotui.state.ServiceCard
 import com.airobot.tablet.airobotui.state.ServiceCardType
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 
 /**
  * 服务卡片组件
@@ -58,8 +60,8 @@ fun ServiceCardItem(
             .background(
                 brush = Brush.horizontalGradient(
                     colors = listOf(
-                        Color.White.copy(alpha = if (isHovered) 0.08f else 0.05f),
-                        Color.White.copy(alpha = if (isHovered) 0.04f else 0.02f)
+                        RobotTheme.colors.cardBg.copy(alpha = if (isHovered) 0.95f else 0.85f),
+                        RobotTheme.colors.surfaceOverlay.copy(alpha = if (isHovered) 0.1f else 0.05f)
                     )
                 )
             )
@@ -82,8 +84,8 @@ fun ServiceCardItem(
                     .background(
                         brush = Brush.linearGradient(
                             colors = listOf(
-                                Color(0xFF6366F1), // indigo-500
-                                Color(0xFF22D3EE)  // cyan-500
+                                RobotTheme.colors.accent,
+                                RobotTheme.colors.accentBg
                             )
                         )
                     ),
@@ -108,7 +110,7 @@ fun ServiceCardItem(
                 ) {
                     Text(
                         text = card.title,
-                        color = Color.White,
+                        color = RobotTheme.colors.textPrimary,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -122,13 +124,13 @@ fun ServiceCardItem(
                             painter = painterResource(id = R.drawable.star),
                             contentDescription = null,
                             modifier = Modifier.size(12.dp),
-                            tint = Color(0xFF22D3EE) // cyan-400
+                            tint = RobotTheme.colors.accent
                         )
                     }
                 }
                 Text(
                     text = card.content,
-                    color = Color.White.copy(alpha = 0.4f),
+                    color = RobotTheme.colors.textSecondary,
                     fontSize = 12.sp,
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
@@ -137,12 +139,12 @@ fun ServiceCardItem(
             
             // 箭头
             Icon(
-                Icons.Default.ArrowForward,
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = null,
                 modifier = Modifier
                     .size(20.dp)
                     .offset(x = if (isHovered) 4.dp else 0.dp),
-                tint = Color(0xFF22D3EE).copy(alpha = if (isHovered) 1f else 0.2f)
+                tint = RobotTheme.colors.accent.copy(alpha = if (isHovered) 1f else 0.3f)
             )
         }
         
@@ -179,13 +181,13 @@ private fun CardProgressBar(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(1.dp))
-            .background(Color(0xFF22D3EE).copy(alpha = 0.2f))
+            .background(RobotTheme.colors.accent.copy(alpha = 0.2f))
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(progress.value)
                 .fillMaxHeight()
-                .background(Color(0xFF22D3EE))
+                .background(RobotTheme.colors.accent)
         )
     }
 }

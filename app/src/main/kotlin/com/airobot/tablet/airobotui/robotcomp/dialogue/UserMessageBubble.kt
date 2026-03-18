@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.robotcomp.dialogue
+package com.airobot.tablet.airobotui.robotcomp.dialogue
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 
 @Composable
 fun UserMessageBubble(
@@ -39,21 +40,21 @@ fun UserMessageBubble(
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color.White.copy(alpha = 0.12f),
-                            Color.White.copy(alpha = 0.05f)
+                            RobotTheme.colors.surfaceOverlay.copy(alpha = 0.15f),
+                            RobotTheme.colors.surfaceOverlay.copy(alpha = 0.05f)
                         )
                     )
                 )
                 .border(
                     width = 1.dp,
-                    color = Color.White.copy(alpha = 0.1f),
+                    color = RobotTheme.colors.accent.copy(alpha = 0.15f),
                     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 24.dp, bottomEnd = 4.dp)
                 )
                 .padding(horizontal = 20.dp, vertical = 14.dp)
         ) {
             Text(
                 text = message,
-                color = Color.White.copy(alpha = 0.95f),
+                color = RobotTheme.colors.textPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 22.sp,

@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.framework.comp
+package com.airobot.tablet.airobotui.framework.comp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -11,8 +11,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airobot.tablet.airobotui.framework.theme.RobotPrimaryCyan
-import com.airobot.tablet.airobotui.framework.theme.RobotTextPrimary
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 
 @Composable
 fun BottomFooter(modifier: Modifier = Modifier) {
@@ -30,11 +29,11 @@ fun BottomFooter(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .size(4.dp)
                     .clip(CircleShape)
-                    .background(RobotPrimaryCyan.copy(alpha = 0.3f))
+                    .background(RobotTheme.colors.accent.copy(alpha = 0.3f))
             )
             Text(
                 text = "POWER BY AIROBOT_COMM.",
-                color = RobotTextPrimary.copy(alpha = 0.4f),
+                color = RobotTheme.colors.textPrimary.copy(alpha = 0.4f),
                 fontSize = 8.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 3.sp
@@ -43,7 +42,7 @@ fun BottomFooter(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .size(4.dp)
                     .clip(CircleShape)
-                    .background(RobotPrimaryCyan.copy(alpha = 0.3f))
+                    .background(RobotTheme.colors.accent.copy(alpha = 0.3f))
             )
         }
     }

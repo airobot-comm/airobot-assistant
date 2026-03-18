@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.framework.comp
+package com.airobot.tablet.airobotui.framework.comp
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -12,6 +12,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 
 @Composable
 fun BackgroundDecorations() {
@@ -32,7 +33,7 @@ fun BackgroundDecorations() {
                 .offset(x = (-100).dp, y = (-150).dp)
                 .size(400.dp * pulseScale)
                 .clip(CircleShape)
-                .background(Color(0xFF3B82F6).copy(alpha = 0.05f))
+                .background(RobotTheme.colors.backgroundShapes)
                 .blur(120.dp)
         )
         
@@ -42,7 +43,7 @@ fun BackgroundDecorations() {
                 .offset(x = 100.dp, y = 100.dp)
                 .size(350.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF6366F1).copy(alpha = 0.08f))
+                .background(RobotTheme.colors.backgroundShapes.copy(alpha = RobotTheme.colors.backgroundShapes.alpha * 1.5f))
                 .blur(100.dp)
         )
     }

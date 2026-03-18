@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.robotcomp.voice
+package com.airobot.tablet.airobotui.robotcomp.voice
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -26,6 +26,7 @@ import com.airobot.tablet.R
 import com.airobot.tablet.airobotui.robotcomp.dialogue.UserMessageBubble
 import com.airobot.tablet.airobotui.state.RobotVisualState
 import com.airobot.tablet.airobotui.state.TimerStatus
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 
 /**
  * 机器人风格语音输入面板
@@ -157,12 +158,12 @@ private fun IdleMicButton(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp) // 20 -> 16
     ) {
         // 麦克风按钮
         Box(
             modifier = Modifier
-                .size(140.dp)
+                .size(110.dp) // 140 -> 110
                 .clickable(enabled = isConnected) { onStartListening() }, // 点击唤醒
             contentAlignment = Alignment.Center
         ) {
@@ -170,24 +171,24 @@ private fun IdleMicButton(
             if (isConnected) {
                 Box(
                     modifier = Modifier
-                        .size(140.dp)
+                        .size(110.dp) // 140 -> 110
                         .scale(finalScale)
                         .clip(CircleShape)
-                        .background(Color(0xFF6366F1).copy(alpha = ringAlpha))
+                        .background(RobotTheme.colors.accent.copy(alpha = ringAlpha))
                 )
             }
             
             // 按钮主体
             Box(
                 modifier = Modifier
-                    .size(110.dp)
+                    .size(86.dp) // 110 -> 86
                     .clip(CircleShape)
                     .background(
                         brush = Brush.verticalGradient(
                             colors = if (isConnected) {
                                 listOf(
-                                    Color(0xFF0F172A),
-                                    Color(0xFF1E293B)
+                                    RobotTheme.colors.surfaceOverlay,
+                                    RobotTheme.colors.cardBg
                                 )
                             } else {
                                 listOf(
@@ -205,7 +206,7 @@ private fun IdleMicButton(
                 Icon(
                     painter = painterResource(id = R.drawable.mic),
                     contentDescription = "点击唤醒",
-                    modifier = Modifier.size(54.dp),
+                    modifier = Modifier.size(42.dp), // 54 -> 42
                     tint = if (isConnected) Color.White else Color.White.copy(alpha = 0.5f)
                 )
             }
@@ -226,7 +227,7 @@ private fun VoiceHintText(text: String) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(Color.White.copy(alpha = 0.08f))
+            .background(RobotTheme.colors.surfaceOverlay.copy(alpha = 0.1f))
             .padding(horizontal = 20.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -235,11 +236,11 @@ private fun VoiceHintText(text: String) {
             painter = painterResource(id = R.drawable.chat),
             contentDescription = null,
             modifier = Modifier.size(18.dp),
-            tint = Color(0xFF22D3EE)
+            tint = RobotTheme.colors.accent
         )
         Text(
             text = text,
-            color = Color.White.copy(alpha = 0.8f),
+            color = RobotTheme.colors.textSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.2.sp
@@ -269,9 +270,8 @@ private fun ActiveStatusPanel(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(32.dp))
-                .background(Color.White.copy(alpha = 0.1f))
-                .padding(horizontal = 40.dp, vertical = 24.dp) // 增大内边距
-                .clickable(enabled = isListening) { onStopListening() },
+                .background(RobotTheme.colors.cardBg.copy(alpha = 0.9f))
+                .padding(horizontal = 40.dp, vertical = 24.dp)                .clickable(enabled = isListening) { onStopListening() },
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
