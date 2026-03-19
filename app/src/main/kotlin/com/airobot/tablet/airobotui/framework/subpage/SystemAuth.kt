@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.framework.subpage
+package com.airobot.tablet.airobotui.framework.subpage
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,8 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobot.tablet.airobotui.framework.comp.ConfigTextField
-import com.airobot.tablet.airobotui.framework.theme.RobotPrimaryCyan
-import com.airobot.tablet.airobotui.framework.theme.RobotTextSecondary
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 import com.airobot.tablet.airobotui.viewmodel.RobotMainViewModel
 import com.airobot.tablet.system.model.ActiveInfo
 
@@ -30,7 +29,7 @@ fun SystemAuth(
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
             "设备基本信息 (不可修改)",
-            color = RobotTextSecondary,
+            color = RobotTheme.colors.textSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
@@ -53,7 +52,7 @@ fun SystemAuth(
         
         Text(
             "设备激活与授权",
-            color = RobotTextSecondary,
+            color = RobotTheme.colors.textSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
@@ -78,10 +77,10 @@ fun SystemAuth(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("激活状态:", color = RobotTextSecondary, fontSize = 14.sp)
+            Text("激活状态:", color = RobotTheme.colors.textSecondary, fontSize = 14.sp)
             Text(
                 if (isActivated) "已成功激活" else "尚未激活",
-                color = if (isActivated) RobotPrimaryCyan else Color.Red,
+                color = if (isActivated) RobotTheme.colors.accent else Color.Red,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp
             )
@@ -94,7 +93,7 @@ fun SystemAuth(
             modifier = Modifier.fillMaxWidth(),
             enabled = productKey.length >= 8,
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isActivated) Color.Gray else RobotPrimaryCyan
+                containerColor = if (isActivated) Color.Gray else RobotTheme.colors.accent
             ),
             shape = RoundedCornerShape(12.dp)
         ) {
@@ -108,7 +107,7 @@ fun SystemAuth(
         if (isActivated) {
             Text(
                 "激活时间: ${deviceInfo.activation.time}",
-                color = RobotTextSecondary,
+                color = RobotTheme.colors.textSecondary,
                 fontSize = 12.sp
             )
         }

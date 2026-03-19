@@ -54,7 +54,7 @@ fun BackgroundDecorations() {
                 .offset(x = 140.dp, y = (-40).dp)
                 .size(80.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.03f))
+                .background(RobotTheme.colors.backgroundShapes.copy(alpha = if (RobotTheme.isDark) 0.1f else 0.4f)) // 提升浅色模式可见度
                 .blur(30.dp)
         )
     }

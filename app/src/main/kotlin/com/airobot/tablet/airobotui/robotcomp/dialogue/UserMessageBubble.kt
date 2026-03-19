@@ -39,10 +39,17 @@ fun UserMessageBubble(
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 24.dp, bottomEnd = 4.dp))
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(
-                            RobotTheme.colors.surfaceOverlay.copy(alpha = 0.15f),
-                            RobotTheme.colors.surfaceOverlay.copy(alpha = 0.05f)
-                        )
+                        colors = if (RobotTheme.isDark) {
+                            listOf(
+                                RobotTheme.colors.surfaceOverlay.copy(alpha = 0.15f),
+                                RobotTheme.colors.surfaceOverlay.copy(alpha = 0.05f)
+                            )
+                        } else {
+                            listOf(
+                                Color.White,
+                                Color.White.copy(alpha = 0.85f)
+                            )
+                        }
                     )
                 )
                 .border(

@@ -4,10 +4,12 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,7 +44,7 @@ fun ServiceCardCarousel(
     
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.Start, // 向左对齐
         verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
         // 状态提示 (从 Airobot 模型迁移到此处)
@@ -85,15 +87,17 @@ private fun StatusTipHeader(
 ) {
     Row(
         modifier = modifier
-            .padding(bottom = 8.dp),
+            .padding(bottom = 8.dp, start = 4.dp), // 增加一点左边距对齐卡片内容
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // 小圆点指示器
+        // 竖线指示器 (替换小圆点)
         Box(
             modifier = Modifier
-                .size(6.dp)
-                .background(RobotTheme.colors.accent, CircleShape)
+                .width(4.dp)
+                .height(18.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(RobotTheme.colors.accent)
         )
         
         Text(

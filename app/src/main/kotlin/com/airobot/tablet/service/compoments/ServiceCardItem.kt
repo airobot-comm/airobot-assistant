@@ -59,10 +59,17 @@ fun ServiceCardItem(
             .clip(RoundedCornerShape(28.dp))
             .background(
                 brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        RobotTheme.colors.cardBg.copy(alpha = if (isHovered) 0.95f else 0.85f),
-                        RobotTheme.colors.surfaceOverlay.copy(alpha = if (isHovered) 0.1f else 0.05f)
-                    )
+                    colors = if (RobotTheme.isDark) {
+                        listOf(
+                            RobotTheme.colors.cardBg.copy(alpha = if (isHovered) 0.95f else 0.85f),
+                            RobotTheme.colors.surfaceOverlay.copy(alpha = if (isHovered) 0.1f else 0.05f)
+                        )
+                    } else {
+                        listOf(
+                            Color.White,
+                            Color.White.copy(alpha = 0.8f)
+                        )
+                    }
                 )
             )
             .clickable { 

@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.robotcomp.dialogue
+package com.airobot.tablet.airobotui.robotcomp.dialogue
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 import kotlinx.coroutines.delay
 
 /**
@@ -28,7 +29,7 @@ fun TypewriterText(
     style: TextStyle = TextStyle(
         fontSize = 17.sp,
         fontWeight = FontWeight.Bold,
-        color = Color.White.copy(alpha = 0.95f),
+        color = RobotTheme.colors.textPrimary,
         lineHeight = 26.sp
     ),
     onComplete: () -> Unit = {}
@@ -81,7 +82,7 @@ fun TypewriterTextWithCursor(
     style: TextStyle = TextStyle(
         fontSize = 17.sp,
         fontWeight = FontWeight.Bold,
-        color = Color.White.copy(alpha = 0.95f),
+        color = RobotTheme.colors.textPrimary,
         lineHeight = 26.sp
     ),
     onComplete: () -> Unit = {}

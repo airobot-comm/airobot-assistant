@@ -75,8 +75,8 @@ val DarkTimerRingPaused = Color(0xFF475569)        // slate-600
 // ============================================================
 // Light Theme Palette — slate-200 based
 // ============================================================
-val LightBackground = Color(0xFFE2E8F0)            // slate-200
-val LightBackgroundEnd = Color(0xFFCBD5E1)         // slate-300
+val LightBackground = Color(0xFFF3F7FA)            // 极浅蓝灰色，匹配 Image 3
+val LightBackgroundEnd = Color(0xFFE6EEF5)         // 浅蓝灰
 val LightBackgroundShapes = Color(0xFFCBD5E1)      // slate-300/40%
 val LightTextPrimary = Color(0xFF334155)            // slate-700
 val LightTextSecondary = Color(0xFF475569)          // slate-600
@@ -88,8 +88,8 @@ val LightCardBorder = Color(0xFFE2E8F0)             // slate-200
 val LightBubbleBg = Color(0xFFFFFFFF)               // white/40%
 val LightBubbleBorder = Color(0xFFFFFFFF)           // white/50%
 val LightSurfaceOverlay = Color(0xFF000000)         // black — used at low alpha
-val LightRobotAuraStart = Color(0xFF38BDF8)         // sky-400/60%
-val LightRobotAuraEnd = Color(0xFF93C5FD)           // blue-300/60%
+val LightRobotAuraStart = Color(0xFFBAE6FD)         // 浅蓝色 (sky-200), 与机器人本体接近，更融合
+val LightRobotAuraEnd = Color(0xFFE0F2FE)           // 极浅蓝 (sky-100)
 val LightTimerBg = Color(0xFFFFFFFF)                // white
 val LightTimerRingBg = Color(0xFFF1F5F9)            // slate-100
 val LightTimerRingActive = Color(0xFFFB923C)        // orange-400

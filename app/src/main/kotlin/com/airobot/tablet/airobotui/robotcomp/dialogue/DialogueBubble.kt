@@ -72,10 +72,17 @@ fun DialogueBubble(
                     .clip(RoundedCornerShape(24.dp))
                     .background(
                         brush = Brush.verticalGradient(
-                            colors = listOf(
-                                RobotTheme.colors.cardBg.copy(alpha = 0.95f),
-                                RobotTheme.colors.surfaceOverlay.copy(alpha = 0.1f)
-                            )
+                            colors = if (RobotTheme.isDark) {
+                                listOf(
+                                    RobotTheme.colors.cardBg.copy(alpha = 0.95f),
+                                    RobotTheme.colors.surfaceOverlay.copy(alpha = 0.1f)
+                                )
+                            } else {
+                                listOf(
+                                    Color.White,
+                                    Color.White.copy(alpha = 0.9f)
+                                )
+                            }
                         )
                     )
                     .border(

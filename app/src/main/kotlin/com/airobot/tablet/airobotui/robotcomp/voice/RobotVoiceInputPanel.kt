@@ -233,15 +233,13 @@ private fun IdleMicButton(
                     .background(
                         brush = Brush.verticalGradient(
                             colors = if (isConnected) {
-                                listOf(
-                                    Color(0xFF334155), 
-                                    Color(0xFF1E293B)
-                                )
+                                if (RobotTheme.isDark) {
+                                    listOf(Color(0xFF334155), Color(0xFF1E293B))
+                                } else {
+                                    listOf(Color.White, Color(0xFFF1F5F9))
+                                }
                             } else {
-                                listOf(
-                                    Color(0xFF1F2937),
-                                    Color(0xFF111827)
-                                )
+                                listOf(RobotTheme.colors.surfaceOverlay.copy(0.1f), RobotTheme.colors.surfaceOverlay.copy(0.05f))
                             }
                         )
                     )
@@ -253,8 +251,12 @@ private fun IdleMicButton(
                 Icon(
                     painter = painterResource(id = R.drawable.mic),
                     contentDescription = "点击唤醒",
-                    modifier = Modifier.size(28.dp), // 32 -> 28
-                    tint = if (isConnected) Color(0xFF818CF8) else Color.White.copy(alpha = 0.2f)
+                    modifier = Modifier.size(28.dp),
+                    tint = if (isConnected) {
+                        if (RobotTheme.isDark) Color(0xFF818CF8) else Color(0xFFF97316)
+                    } else {
+                        RobotTheme.colors.textMuted.copy(alpha = 0.4f)
+                    }
                 )
             }
         }
@@ -274,9 +276,9 @@ private fun VoiceHintText(text: String) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(32.dp))
-            .background(Color(0xFF0F172A).copy(alpha = 0.9f)) // 极深背景
-            .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(32.dp)) // 新增：细致边框
-            .padding(horizontal = 24.dp, vertical = 10.dp), // 增加内边距
+            .background(RobotTheme.colors.cardBg.copy(alpha = 0.95f)) 
+            .border(1.dp, RobotTheme.colors.surfaceOverlay.copy(alpha = 0.1f), RoundedCornerShape(32.dp))
+            .padding(horizontal = 24.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -284,11 +286,11 @@ private fun VoiceHintText(text: String) {
             painter = painterResource(id = R.drawable.chat),
             contentDescription = null,
             modifier = Modifier.size(16.dp),
-            tint = Color(0xFF818CF8)
+            tint = RobotTheme.colors.accent
         )
         Text(
             text = text,
-            color = Color.White.copy(alpha = 0.85f), // 调亮文字
+            color = RobotTheme.colors.textPrimary, 
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.8.sp
@@ -319,7 +321,7 @@ private fun ActiveStatusPanel(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(32.dp))
-                .background(Color(0xFF1E293B).copy(alpha = 0.6f)) // 修改为深蓝色胶囊，匹配原型
+                .background(RobotTheme.colors.cardBg.copy(alpha = 0.8f)) // 修改为深蓝色胶囊，匹配原型
                 .padding(horizontal = 32.dp, vertical = 18.dp)
                 .clickable(enabled = isListening) { onStopListening() },
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -329,12 +331,12 @@ private fun ActiveStatusPanel(
                 isListening -> {
                         VoiceWaveform(
                             isActive = true,
-                            barColor = Color(0xFF818CF8), // 紫色波形
+                            barColor = RobotTheme.colors.accent, // 紫色波形
                             audioLevel = audioLevel
                         )
                         Text(
                             text = "请说话...",
-                            color = Color.White.copy(alpha = 0.8f),
+                            color = RobotTheme.colors.textPrimary.copy(alpha = 0.8f),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.2.sp
@@ -355,11 +357,11 @@ private fun ActiveStatusPanel(
                         modifier = Modifier
                             .size(22.dp)
                             .graphicsLayer { rotationZ = rotation },
-                        tint = Color(0xFF818CF8)
+                        tint = RobotTheme.colors.accent
                     )
                     Text(
                         text = "思考中",
-                        color = Color.White.copy(alpha = 0.8f),
+                        color = RobotTheme.colors.textPrimary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.2.sp
@@ -367,11 +369,11 @@ private fun ActiveStatusPanel(
                 }
                 isSpeaking -> {
                     SpeakingDots(
-                        dotColor = Color(0xFF818CF8)
+                        dotColor = RobotTheme.colors.accent
                     )
                     Text(
-                        text = "讲个笑话吧", // 模拟对话文本
-                        color = Color.White,
+                        text = "正在播放回复", // 更匹配原型的状态描述
+                        color = RobotTheme.colors.textPrimary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.2.sp
@@ -403,13 +405,13 @@ private fun QuickCommandChips(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(20.dp))
-                    .background(Color(0xFF1E293B).copy(alpha = 0.5f))
+                    .background(RobotTheme.colors.cardBg.copy(alpha = 0.8f))
                     .clickable { onCommandClick(text) }
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = text, 
-                    color = Color.White.copy(alpha = 0.7f), 
+                    color = RobotTheme.colors.textPrimary.copy(alpha = 0.8f), 
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -441,9 +443,9 @@ private fun TimerControlPanel(
                 .clip(CircleShape)
                 .background(
                     if (timerStatus == TimerStatus.PAUSED) 
-                        Color(0xFF1E293B).copy(alpha = 0.8f) 
+                        RobotTheme.colors.surfaceOverlay.copy(alpha = 0.2f) 
                     else 
-                        Color(0xFF0F172A).copy(alpha = 0.8f)
+                        RobotTheme.colors.surfaceOverlay.copy(alpha = 0.1f)
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -470,9 +472,9 @@ private fun TimerControlPanel(
                 contentDescription = null,
                 modifier = Modifier.size(28.dp),
                 tint = if (timerStatus == TimerStatus.PAUSED) 
-                    Color.White.copy(alpha = 0.3f) 
+                    RobotTheme.colors.textMuted
                 else 
-                    Color(0xFFA5F3FC).copy(alpha = 0.5f) // cyan-200
+                    RobotTheme.colors.accent
             )
         }
         
@@ -524,7 +526,7 @@ private fun TimerControlChip(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(24.dp))
-            .background(Color.White.copy(alpha = 0.05f))
+            .background(RobotTheme.colors.surfaceOverlay.copy(alpha = 0.05f))
             .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -538,7 +540,7 @@ private fun TimerControlChip(
         )
         Text(
             text = text,
-            color = Color.White.copy(alpha = 0.8f),
+            color = RobotTheme.colors.textPrimary.copy(alpha = 0.8f),
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold
         )

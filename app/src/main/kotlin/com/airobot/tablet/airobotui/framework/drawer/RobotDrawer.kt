@@ -126,7 +126,7 @@ fun RobotDrawerContent(
                         onClick = onClose,
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color.White.copy(alpha = 0.05f))
+                            .background(RobotTheme.colors.surfaceOverlay.copy(alpha = 0.1f))
                     ) {
                         Icon(
                             Icons.Default.Close,

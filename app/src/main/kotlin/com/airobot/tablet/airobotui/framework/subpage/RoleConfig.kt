@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.framework.subpage
+package com.airobot.tablet.airobotui.framework.subpage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,11 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.tablet.airobotui.framework.comp.ConfigTextField
-import com.airobot.tablet.airobotui.framework.theme.RobotPrimaryCyan
-import com.airobot.tablet.airobotui.framework.theme.RobotSecondaryIndigo
-import com.airobot.tablet.airobotui.framework.theme.RobotSurface
-import com.airobot.tablet.airobotui.framework.theme.RobotTextPrimary
-import com.airobot.tablet.airobotui.framework.theme.RobotTextSecondary
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 
 /**
  * 角色管理配置页面
@@ -33,7 +29,7 @@ fun RoleConfig() {
         // ── 形象模型 ──
         Text(
             "形象模型",
-            color = RobotTextSecondary,
+            color = RobotTheme.colors.textSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
@@ -50,7 +46,7 @@ fun RoleConfig() {
 
         Text(
             "语音模型",
-            color = RobotTextSecondary,
+            color = RobotTheme.colors.textSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
@@ -67,7 +63,7 @@ fun RoleConfig() {
 
         Text(
             "唤醒词",
-            color = RobotTextSecondary,
+            color = RobotTheme.colors.textSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
@@ -86,20 +82,20 @@ fun RoleConfig() {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(RobotSecondaryIndigo.copy(alpha = 0.10f))
+                .background(RobotTheme.colors.accent.copy(alpha = 0.10f))
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Info,
                     contentDescription = "提示",
-                    tint = RobotPrimaryCyan,
+                    tint = RobotTheme.colors.accent,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = "角色模型可修改功能已在新版本计划中，敬请期待。",
-                    color = RobotTextPrimary.copy(alpha = 0.7f),
+                    color = RobotTheme.colors.textPrimary.copy(alpha = 0.7f),
                     fontSize = 12.sp,
                     textAlign = TextAlign.Start
                 )

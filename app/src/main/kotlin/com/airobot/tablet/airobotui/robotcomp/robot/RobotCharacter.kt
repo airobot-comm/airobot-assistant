@@ -78,20 +78,32 @@ fun RobotCharacter(
 
     Box(
         modifier = modifier
-            .width(headSize * 1.8f)
-            .height(headSize * 1.6f),
+            .width(headSize * 2.0f) 
+            .height(headSize * 1.8f),
         contentAlignment = Alignment.Center
     ) {
-        // 背景环境光 - 使用主题色
+        // 增强型背景环境光 (双层光晕 + 呼吸感)
         val auraColor = RobotTheme.colors.robotAuraStart
-        val auraAlpha = if (RobotTheme.isDark) 0.35f else 0.5f
+        val auraAlpha = if (RobotTheme.isDark) 0.55f else 0.7f // 提高不透明度
+        
+        val auraScale by infiniteTransition.animateFloat(
+            initialValue = 1.0f,
+            targetValue = 1.15f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(4000, easing = EaseInOutSine),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "auraScale"
+        )
+
+        // 核心内层光
         Box(
             modifier = Modifier
-                .size(headSize * 1.6f) // 稍微大一点
+                .size(headSize * 1.5f)
                 .graphicsLayer { 
                     alpha = auraAlpha
-                    scaleX = 1.15f
-                    scaleY = 1.15f
+                    scaleX = auraScale
+                    scaleY = auraScale
                 }
                 .background(
                     brush = Brush.radialGradient(
@@ -101,7 +113,27 @@ fun RobotCharacter(
                         )
                     )
                 )
-                .blur(90.dp)
+                .blur(60.dp)
+        )
+        
+        // 外层大光晕 (扩散感)
+        Box(
+            modifier = Modifier
+                .size(headSize * 2.1f)
+                .graphicsLayer { 
+                    alpha = auraAlpha * 0.5f
+                    scaleX = auraScale * 1.3f
+                    scaleY = auraScale * 1.3f
+                }
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            auraColor.copy(alpha = 0.6f),
+                            Color.Transparent
+                        )
+                    )
+                )
+                .blur(100.dp)
         )
         
         // 主体结构

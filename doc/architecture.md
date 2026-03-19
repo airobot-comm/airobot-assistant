@@ -54,6 +54,11 @@ airobot-tablet/
 - **Jetpack Compose**
 - **Hilt**: 依赖注入框架，管理应用级的依赖关系。
 
+### 🎨 主题与设计系统 (Design System)
+- **多主题动态切换**: 基于自定义 `CompositionLocal` 配合 `MaterialTheme` 构建完整的明暗主题 (Light/Dark Mode) 支持架构。
+- **语义化 Token 体系**: 隔离并提取 `cardBg`, `textPrimary`, `surfaceOverlay`, `accent` 等 Token，UI 层禁止产生任何色彩硬编码（Hardcoding）。
+- **动效融合交互**: Aether IP 卡通部件保持高保定 IP 固定色值保护，周围光爆（Aura）等视觉环境光利用混合模型动态适配全局主题上下文环境。
+
 ### 网络通信
 - **OkHttp**: 客户端HTTP和WebSocket通信
 - **Kotlinx Serialization**: 协议层JSON数据序列化与反序列化

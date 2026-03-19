@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.framework.subpage
+package com.airobot.tablet.airobotui.framework.subpage
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,8 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobot.tablet.airobotui.framework.comp.ConfigTextField
-import com.airobot.tablet.airobotui.framework.theme.RobotPrimaryCyan
-import com.airobot.tablet.airobotui.framework.theme.RobotTextSecondary
+import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 import com.airobot.tablet.airobotui.viewmodel.RobotMainViewModel
 
 @Composable
@@ -29,7 +28,7 @@ fun AiRobotConfig(
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
             "智能体配置",
-            color = RobotTextSecondary,
+            color = RobotTheme.colors.textSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
@@ -52,7 +51,7 @@ fun AiRobotConfig(
         
         Text(
             "智能体激活状态 (自动下发)",
-            color = RobotTextSecondary,
+            color = RobotTheme.colors.textSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
@@ -69,10 +68,10 @@ fun AiRobotConfig(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("WS 连接凭证:", color = RobotTextSecondary, fontSize = 14.sp)
+            Text("WS 连接凭证:", color = RobotTheme.colors.textSecondary, fontSize = 14.sp)
             Text(
                 if (aiAgent.commCredentials != null) "已下发凭证" else "尚未下发",
-                color = if (aiAgent.commCredentials != null) RobotPrimaryCyan else Color.Red,
+                color = if (aiAgent.commCredentials != null) RobotTheme.colors.accent else Color.Red,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp
             )
@@ -81,7 +80,7 @@ fun AiRobotConfig(
         if (isActivated) {
             Text(
                 "智能体已就绪，当前智能体: ${aiAgent.agentVendor}",
-                color = RobotPrimaryCyan,
+                color = RobotTheme.colors.accent,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -96,7 +95,7 @@ fun AiRobotConfig(
             modifier = Modifier.fillMaxWidth(),
             enabled = !isActivated,
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isActivated) Color.Gray else RobotPrimaryCyan,
+                containerColor = if (isActivated) Color.Gray else RobotTheme.colors.accent,
                 disabledContainerColor = Color.Gray,
                 disabledContentColor = Color.White
             ),
