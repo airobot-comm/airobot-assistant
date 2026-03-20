@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.viewmodel
+package com.airobot.tablet.airobotui.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -15,8 +15,8 @@ import com.airobot.tablet.system.model.SystemInfo
 import com.airobot.tablet.comm.NetCommService
 import com.airobot.tablet.comm.NetworkState
 import com.airobot.tablet.comm.NetCommEvent
-import com.airobot.tablet.airobotui.state.RobotState
-import com.airobot.tablet.airobotui.state.RobotStateManager
+import com.airobot.tablet.airobotui.state.RobotEngineState
+import com.airobot.tablet.airobotui.state.RobotStateEngine
 import com.airobot.audio.AudioEvent
 import com.airobot.audio.AudioService
 
@@ -27,12 +27,12 @@ import com.airobot.audio.AudioService
 @HiltViewModel
 class RobotMainViewModel @Inject constructor(
     private val netCommService: NetCommService,
-    private val robotStateManager: RobotStateManager,
+    private val robotStateEngine: RobotStateEngine,
     private val sysManage: SysManage,
     private val audioService: AudioService
 ) : ViewModel() {
 
-    val robotState: StateFlow<RobotState> = robotStateManager.robotState
+    val robotState: StateFlow<RobotEngineState> = robotStateEngine.robotEngineState
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
     private val _showActivationDialog = MutableStateFlow(false)
@@ -70,7 +70,7 @@ class RobotMainViewModel @Inject constructor(
             audioService.events.collect { event ->
                 when (event) {
                     is AudioEvent.Wakeup -> {
-                        val currentState = robotStateManager.robotState.value
+                        val currentState = robotStateEngine.robotEngineState.value
                         Log.d("RobotMainViewModel",
                             "Wakeup detected. Current state: $currentState")
 
@@ -78,7 +78,7 @@ class RobotMainViewModel @Inject constructor(
                         val isNetworkReady = netCommService.isConnected
                         val isSystemReady = sysManage.state.value is com.airobot.tablet.system.SysState.Ready
                         if (isNetworkReady && isSystemReady &&
-                            (currentState is RobotState.Ready || currentState is RobotState.Conversation)) {
+                            (currentState is RobotEngineState.Ready || currentState is RobotEngineState.Conversation)) {
                             Log.d("RobotMainViewModel", "Conditions met. Proceeding with wakeup.")
                             viewModelScope.launch {
                                 _wakeupEvent.emit(Unit)
@@ -106,19 +106,19 @@ class RobotMainViewModel @Inject constructor(
             sysManage.state.collect { state ->
                 when (state) {
                     is SysState.Checking -> {
-                        robotStateManager.updateRobotState(RobotState.Initializing)
+                        robotStateEngine.updateEngineState(RobotEngineState.Initializing)
                     }
                     is SysState.DeviceActivationRequired -> {
-                        robotStateManager.updateRobotState(
-                            RobotState.Unauthorized("DEVICE_ACTIVATION"))
+                        robotStateEngine.updateEngineState(
+                            RobotEngineState.Unauthorized("DEVICE_ACTIVATION"))
                         _showActivationDialog.value = false
                     }
                     is SysState.AiRobotActivationRequired -> {
                         val code = state.code
                         _activationCode.value = code
                         _showActivationDialog.value = true
-                        robotStateManager.updateRobotState(
-                            RobotState.Unauthorized(code))
+                        robotStateEngine.updateEngineState(
+                            RobotEngineState.Unauthorized(code))
                     }
                     is SysState.Ready -> {
                         _showActivationDialog.value = false
@@ -131,13 +131,13 @@ class RobotMainViewModel @Inject constructor(
                     }
                     is SysState.UpdateAvailable -> {
                         // TODO: 处理更新提示
-                        robotStateManager.updateRobotState(RobotState.Ready)
+                        robotStateEngine.updateEngineState(RobotEngineState.Ready)
                         // Also try to connect if update is available, assuming it functions
                         netCommService.connect()
                     }
                     is SysState.Error -> {
                         _errorMessage.value = state.message
-                        robotStateManager.updateRobotState(RobotState.Offline)
+                        robotStateEngine.updateEngineState(RobotEngineState.Offline)
                     }
                     is SysState.Idle -> {}
                 }
@@ -151,7 +151,7 @@ class RobotMainViewModel @Inject constructor(
             netCommService.state.collect { state ->
                 when (state) {
                     NetworkState.CONNECTING, NetworkState.RECONNECTING -> {
-                        robotStateManager.updateRobotState(RobotState.Connecting)
+                        robotStateEngine.updateEngineState(RobotEngineState.Connecting)
                     }
                     NetworkState.CONNECTED -> {
                         // 由 handleAiRobotEvent(NetCommEvent.Connected) 处理
@@ -161,9 +161,9 @@ class RobotMainViewModel @Inject constructor(
                         audioService.deactivate() // 强制回退音频服务
 
                         // 避免在已经 Unauthorized 的情况下切回 Offline，除非确实断开了
-                        if (robotStateManager.robotState.value !is RobotState.Unauthorized && 
-                            robotStateManager.robotState.value !is RobotState.Initializing) {
-                            robotStateManager.updateRobotState(RobotState.Offline)
+                        if (robotStateEngine.robotEngineState.value !is RobotEngineState.Unauthorized && 
+                            robotStateEngine.robotEngineState.value !is RobotEngineState.Initializing) {
+                            robotStateEngine.updateEngineState(RobotEngineState.Offline)
                         }
                     }
                 }
@@ -182,16 +182,16 @@ class RobotMainViewModel @Inject constructor(
         when (event) {
             is NetCommEvent.Connected -> {
                 // 仅在非对话状态下切回 Ready，防止覆盖对话状态
-                if (robotStateManager.robotState.value !is RobotState.Conversation) {
+                if (robotStateEngine.robotEngineState.value !is RobotEngineState.Conversation) {
                     Log.d("RobotMainViewModel", "Safe transitioning to Ready due to Connected event")
-                    robotStateManager.updateRobotState(RobotState.Ready)
+                    robotStateEngine.updateEngineState(RobotEngineState.Ready)
                 }
                 _errorMessage.value = null
             }
             is NetCommEvent.Disconnected -> {
                 Log.w("RobotMainViewModel", "Received Disconnected event. Deactivating Audio Service.")
                 audioService.deactivate()
-                robotStateManager.updateRobotState(RobotState.Offline)
+                robotStateEngine.updateEngineState(RobotEngineState.Offline)
             }
             is NetCommEvent.Error -> {
                 Log.e("RobotMainViewModel", "Received Error event: ${event.message}. Deactivating Audio Service.")

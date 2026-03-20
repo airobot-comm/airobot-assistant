@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.state
+package com.airobot.tablet.airobotui.state
 
 
 /**
@@ -23,22 +23,20 @@ enum class InteractionType {
     CARD    // 功能卡片模式
 }
 
-/**
- * 计时器状态
- */
-enum class TimerStatus {
-    IDLE,       // 空闲
-    RUNNING,    // 运行中
-    PAUSED      // 已暂停
-}
+
 
 /**
- * 计时器指令
+ * 服务卡片具体数据接口
  */
-data class TimerCommand(
+sealed interface ServiceCardData
+
+/**
+ * 专注时钟数据
+ */
+data class TimerCardData(
     val duration: Int,  // 时长（秒）
     val task: String    // 任务名称
-)
+) : ServiceCardData
 
 /**
  * 服务卡片类型
@@ -69,25 +67,30 @@ data class ServiceCard(
 )
 
 /**
- * 机器人UI整体状态
+ * 机器人 UI 整体展现状态 (唯一的 UI Truth Source)
  */
 data class RobotUiState(
+    // === UI Visual & System ===
     val visualState: RobotVisualState = RobotVisualState.IDLE,
+    val isConnected: Boolean = false,
+    
+    // === Interaction & Dialogue ===
     val interactionType: InteractionType = InteractionType.CHAT,
-    val timerStatus: TimerStatus = TimerStatus.IDLE,
-    val timerCommand: TimerCommand? = null,
     val currentUserMsg: String? = null,
     val currentAiMsg: String? = null,
-    val activeCard: ServiceCard? = null,
     val statusTip: String = "有什么可以帮你的？",
-    val isConnected: Boolean = false
+
+    // === Active Service Data ===
+    val activeCard: ServiceCard? = null,
+    val serviceSubState: ServiceSubState = ServiceSubState.IDLE,
+    val activeServiceData: ServiceCardData? = null
 ) {
     /**
      * 是否处于交互状态
      */
     val isInteracting: Boolean
         get() = (visualState != RobotVisualState.IDLE && visualState != RobotVisualState.SLEEPING) 
-                || timerStatus != TimerStatus.IDLE 
+                || serviceSubState != ServiceSubState.IDLE 
                 || activeCard != null
     
     /**
@@ -101,8 +104,14 @@ data class RobotUiState(
      */
     val dynamicStatusTip: String
         get() = when {
-            timerStatus == TimerStatus.RUNNING -> "正在专注: ${timerCommand?.task ?: "未知任务"}..."
-            timerStatus == TimerStatus.PAUSED -> "已暂停，休息一下..."
+            serviceSubState == ServiceSubState.RUNNING -> {
+                if (activeServiceData is TimerCardData) {
+                    "正在专注: ${activeServiceData.task}..."
+                } else {
+                    "服务运行中..."
+                }
+            }
+            serviceSubState == ServiceSubState.PAUSED -> "已暂停，休息一下..."
             else -> statusTip
         }
 }

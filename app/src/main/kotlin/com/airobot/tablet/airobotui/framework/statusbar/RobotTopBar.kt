@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.tablet.R
-import com.airobot.tablet.airobotui.state.RobotState
+import com.airobot.tablet.airobotui.state.RobotEngineState
 import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 import com.airobot.tablet.airobotui.framework.theme.StatusRed
 import com.airobot.tablet.airobotui.framework.theme.StatusAmber
@@ -30,7 +30,7 @@ import com.airobot.tablet.airobotui.framework.theme.StatusCyan
  */
 @Composable
 fun RobotTopBar(
-    robotState: RobotState,
+    robotEngineState: RobotEngineState,
     errorMessage: String?,
     onLogoClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -80,7 +80,7 @@ fun RobotTopBar(
             )
 
             // 机器人一级状态 Badge
-            RobotStateBadge(robotState = robotState)
+            RobotEngineStateBadge(robotEngineState = robotEngineState)
         }
         
         // 右侧：系统信息与设置
@@ -97,23 +97,23 @@ fun RobotTopBar(
  * 机器人状态标识组件
  */
 @Composable
-private fun RobotStateBadge(robotState: RobotState) {
-    val stateText = when (robotState) {
-        is RobotState.Offline -> "OFFLINE"
-        is RobotState.Initializing -> "INITIALIZING"
-        is RobotState.Unauthorized -> "UNAUTHORIZED"
-        is RobotState.Connecting -> "CONNECTING"
-        is RobotState.Ready -> "READY"
-        is RobotState.Conversation -> "CONVERSATION"
-        is RobotState.FunctionService -> "SERVICE MODE"
+private fun RobotEngineStateBadge(robotEngineState: RobotEngineState) {
+    val stateText = when (robotEngineState) {
+        is RobotEngineState.Offline -> "OFFLINE"
+        is RobotEngineState.Initializing -> "INITIALIZING"
+        is RobotEngineState.Unauthorized -> "UNAUTHORIZED"
+        is RobotEngineState.Connecting -> "CONNECTING"
+        is RobotEngineState.Ready -> "READY"
+        is RobotEngineState.Conversation -> "CONVERSATION"
+        is RobotEngineState.FunctionService -> "SERVICE MODE"
     }
     
-    val stateColor = when (robotState) {
-        is RobotState.Offline -> StatusRed
-        is RobotState.Initializing -> StatusAmber
-        is RobotState.Unauthorized -> StatusRed
-        is RobotState.Connecting -> StatusCyan
-        is RobotState.Ready -> StatusCyan
+    val stateColor = when (robotEngineState) {
+        is RobotEngineState.Offline -> StatusRed
+        is RobotEngineState.Initializing -> StatusAmber
+        is RobotEngineState.Unauthorized -> StatusRed
+        is RobotEngineState.Connecting -> StatusCyan
+        is RobotEngineState.Ready -> StatusCyan
         else -> StatusEmerald
     }
 

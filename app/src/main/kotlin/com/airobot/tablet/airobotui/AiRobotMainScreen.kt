@@ -41,14 +41,14 @@ import com.airobot.tablet.service.compoments.ServiceCardCarousel
 import com.airobot.tablet.service.compoments.getServiceCardIcon
 import com.airobot.tablet.airobotui.state.ConversationSubState
 import com.airobot.tablet.airobotui.state.InteractionType
-import com.airobot.tablet.airobotui.state.RobotState
+import com.airobot.tablet.airobotui.state.RobotEngineState
 import com.airobot.tablet.airobotui.state.RobotUiState
 import com.airobot.tablet.airobotui.state.RobotVisualState
 import com.airobot.tablet.airobotui.state.ServiceCard
 import com.airobot.tablet.airobotui.state.ServiceCardType
+import com.airobot.tablet.airobotui.state.ServiceCardData
+import com.airobot.tablet.airobotui.state.TimerCardData
 import com.airobot.tablet.airobotui.state.ServiceSubState
-import com.airobot.tablet.airobotui.state.TimerCommand
-import com.airobot.tablet.airobotui.state.TimerStatus
 import com.airobot.tablet.airobotui.viewmodel.RobotMainViewModel
 import com.airobot.tablet.airobotui.viewmodel.ConversationViewModel
 import com.airobot.tablet.airobotui.viewmodel.ServiceViewModel
@@ -90,12 +90,12 @@ fun AiRobotMainScreen(
     val currentRoundAiText by conversationViewModel.currentRoundAiText.collectAsState()
 
     // 组合音量等级：对话时用对话VM的，非对话时用主VM的
-    val audioLevel = if (robotState is RobotState.Conversation) convAudioLevel else mainVoiceLevel
+    val audioLevel = if (robotState is RobotEngineState.Conversation) convAudioLevel else mainVoiceLevel
 
     // 从 ServiceViewModel 收集功能状态
     val activeCard by serviceViewModel.activeCard.collectAsState()
-    val timerCommand by serviceViewModel.timerCommand.collectAsState()
-    val timerStatus by serviceViewModel.timerStatus.collectAsState()
+    val activeServiceData by serviceViewModel.activeServiceData.collectAsState()
+    val serviceSubState by serviceViewModel.serviceSubState.collectAsState()
     
     // 本地UI状态
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -125,44 +125,40 @@ fun AiRobotMainScreen(
         currentRoundUserText, 
         currentRoundAiText, 
         activeCard, 
-        timerCommand, 
-        timerStatus,
+        activeServiceData, 
+        serviceSubState,
         currentCard // currentCard 随 currentCardIndex 变化
     ) {
         val visualState = when (val s = robotState) {
-            is RobotState.Offline -> RobotVisualState.SLEEPING
-            is RobotState.Initializing -> RobotVisualState.THINKING
-            is RobotState.Connecting -> RobotVisualState.THINKING
-            is RobotState.Unauthorized -> RobotVisualState.IDLE
-            is RobotState.Ready -> RobotVisualState.IDLE
-            is RobotState.Conversation -> when (s.subState) {
+            is RobotEngineState.Offline -> RobotVisualState.SLEEPING
+            is RobotEngineState.Initializing -> RobotVisualState.THINKING
+            is RobotEngineState.Connecting -> RobotVisualState.THINKING
+            is RobotEngineState.Unauthorized -> RobotVisualState.IDLE
+            is RobotEngineState.Ready -> RobotVisualState.IDLE
+            is RobotEngineState.Conversation -> when (s.subState) {
                 ConversationSubState.LISTENING -> RobotVisualState.LISTENING
                 ConversationSubState.THINKING -> RobotVisualState.THINKING
                 ConversationSubState.SPEAKING -> RobotVisualState.SPEAKING
             }
-            is RobotState.FunctionService -> when (s.subState) {
+            is RobotEngineState.FunctionService -> when (s.subState) {
                 ServiceSubState.IDLE -> RobotVisualState.IDLE
                 ServiceSubState.RUNNING -> RobotVisualState.FOCUS
                 ServiceSubState.PAUSED -> RobotVisualState.IDLE
+                ServiceSubState.COMPLETED -> RobotVisualState.HAPPY
+                ServiceSubState.CANCELLED -> RobotVisualState.IDLE
             }
-        }
-
-        val newStatusTip = when (timerStatus) {
-            TimerStatus.RUNNING -> "正在专注: ${timerCommand?.task ?: "未知任务"}..."
-            TimerStatus.PAUSED -> "已暂停，休息一下..."
-            else -> currentCard.statusTip // 跟随轮播卡片变化
         }
 
         robotUiState = robotUiState.copy(
             visualState = visualState,
-            isConnected = robotState !is RobotState.Offline,
+            isConnected = robotState !is RobotEngineState.Offline,
             currentUserMsg = currentRoundUserText,
             currentAiMsg = currentRoundAiText,
             activeCard = activeCard,
-            timerCommand = timerCommand,
-            timerStatus = timerStatus,
+            activeServiceData = activeServiceData,
+            serviceSubState = serviceSubState,
             interactionType = if (activeCard != null) InteractionType.CARD else InteractionType.CHAT,
-            statusTip = newStatusTip
+            statusTip = currentCard.statusTip
         )
     }
 
@@ -230,7 +226,7 @@ fun AiRobotMainScreen(
                     // 移除此处导航栏内边距，让背景贯穿
             ) {
                 RobotTopBar(
-                    robotState = robotState,
+                    robotEngineState = robotState,
                     errorMessage = errorMessage,
                     onLogoClick = { scope.launch { drawerState.open() } }
                 )
@@ -276,7 +272,7 @@ fun AiRobotMainScreen(
                         RobotVoiceInputPanel(
                             robotState = robotUiState.visualState,
                             isConnected = robotUiState.isConnected,
-                            timerStatus = robotUiState.timerStatus,
+                            serviceSubState = robotUiState.serviceSubState,
                             userMessage = currentRoundUserText,
                             audioLevel = audioLevel,
                             onStartListening = {
@@ -327,8 +323,8 @@ fun AiRobotMainScreen(
                                     visualState = RobotVisualState.IDLE,
                                     currentUserMsg = null,
                                     currentAiMsg = null,
-                                    timerStatus = TimerStatus.IDLE,
-                                    timerCommand = null,
+                                    serviceSubState = ServiceSubState.IDLE,
+                                    activeServiceData = null,
                                     activeCard = null
                                 )
                                 conversationViewModel.interrupt()
@@ -386,13 +382,13 @@ fun AiRobotMainScreen(
                         ) {
                             FunctionalModulePanel(
                                 card = robotUiState.activeCard,
-                                timerCommand = robotUiState.timerCommand,
-                                timerStatus = robotUiState.timerStatus,
+                                activeServiceData = robotUiState.activeServiceData,
+                                serviceSubState = robotUiState.serviceSubState,
                                 onTimerComplete = {
                                     robotUiState = robotUiState.copy(
-                                        timerStatus = TimerStatus.IDLE,
+                                        serviceSubState = ServiceSubState.IDLE,
                                         visualState = RobotVisualState.IDLE,
-                                        timerCommand = null,
+                                        activeServiceData = null,
                                         activeCard = null,
                                         interactionType = InteractionType.CHAT
                                     )
@@ -402,8 +398,8 @@ fun AiRobotMainScreen(
                                         visualState = RobotVisualState.IDLE,
                                         interactionType = InteractionType.CHAT,
                                         activeCard = null,
-                                        timerStatus = TimerStatus.IDLE,
-                                        timerCommand = null
+                                        serviceSubState = ServiceSubState.IDLE,
+                                        activeServiceData = null
                                     )
                                     serviceViewModel.closeService()
                                     conversationViewModel.interrupt()
@@ -436,8 +432,8 @@ fun AiRobotMainScreen(
 @Composable
 private fun FunctionalModulePanel(
     card: ServiceCard?,
-    timerCommand: TimerCommand?,
-    timerStatus: TimerStatus,
+    activeServiceData: ServiceCardData?,
+    serviceSubState: ServiceSubState,
     onTimerComplete: () -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
@@ -532,9 +528,12 @@ private fun FunctionalModulePanel(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Box(modifier = Modifier.weight(1f)) {
+                            val duration = (activeServiceData as? TimerCardData)?.duration ?: 0
+                            val task = (activeServiceData as? TimerCardData)?.task ?: ""
                             FocusTimerWidget(
-                                command = timerCommand,
-                                timerStatus = timerStatus,
+                                duration = duration,
+                                task = task,
+                                serviceSubState = serviceSubState,
                                 onTimerComplete = onTimerComplete
                             )
                         }

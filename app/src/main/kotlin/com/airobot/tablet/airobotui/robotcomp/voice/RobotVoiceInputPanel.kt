@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.airobot.tablet.R
 import com.airobot.tablet.airobotui.robotcomp.dialogue.UserMessageBubble
 import com.airobot.tablet.airobotui.state.RobotVisualState
-import com.airobot.tablet.airobotui.state.TimerStatus
+import com.airobot.tablet.airobotui.state.ServiceSubState
 import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 
 /**
@@ -46,7 +46,7 @@ import com.airobot.tablet.airobotui.framework.theme.RobotTheme
 fun RobotVoiceInputPanel(
     robotState: RobotVisualState,
     isConnected: Boolean,
-    timerStatus: TimerStatus,
+    serviceSubState: ServiceSubState,
     userMessage: String? = null,
     audioLevel: Float = 0.0f,
     onStartListening: () -> Unit,
@@ -58,7 +58,7 @@ fun RobotVoiceInputPanel(
     val isListening = robotState == RobotVisualState.LISTENING
     val isThinking = robotState == RobotVisualState.THINKING
     val isSpeaking = robotState == RobotVisualState.SPEAKING
-    val isTimerActive = timerStatus != TimerStatus.IDLE
+    val isTimerActive = serviceSubState != ServiceSubState.IDLE
     
     ConstraintLayout(
         modifier = modifier
@@ -88,7 +88,7 @@ fun RobotVoiceInputPanel(
                         onStartListening = onStartListening
                     )
                     "TIMER" -> TimerControlPanel(
-                        timerStatus = timerStatus,
+                        serviceSubState = serviceSubState,
                         onTimerControl = onTimerControl
                     )
                     "ACTIVE" -> ActiveStatusPanel(
@@ -425,7 +425,7 @@ private fun QuickCommandChips(
  */
 @Composable
 private fun TimerControlPanel(
-    timerStatus: TimerStatus,
+    serviceSubState: ServiceSubState,
     onTimerControl: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -442,14 +442,14 @@ private fun TimerControlPanel(
                 .size(64.dp)
                 .clip(CircleShape)
                 .background(
-                    if (timerStatus == TimerStatus.PAUSED) 
+                    if (serviceSubState == ServiceSubState.PAUSED) 
                         RobotTheme.colors.surfaceOverlay.copy(alpha = 0.2f) 
                     else 
                         RobotTheme.colors.surfaceOverlay.copy(alpha = 0.1f)
                 ),
             contentAlignment = Alignment.Center
         ) {
-            if (timerStatus == TimerStatus.RUNNING) {
+            if (serviceSubState == ServiceSubState.RUNNING) {
                 // 旋转边框
                 val rotation by infiniteTransition.animateFloat(
                     initialValue = 0f,
@@ -471,7 +471,7 @@ private fun TimerControlPanel(
                 painter = painterResource(id = R.drawable.timer),
                 contentDescription = null,
                 modifier = Modifier.size(28.dp),
-                tint = if (timerStatus == TimerStatus.PAUSED) 
+                tint = if (serviceSubState == ServiceSubState.PAUSED) 
                     RobotTheme.colors.textMuted
                 else 
                     RobotTheme.colors.accent
@@ -483,14 +483,14 @@ private fun TimerControlPanel(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // 暂停/继续按钮
-            if (timerStatus == TimerStatus.RUNNING) {
+            if (serviceSubState == ServiceSubState.RUNNING) {
                 TimerControlChip(
                     iconResId = R.drawable.volume_low, // pause icon
                     text = "暂停计时",
                     iconColor = Color(0xFFFACC15), // yellow-400
                     onClick = { onTimerControl("PAUSE") }
                 )
-            } else if (timerStatus == TimerStatus.PAUSED) {
+            } else if (serviceSubState == ServiceSubState.PAUSED) {
                 TimerControlChip(
                     iconResId = R.drawable.mic, // play icon
                     text = "继续计时",

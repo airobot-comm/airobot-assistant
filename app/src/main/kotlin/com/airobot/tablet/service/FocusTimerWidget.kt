@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.service
+package com.airobot.tablet.service
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -31,8 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.tablet.R
-import com.airobot.tablet.airobotui.state.TimerCommand
-import com.airobot.tablet.airobotui.state.TimerStatus
+import com.airobot.tablet.airobotui.state.ServiceSubState
 import kotlinx.coroutines.delay
 
 /**
@@ -49,8 +48,9 @@ import kotlinx.coroutines.delay
  */
 @Composable
 fun FocusTimerWidget(
-    command: TimerCommand?,
-    timerStatus: TimerStatus,
+    duration: Int,
+    task: String,
+    serviceSubState: ServiceSubState,
     onTimerComplete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -62,18 +62,18 @@ fun FocusTimerWidget(
     val infiniteTransition = rememberInfiniteTransition(label = "timerAnimation")
     
     // 初始化计时器
-    LaunchedEffect(command, timerStatus) {
-        if (command != null && timerStatus != TimerStatus.IDLE && totalTime == 0) {
-            totalTime = command.duration
-            timeLeft = command.duration
-            taskName = command.task.ifEmpty { "专注时刻" }
+    LaunchedEffect(duration, task, serviceSubState) {
+        if (duration > 0 && serviceSubState != ServiceSubState.IDLE && totalTime == 0) {
+            totalTime = duration
+            timeLeft = duration
+            taskName = task.ifEmpty { "专注时刻" }
             isCompleted = false
         }
     }
     
     // 计时逻辑
-    LaunchedEffect(timerStatus, timeLeft) {
-        if (timerStatus == TimerStatus.RUNNING && timeLeft > 0) {
+    LaunchedEffect(serviceSubState, timeLeft) {
+        if (serviceSubState == ServiceSubState.RUNNING && timeLeft > 0) {
             delay(1000L)
             timeLeft--
             if (timeLeft <= 0) {
@@ -84,16 +84,16 @@ fun FocusTimerWidget(
     }
     
     // 重置逻辑
-    LaunchedEffect(timerStatus) {
-        if (timerStatus == TimerStatus.IDLE && !isCompleted && totalTime > 0) {
+    LaunchedEffect(serviceSubState) {
+        if (serviceSubState == ServiceSubState.IDLE && !isCompleted && totalTime > 0) {
             totalTime = 0
             timeLeft = 0
         }
     }
     
     val progress = if (totalTime > 0) timeLeft.toFloat() / totalTime else 0f
-    val isRunning = timerStatus == TimerStatus.RUNNING
-    val isPaused = timerStatus == TimerStatus.PAUSED
+    val isRunning = serviceSubState == ServiceSubState.RUNNING
+    val isPaused = serviceSubState == ServiceSubState.PAUSED
     
     // 颜色
     val gradientColors = when {

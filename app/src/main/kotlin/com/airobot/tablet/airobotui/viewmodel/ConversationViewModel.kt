@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.viewmodel
+package com.airobot.tablet.airobotui.viewmodel
 
 import android.app.Application
 import android.util.Log
@@ -13,8 +13,8 @@ import com.airobot.tablet.system.model.MessageRole
 import com.airobot.tablet.comm.NetCommService
 import com.airobot.tablet.comm.NetCommEvent
 import com.airobot.tablet.airobotui.state.ConversationSubState
-import com.airobot.tablet.airobotui.state.RobotState
-import com.airobot.tablet.airobotui.state.RobotStateManager
+import com.airobot.tablet.airobotui.state.RobotEngineState
+import com.airobot.tablet.airobotui.state.RobotStateEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.delay
@@ -27,7 +27,7 @@ class ConversationViewModel @Inject constructor(
     application: Application,
     private val netCommService: NetCommService,
     private val audioService: AudioService, // Use Interface
-    private val robotStateManager: RobotStateManager
+    private val robotStateEngine: RobotStateEngine
 ) : AndroidViewModel(application) {
     companion object {
         private const val TAG = "ConversationViewModel"
@@ -118,13 +118,13 @@ class ConversationViewModel @Inject constructor(
     }
 
     private fun syncSubState() {
-        val current = robotStateManager.robotState.value
+        val current = robotStateEngine.robotEngineState.value
         Log.d(TAG, "syncSubState: current=$current, target subState=${_subState.value}")
         // 允许在 Ready, Conversation 或 Connecting 状态下进行同步
-        if (current is RobotState.Ready || current is RobotState.Conversation
-            || current is RobotState.Connecting) {
-            robotStateManager.updateRobotState(
-                            RobotState.Conversation(_subState.value))
+        if (current is RobotEngineState.Ready || current is RobotEngineState.Conversation
+            || current is RobotEngineState.Connecting) {
+            robotStateEngine.updateEngineState(
+                            RobotEngineState.Conversation(_subState.value))
         } else {
             Log.w(TAG, "syncSubState ignored because current state is $current")
         }
@@ -249,7 +249,7 @@ class ConversationViewModel @Inject constructor(
         resetRoundText()
 
         // 显式重置全局状态到 Ready
-        robotStateManager.updateRobotState(RobotState.Ready)
+        robotStateEngine.updateEngineState(RobotEngineState.Ready)
     }
 
     private fun startNextRound() {
