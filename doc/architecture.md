@@ -20,16 +20,25 @@ ai机器人Android Tablet系统架构，技术设计等概要说明
 - 各个业务模块间通过 Hilt DI 机制解耦调用
 
 ### 项目架构
-```
+```text
 airobot-tablet/
 ├── app/                          # 主壳工程模块 (App Shell)
 │   ├── src/main/kotlin/com/airobot/tablet/
-│   │   ├── airobotui/            # airobot单页UI层 (Presentation Layer)
+│   │   ├── airobotui/            # 核心界面的组装呈现模块
 │   │   ├── comm/                 # 协议通信业务实现
-│   │   ├── service/              # service卡片容器与功能卡片组件
 │   │   ├── system/               # 系统管理业务实现
 │   │   ├── MainActivity.kt
 │   │   └── RobotApplication.kt
+├── framework/                    # 🎨 基础UI框架子模块 (Android Library)
+│   └── src/main/kotlin/com/airobot/framework/
+│       ├── comp/                 # 跨业务通用UI组件
+│       ├── theme/                # 色彩、排版等主题引擎体系
+│       └── statusbar/            # 顶部和底部的全局无状态系统栏
+├── services/                     # 🧩 独立服务卡片子模块 (Android Library)
+│   └── src/main/kotlin/com/airobot/services/
+│       ├── compoments/           # 各种微服务卡片的具体渲染包
+│       ├── state/                # 卡片服务的专属领域子状态模型
+│       └── ServiceViewModel.kt   # 卡片层逻辑调度，与主系统状态完全解耦
 ├── audio/                        # 🎙️ 音频处理子模块 (Android Library)
 │   ├── src/main/kotlin/com/airobot/audio/
 │   │   ├── player/               # 音频播放
@@ -41,6 +50,11 @@ airobot-tablet/
 │   └── src/main/assets/          # 语音识别/唤醒离线模型
 └── agent/                        # 🧠 AI 智能体模块 (Future: Rust Integration)
 ```
+
+### 业务与基础框架解耦 (Framework & Services)
+- **Framework ( UI底层 )**: 全局的 `com.airobot.framework` 作为无状态基础组件库，**禁止**依赖任何具体 `ViewModel` 逻辑及全家桶状态引擎。它只接收原语类型 (Primitive typed args) 负责呈现视图。
+- **Services ( 服务卡片层 )**: 专注提供番茄钟、天气等卡片，具有自包含的状态体系 (`ServiceCardData` 等)，不再强耦合系统顶级 `RobotEngineState`。
+- **App Shell**: 主 `app` 模块负责从 Hilt 中获取 `framework` 提供的组件与 `services` 和 `audio` 的功能进行组装粘合，做顶层的胶水调用。
 
 ### 语音模块 (audio module)
 - **解耦设计**: 通用路径 `com.airobot.audio`，可供不同终端复用。

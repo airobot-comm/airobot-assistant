@@ -16,9 +16,9 @@ AIRobot vibe_code规则
 ## 技术要求
 - 分层架构，物理上采用多模块 (Multi-module) 隔离，遵循 ClearArchitecture + MVVM 要求
 - UI 要求组件化设计，并使用 Jetpack Compose 开发
-- 语音 (`audio`)、通信 (`comm`)、智能体 (`agent`) 模块完全独立，设计要高性能，自愈合、高可靠
-- System 层负责 OTA 认证，系统与 AI 机器人等的配置
-- 各个业务模块通过 Hilt DI 机制解耦，供 UI 或其他模块调用
+- **基础UI隔离 (`framework`)**：`framework` 模块提供无状态 (Stateless) 全局主题和组件库，严禁引入 `App` 层的组装 `ViewModel` 或顶级域状态模型 (如 `RobotEngineState`)。所有参数需设计为泛型字面量（Primitive Types）和事件回调。
+- **业务完全独立**：语音 (`audio`)、主动服务卡片 (`services`) 模块等应当作为独立且跨应用层使用的子模块存在，包名要求通用（如 `com.airobot.services`），并维持内聚特性的状态原语 (`ServiceCardData`)，不与全局应用状态耦合。
+- **App Shell 胶水主工程**：主 `app` 模块负责提供像 `SystemAuth`、OTA配置等业务页面的组装调用，利用 Hilt DI 机制结合 `framework` 组件库展示 `services` 和 `audio` 的功能能力。
 - 技术选型参考：architect/architecture.md
 
 ## 质量要求
