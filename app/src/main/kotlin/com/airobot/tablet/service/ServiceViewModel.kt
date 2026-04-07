@@ -1,14 +1,16 @@
-package com.airobot.tablet.airobotui.viewmodel
+package com.airobot.tablet.service
 
 import androidx.lifecycle.ViewModel
 import com.airobot.tablet.airobotui.state.RobotEngineState
 import com.airobot.tablet.airobotui.state.RobotStateEngine
-import com.airobot.tablet.airobotui.state.ServiceSubState
-import com.airobot.tablet.airobotui.state.ServiceCardData
-import com.airobot.tablet.airobotui.state.TimerCardData
 import com.airobot.tablet.airobotui.state.ServiceCard
+import com.airobot.tablet.airobotui.state.ServiceCardData
+import com.airobot.tablet.airobotui.state.ServiceSubState
+import com.airobot.tablet.airobotui.state.TimerCardData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 /**
@@ -37,7 +39,9 @@ class ServiceViewModel @Inject constructor(
         // 清除旧的业务数据
         _activeServiceData.value = null
 
-        robotStateEngine.updateEngineState(RobotEngineState.FunctionService(card.id, _serviceSubState.value))
+        robotStateEngine.updateEngineState(
+            RobotEngineState.FunctionService(
+                card.id, _serviceSubState.value))
     }
 
     /**
@@ -71,7 +75,9 @@ class ServiceViewModel @Inject constructor(
 
     private fun syncToMainState() {
         _activeCard.value?.let { card ->
-            robotStateEngine.updateEngineState(RobotEngineState.FunctionService(card.id, _serviceSubState.value))
+            robotStateEngine.updateEngineState(
+                RobotEngineState.FunctionService(
+                    card.id, _serviceSubState.value))
         }
     }
 
@@ -84,5 +90,3 @@ class ServiceViewModel @Inject constructor(
         syncToMainState()
     }
 }
-
-

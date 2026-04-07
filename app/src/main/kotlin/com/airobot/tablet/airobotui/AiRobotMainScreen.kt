@@ -47,7 +47,7 @@ import com.airobot.tablet.airobotui.state.TimerCardData
 import com.airobot.tablet.airobotui.state.ServiceSubState
 import com.airobot.tablet.airobotui.viewmodel.RobotMainViewModel
 import com.airobot.tablet.airobotui.viewmodel.ConversationViewModel
-import com.airobot.tablet.airobotui.viewmodel.ServiceViewModel
+import com.airobot.tablet.service.ServiceViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import androidx.compose.animation.core.Spring // ADDED IMPORT
