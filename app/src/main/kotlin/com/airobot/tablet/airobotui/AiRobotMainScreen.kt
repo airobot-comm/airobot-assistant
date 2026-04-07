@@ -1,7 +1,7 @@
 package com.airobot.tablet.airobotui
 
-import com.airobot.tablet.airobotui.framework.theme.RobotTheme
-import com.airobot.tablet.airobotui.framework.theme.RobotThemeMode
+import com.airobot.tablet.framework.theme.RobotTheme
+import com.airobot.tablet.framework.theme.RobotThemeMode
 
 import android.Manifest
 import androidx.compose.animation.core.*
@@ -23,14 +23,14 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobot.tablet.R
-import com.airobot.tablet.airobotui.framework.comp.BackgroundDecorations
-import com.airobot.tablet.airobotui.framework.comp.BottomFooter
-import com.airobot.tablet.airobotui.framework.subpage.AiRobotDialog
+import com.airobot.tablet.framework.comp.BackgroundDecorations
+import com.airobot.tablet.framework.comp.BottomFooter
+import com.airobot.tablet.framework.subpage.AiRobotDialog
 import com.airobot.tablet.airobotui.comp.dialogue.DialogueBubble
 import com.airobot.tablet.airobotui.comp.robot.*
 import com.airobot.tablet.airobotui.comp.voice.RobotVoiceInputPanel
-import com.airobot.tablet.airobotui.framework.statusbar.RobotTopBar
-import com.airobot.tablet.airobotui.framework.drawer.RobotDrawerContent
+import com.airobot.tablet.framework.statusbar.RobotTopBar
+import com.airobot.tablet.framework.drawer.RobotDrawerContent
 import com.airobot.tablet.service.compoments.DEFAULT_SERVICE_CARDS
 import com.airobot.tablet.service.FocusTimerWidget
 import com.airobot.tablet.service.compoments.ServiceCardCarousel

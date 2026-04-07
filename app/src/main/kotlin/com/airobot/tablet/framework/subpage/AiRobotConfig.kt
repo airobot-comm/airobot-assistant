@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.framework.subpage
+package com.airobot.tablet.framework.subpage
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,8 +10,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.airobot.tablet.airobotui.framework.comp.ConfigTextField
-import com.airobot.tablet.airobotui.framework.theme.RobotTheme
+import com.airobot.tablet.framework.comp.ConfigTextField
+import com.airobot.tablet.framework.theme.RobotTheme
 import com.airobot.tablet.airobotui.viewmodel.RobotMainViewModel
 
 @Composable

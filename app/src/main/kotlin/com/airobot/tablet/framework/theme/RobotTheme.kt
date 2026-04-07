@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.framework.theme
+package com.airobot.tablet.framework.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable

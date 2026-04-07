@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.framework.subpage
+package com.airobot.tablet.framework.subpage
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.airobot.tablet.R
-import com.airobot.tablet.airobotui.framework.theme.RobotTheme
+import com.airobot.tablet.framework.theme.RobotTheme
 
 @Composable
 fun AiRobotDialog(

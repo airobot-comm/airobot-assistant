@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.framework.comp
+package com.airobot.tablet.framework.comp
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -10,9 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.airobot.tablet.airobotui.framework.theme.RobotTheme
+import com.airobot.tablet.framework.theme.RobotTheme
 
 @Composable
 fun BackgroundDecorations() {

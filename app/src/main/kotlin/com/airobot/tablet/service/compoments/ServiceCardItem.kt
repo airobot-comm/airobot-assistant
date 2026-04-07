@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -24,7 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.airobot.tablet.R
 import com.airobot.tablet.airobotui.state.ServiceCard
 import com.airobot.tablet.airobotui.state.ServiceCardType
-import com.airobot.tablet.airobotui.framework.theme.RobotTheme
+import com.airobot.tablet.framework.theme.RobotTheme
 
 /**
  * 服务卡片组件

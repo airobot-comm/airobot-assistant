@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.framework.drawer
+package com.airobot.tablet.framework.drawer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,11 +19,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airobot.tablet.airobotui.framework.theme.RobotTheme
-import com.airobot.tablet.airobotui.framework.theme.StatusCyan
-import com.airobot.tablet.airobotui.framework.subpage.AiRobotConfig
-import com.airobot.tablet.airobotui.framework.subpage.RoleConfig
-import com.airobot.tablet.airobotui.framework.subpage.SystemAuth
+import com.airobot.tablet.framework.theme.RobotTheme
+import com.airobot.tablet.framework.subpage.AiRobotConfig
+import com.airobot.tablet.framework.subpage.RoleConfig
+import com.airobot.tablet.framework.subpage.SystemAuth
 
 /**
  * 侧边栏菜单内容

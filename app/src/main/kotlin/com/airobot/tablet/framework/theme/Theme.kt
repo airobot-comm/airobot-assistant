@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.framework.theme
+package com.airobot.tablet.framework.theme
 
 import android.app.Activity
 import androidx.compose.material3.MaterialTheme

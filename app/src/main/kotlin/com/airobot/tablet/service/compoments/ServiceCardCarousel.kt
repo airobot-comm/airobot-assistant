@@ -3,22 +3,17 @@ package com.airobot.tablet.service.compoments
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.tablet.airobotui.state.ServiceCard
-import com.airobot.tablet.airobotui.framework.theme.RobotTheme
-import kotlinx.coroutines.delay
-import java.text.SimpleDateFormat
-import java.util.*
+import com.airobot.tablet.framework.theme.RobotTheme
 
 /**
  * 服务卡片轮播组件

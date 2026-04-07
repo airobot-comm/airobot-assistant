@@ -18,8 +18,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.airobot.tablet.airobotui.framework.theme.*
 import com.airobot.tablet.airobotui.state.RobotVisualState
+import com.airobot.tablet.framework.theme.RobotAntennaStemDark
+import com.airobot.tablet.framework.theme.RobotAntennaStemLight
+import com.airobot.tablet.framework.theme.RobotBlush
+import com.airobot.tablet.framework.theme.RobotCollarColor
+import com.airobot.tablet.framework.theme.RobotEyeDefault
+import com.airobot.tablet.framework.theme.RobotFaceColor
+import com.airobot.tablet.framework.theme.RobotHeadBorder
+import com.airobot.tablet.framework.theme.RobotHeadColor
+import com.airobot.tablet.framework.theme.RobotNeckColor
+import com.airobot.tablet.framework.theme.RobotTheme
 
 
 /**
@@ -297,8 +306,10 @@ private fun RobotHead(
                         .offset(y = headSize * 0.1f),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Box(modifier = Modifier.size(headSize * 0.08f, headSize * 0.04f).blur(6.dp).background(RobotBlush.copy(alpha = 0.35f), CircleShape))
-                    Box(modifier = Modifier.size(headSize * 0.08f, headSize * 0.04f).blur(6.dp).background(RobotBlush.copy(alpha = 0.35f), CircleShape))
+                    Box(modifier = Modifier.size(headSize * 0.08f, headSize * 0.04f).blur(6.dp).background(
+                        RobotBlush.copy(alpha = 0.35f), CircleShape))
+                    Box(modifier = Modifier.size(headSize * 0.08f, headSize * 0.04f).blur(6.dp).background(
+                        RobotBlush.copy(alpha = 0.35f), CircleShape))
                 }
 
                 // 眼睛和嘴巴

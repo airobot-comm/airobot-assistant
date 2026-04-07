@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.framework.statusbar
+package com.airobot.tablet.framework.statusbar
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -19,11 +19,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.tablet.R
 import com.airobot.tablet.airobotui.state.RobotEngineState
-import com.airobot.tablet.airobotui.framework.theme.RobotTheme
-import com.airobot.tablet.airobotui.framework.theme.StatusRed
-import com.airobot.tablet.airobotui.framework.theme.StatusAmber
-import com.airobot.tablet.airobotui.framework.theme.StatusEmerald
-import com.airobot.tablet.airobotui.framework.theme.StatusCyan
+import com.airobot.tablet.framework.theme.RobotTheme
+import com.airobot.tablet.framework.theme.StatusRed
+import com.airobot.tablet.framework.theme.StatusAmber
+import com.airobot.tablet.framework.theme.StatusEmerald
+import com.airobot.tablet.framework.theme.StatusCyan
 
 /**
  * 集中化 TopBar 组件

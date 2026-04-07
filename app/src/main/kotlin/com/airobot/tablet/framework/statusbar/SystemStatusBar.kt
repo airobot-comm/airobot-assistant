@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.framework.statusbar
+package com.airobot.tablet.framework.statusbar
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -21,10 +21,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.tablet.R
-import com.airobot.tablet.airobotui.framework.theme.RobotTheme
-import com.airobot.tablet.airobotui.framework.theme.StatusCyan
-import com.airobot.tablet.airobotui.framework.theme.*
+import com.airobot.tablet.framework.theme.RobotTheme
+import com.airobot.tablet.framework.theme.StatusCyan
 import androidx.compose.ui.platform.LocalContext
+import com.airobot.tablet.framework.theme.StatusEmerald
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -69,7 +70,7 @@ private fun TimeDisplay() {
     LaunchedEffect(Unit) {
         while (true) {
             currentTime = System.currentTimeMillis()
-            kotlinx.coroutines.delay(1000L)
+            delay(1000L)
         }
     }
     

@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.tablet.R
 import com.airobot.tablet.airobotui.state.RobotVisualState
-import com.airobot.tablet.airobotui.framework.theme.RobotTheme
+import com.airobot.tablet.framework.theme.RobotTheme
 
 /**
  * AI对话气泡组件 - 增强设计版

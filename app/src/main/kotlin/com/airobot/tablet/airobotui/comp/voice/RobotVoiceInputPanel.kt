@@ -28,7 +28,7 @@ import com.airobot.tablet.R
 import com.airobot.tablet.airobotui.comp.dialogue.UserMessageBubble
 import com.airobot.tablet.airobotui.state.RobotVisualState
 import com.airobot.tablet.airobotui.state.ServiceSubState
-import com.airobot.tablet.airobotui.framework.theme.RobotTheme
+import com.airobot.tablet.framework.theme.RobotTheme
 
 /**
  * 机器人风格语音输入面板
