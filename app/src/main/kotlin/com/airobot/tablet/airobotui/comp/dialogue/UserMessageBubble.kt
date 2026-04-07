@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airobot.tablet.framework.theme.RobotTheme
+import com.airobot.framework.theme.RobotTheme
 
 @Composable
 fun UserMessageBubble(

@@ -129,6 +129,8 @@ kotlin {
 
 dependencies {
     implementation(project(":audio"))
+    implementation(project(":framework"))
+    implementation(project(":services"))
     implementation(files("../audio/libs/sherpa-onnx-1.12.28.aar"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

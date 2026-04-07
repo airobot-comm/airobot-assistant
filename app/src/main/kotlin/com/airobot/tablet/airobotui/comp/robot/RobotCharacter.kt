@@ -19,16 +19,16 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.airobot.tablet.airobotui.state.RobotVisualState
-import com.airobot.tablet.framework.theme.RobotAntennaStemDark
-import com.airobot.tablet.framework.theme.RobotAntennaStemLight
-import com.airobot.tablet.framework.theme.RobotBlush
-import com.airobot.tablet.framework.theme.RobotCollarColor
-import com.airobot.tablet.framework.theme.RobotEyeDefault
-import com.airobot.tablet.framework.theme.RobotFaceColor
-import com.airobot.tablet.framework.theme.RobotHeadBorder
-import com.airobot.tablet.framework.theme.RobotHeadColor
-import com.airobot.tablet.framework.theme.RobotNeckColor
-import com.airobot.tablet.framework.theme.RobotTheme
+import com.airobot.framework.theme.RobotAntennaStemDark
+import com.airobot.framework.theme.RobotAntennaStemLight
+import com.airobot.framework.theme.RobotBlush
+import com.airobot.framework.theme.RobotCollarColor
+import com.airobot.framework.theme.RobotEyeDefault
+import com.airobot.framework.theme.RobotFaceColor
+import com.airobot.framework.theme.RobotHeadBorder
+import com.airobot.framework.theme.RobotHeadColor
+import com.airobot.framework.theme.RobotNeckColor
+import com.airobot.framework.theme.RobotTheme
 
 
 /**

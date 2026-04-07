@@ -15,9 +15,9 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.airobot.tablet.airobotui.AiRobotMainScreen
-import com.airobot.tablet.framework.theme.AiRobotTheme
-import com.airobot.tablet.framework.theme.RobotTheme
-import com.airobot.tablet.framework.theme.RobotThemeMode
+import com.airobot.framework.theme.AiRobotTheme
+import com.airobot.framework.theme.RobotTheme
+import com.airobot.framework.theme.RobotThemeMode
 
 import dagger.hilt.android.AndroidEntryPoint
 

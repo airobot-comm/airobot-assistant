@@ -24,11 +24,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airobot.tablet.R
+import com.airobot.framework.R
 import com.airobot.tablet.airobotui.comp.dialogue.UserMessageBubble
 import com.airobot.tablet.airobotui.state.RobotVisualState
-import com.airobot.tablet.airobotui.state.ServiceSubState
-import com.airobot.tablet.framework.theme.RobotTheme
+import com.airobot.services.state.ServiceSubState
+import com.airobot.framework.theme.RobotTheme
 
 /**
  * 机器人风格语音输入面板

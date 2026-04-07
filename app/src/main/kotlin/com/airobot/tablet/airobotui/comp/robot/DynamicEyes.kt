@@ -17,9 +17,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Canvas
-import com.airobot.tablet.framework.theme.RobotEyeActive
-import com.airobot.tablet.framework.theme.RobotEyeDefault
-import com.airobot.tablet.framework.theme.StatusCyan
+import com.airobot.framework.theme.RobotEyeActive
+import com.airobot.framework.theme.RobotEyeDefault
+import com.airobot.framework.theme.StatusCyan
 
 /**
  * 增强的动态眼睛组件 - 支持微表情同步

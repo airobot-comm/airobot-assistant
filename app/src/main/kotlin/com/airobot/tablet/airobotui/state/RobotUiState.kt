@@ -1,5 +1,11 @@
 package com.airobot.tablet.airobotui.state
 
+import com.airobot.services.state.ServiceCard
+import com.airobot.services.state.ServiceCardData
+import com.airobot.services.state.TimerCardData
+import com.airobot.services.state.ServiceSubState
+import com.airobot.services.state.ServiceCardType
+
 
 /**
  * 机器人视觉状态 - 用于控制眼睛、天线等动画
@@ -25,46 +31,6 @@ enum class InteractionType {
 
 
 
-/**
- * 服务卡片具体数据接口
- */
-sealed interface ServiceCardData
-
-/**
- * 专注时钟数据
- */
-data class TimerCardData(
-    val duration: Int,  // 时长（秒）
-    val task: String    // 任务名称
-) : ServiceCardData
-
-/**
- * 服务卡片类型
- */
-enum class ServiceCardType {
-    TIMER,      // 专注时钟
-    STORY,      // 故事时间
-    CHAT,       // 随心聊天
-    GAME,       // 益智游戏
-    DRAW,       // 涂鸦创作
-    QUIZ,       // 趣味问答
-    ALARM,      // 闹钟
-    WEATHER,    // 天气
-    MUSIC       // 音乐
-}
-
-/**
- * 服务卡片数据
- */
-data class ServiceCard(
-    val id: String,
-    val type: ServiceCardType,
-    val title: String,
-    val content: String,
-    val statusTip: String,
-    val iconResId: Int,
-    val demoContent: String? = null
-)
 
 /**
  * 机器人 UI 整体展现状态 (唯一的 UI Truth Source)

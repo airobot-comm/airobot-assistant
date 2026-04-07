@@ -1,7 +1,7 @@
 package com.airobot.tablet.airobotui
 
-import com.airobot.tablet.framework.theme.RobotTheme
-import com.airobot.tablet.framework.theme.RobotThemeMode
+import com.airobot.framework.theme.RobotTheme
+import com.airobot.framework.theme.RobotThemeMode
 
 import android.Manifest
 import androidx.compose.animation.core.*
@@ -22,32 +22,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.*
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.airobot.tablet.R
-import com.airobot.tablet.framework.comp.BackgroundDecorations
-import com.airobot.tablet.framework.comp.BottomFooter
-import com.airobot.tablet.framework.subpage.AiRobotDialog
+import com.airobot.framework.R
+import com.airobot.framework.comp.BackgroundDecorations
+import com.airobot.framework.comp.BottomFooter
+import com.airobot.tablet.airobotui.subpage.AiRobotDialog
 import com.airobot.tablet.airobotui.comp.dialogue.DialogueBubble
 import com.airobot.tablet.airobotui.comp.robot.*
 import com.airobot.tablet.airobotui.comp.voice.RobotVoiceInputPanel
-import com.airobot.tablet.framework.statusbar.RobotTopBar
-import com.airobot.tablet.framework.drawer.RobotDrawerContent
-import com.airobot.tablet.service.compoments.DEFAULT_SERVICE_CARDS
-import com.airobot.tablet.service.FocusTimerWidget
-import com.airobot.tablet.service.compoments.ServiceCardCarousel
-import com.airobot.tablet.service.compoments.getServiceCardIcon
+import com.airobot.framework.statusbar.RobotTopBar
+import com.airobot.tablet.airobotui.drawer.RobotDrawerContent
+import com.airobot.services.compoments.DEFAULT_SERVICE_CARDS
+import com.airobot.services.FocusTimerWidget
+import com.airobot.services.compoments.ServiceCardCarousel
+import com.airobot.services.compoments.getServiceCardIcon
 import com.airobot.tablet.airobotui.state.ConversationSubState
 import com.airobot.tablet.airobotui.state.InteractionType
 import com.airobot.tablet.airobotui.state.RobotEngineState
 import com.airobot.tablet.airobotui.state.RobotUiState
 import com.airobot.tablet.airobotui.state.RobotVisualState
-import com.airobot.tablet.airobotui.state.ServiceCard
-import com.airobot.tablet.airobotui.state.ServiceCardType
-import com.airobot.tablet.airobotui.state.ServiceCardData
-import com.airobot.tablet.airobotui.state.TimerCardData
-import com.airobot.tablet.airobotui.state.ServiceSubState
+import com.airobot.services.state.ServiceCard
+import com.airobot.services.state.ServiceCardType
+import com.airobot.services.state.ServiceCardData
+import com.airobot.services.state.TimerCardData
+import com.airobot.services.state.ServiceSubState
 import com.airobot.tablet.airobotui.viewmodel.RobotMainViewModel
 import com.airobot.tablet.airobotui.viewmodel.ConversationViewModel
-import com.airobot.tablet.service.ServiceViewModel
+import com.airobot.services.ServiceViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import androidx.compose.animation.core.Spring // ADDED IMPORT
@@ -219,10 +219,30 @@ fun AiRobotMainScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
-                    // 移除此处导航栏内边距，让背景贯穿
+                    // 绉婚櫎姝ゅ瀵艰埅鏍忓唴杈硅窛锛岃鑳屾櫙璐┛
             ) {
+                val stateText = when (robotState) {
+                    is RobotEngineState.Offline -> "OFFLINE"
+                    is RobotEngineState.Initializing -> "INITIALIZING"
+                    is RobotEngineState.Unauthorized -> "UNAUTHORIZED"
+                    is RobotEngineState.Connecting -> "CONNECTING"
+                    is RobotEngineState.Ready -> "READY"
+                    is RobotEngineState.Conversation -> "CONVERSATION"
+                    is RobotEngineState.FunctionService -> "SERVICE MODE"
+                }
+
+                val stateColor = when (robotState) {
+                    is RobotEngineState.Offline -> com.airobot.framework.theme.StatusRed
+                    is RobotEngineState.Initializing -> com.airobot.framework.theme.StatusAmber
+                    is RobotEngineState.Unauthorized -> com.airobot.framework.theme.StatusRed
+                    is RobotEngineState.Connecting -> com.airobot.framework.theme.StatusCyan
+                    is RobotEngineState.Ready -> com.airobot.framework.theme.StatusCyan
+                    else -> com.airobot.framework.theme.StatusEmerald
+                }
+
                 RobotTopBar(
-                    robotEngineState = robotState,
+                    stateText = stateText,
+                    stateColor = stateColor,
                     errorMessage = errorMessage,
                     onLogoClick = { scope.launch { drawerState.open() } }
                 )

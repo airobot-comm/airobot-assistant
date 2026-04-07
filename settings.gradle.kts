@@ -40,4 +40,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "airobot-tablet"
 include(":app")
+include(":framework")
+include(":services")
 include(":audio")

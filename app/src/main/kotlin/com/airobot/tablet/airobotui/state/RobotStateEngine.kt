@@ -1,5 +1,6 @@
 package com.airobot.tablet.airobotui.state
 
+import com.airobot.services.state.ServiceSubState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,6 +21,7 @@ class RobotStateEngine @Inject constructor() {
     }
 }
 
+
 /**
  * 二级状态：对话子状态
  */
@@ -27,17 +29,6 @@ enum class ConversationSubState {
     LISTENING,  // 聆听中
     THINKING,   // 思考中
     SPEAKING    // 说话中
-}
-
-/**
- * 二级状态：功能服务子状态
- */
-enum class ServiceSubState {
-    IDLE,       // 空闲
-    RUNNING,    // 运行中
-    PAUSED,     // 已暂停
-    COMPLETED,  // 已完成
-    CANCELLED   // 已取消
 }
 
 /**
