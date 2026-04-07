@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.robotcomp.voice
+package com.airobot.tablet.airobotui.comp.voice
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background

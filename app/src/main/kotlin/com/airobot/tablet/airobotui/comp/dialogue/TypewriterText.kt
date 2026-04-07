@@ -1,9 +1,8 @@
-package com.airobot.tablet.airobotui.robotcomp.dialogue
+package com.airobot.tablet.airobotui.comp.dialogue
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
