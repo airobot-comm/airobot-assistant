@@ -26,12 +26,11 @@ import com.airobot.framework.R
 import com.airobot.framework.comp.BackgroundDecorations
 import com.airobot.framework.comp.BottomFooter
 import com.airobot.tablet.airobotui.settings.AiRobotDialog
-import com.airobot.character.airobotui.comp.dialogue.DialogueBubble
-import com.airobot.character.airobotui.comp.robot.*
-import com.airobot.character.airobotui.comp.voice.RobotVoiceInputPanel
+import com.airobot.character.comp.dialogue.DialogueBubble
+import com.airobot.character.comp.voice.RobotVoiceInputPanel
 import com.airobot.framework.statusbar.RobotTopBar
-import com.airobot.framework.comp.drawer.SystemDrawerContent
-import com.airobot.framework.comp.drawer.DrawerMenuItemData
+import com.airobot.framework.drawer.SystemDrawerContent
+import com.airobot.framework.drawer.DrawerMenuItemData
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -43,11 +42,11 @@ import com.airobot.services.compoments.DEFAULT_SERVICE_CARDS
 import com.airobot.services.FocusTimerWidget
 import com.airobot.services.compoments.ServiceCardCarousel
 import com.airobot.services.compoments.getServiceCardIcon
-import com.airobot.character.airobotui.state.ConversationSubState
-import com.airobot.character.airobotui.state.InteractionType
-import com.airobot.character.airobotui.state.RobotEngineState
-import com.airobot.character.airobotui.state.RobotUiState
-import com.airobot.character.airobotui.state.RobotVisualState
+import com.airobot.character.state.ConversationSubState
+import com.airobot.character.state.InteractionType
+import com.airobot.character.state.RobotEngineState
+import com.airobot.character.state.RobotUiState
+import com.airobot.character.state.RobotVisualState
 import com.airobot.services.state.ServiceCard
 import com.airobot.services.state.ServiceCardType
 import com.airobot.services.state.ServiceCardData
@@ -59,6 +58,7 @@ import com.airobot.services.ServiceViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import androidx.compose.animation.core.Spring // ADDED IMPORT
+import com.airobot.character.comp.robot.RobotCharacter
 
 /**
  * 鏈哄櫒浜烘湇鍔′富灞忓箷

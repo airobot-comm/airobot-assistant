@@ -15,8 +15,8 @@ import com.airobot.tablet.system.model.SystemInfo
 import com.airobot.core.comm.NetCommService
 import com.airobot.core.comm.NetworkState
 import com.airobot.core.comm.NetCommEvent
-import com.airobot.character.airobotui.state.RobotEngineState
-import com.airobot.character.airobotui.state.RobotStateEngine
+import com.airobot.character.state.RobotEngineState
+import com.airobot.character.state.RobotStateEngine
 import com.airobot.audio.AudioEvent
 import com.airobot.audio.AudioService
 

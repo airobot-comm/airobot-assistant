@@ -1,4 +1,4 @@
-package com.airobot.character.airobotui.comp.voice
+package com.airobot.character.comp.voice
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -25,8 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.framework.R
-import com.airobot.character.airobotui.comp.dialogue.UserMessageBubble
-import com.airobot.character.airobotui.state.RobotVisualState
+import com.airobot.character.comp.dialogue.UserMessageBubble
+import com.airobot.character.state.RobotVisualState
 import com.airobot.services.state.ServiceSubState
 import com.airobot.framework.theme.RobotTheme
 

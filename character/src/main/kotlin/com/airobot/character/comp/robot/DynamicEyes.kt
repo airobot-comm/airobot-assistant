@@ -1,4 +1,4 @@
-﻿package com.airobot.character.airobotui.comp.robot
+﻿package com.airobot.character.comp.robot
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Canvas
+import com.airobot.character.state.RobotVisualState
 import com.airobot.framework.theme.RobotEyeActive
 import com.airobot.framework.theme.RobotEyeDefault
 import com.airobot.framework.theme.StatusCyan
@@ -28,7 +29,7 @@ import com.airobot.framework.theme.StatusCyan
  */
 @Composable
 fun DynamicEyes(
-    state: com.airobot.character.airobotui.state.RobotVisualState,
+    state: RobotVisualState,
     ttsProgressNormalized: Float = 0f, // 0-1, TTS鎾斁杩涘害
     audioLevel: () -> Float = { 0f }, // 浼犲叆闊抽绛夌骇 0-1 (Lambda)
     eyeSize: Dp = 48.dp,
@@ -71,13 +72,13 @@ fun DynamicEyes(
 
     // 璁＄畻鐪肩潧鐨勫疄闄呭亸绉?
     val eyeOffsetX = when (state) {
-        com.airobot.character.airobotui.state.RobotVisualState.SPEAKING -> speakingEyeLookX.dp
-        com.airobot.character.airobotui.state.RobotVisualState.THINKING -> thinkingEyeOffsetX.dp
+        RobotVisualState.SPEAKING -> speakingEyeLookX.dp
+        RobotVisualState.THINKING -> thinkingEyeOffsetX.dp
         else -> 0.dp
     }
 
     val eyeOffsetY = when (state) {
-        com.airobot.character.airobotui.state.RobotVisualState.THINKING -> thinkingEyeOffsetY.dp
+        RobotVisualState.THINKING -> thinkingEyeOffsetY.dp
         else -> 0.dp
     }
 
@@ -107,7 +108,7 @@ fun DynamicEyes(
  */
 @Composable
 private fun EnhancedDynamicEye(
-    state: com.airobot.character.airobotui.state.RobotVisualState,
+    state: RobotVisualState,
     size: Dp,
     ttsProgressNormalized: Float = 0f,
     audioLevel: () -> Float = { 0f },
@@ -135,30 +136,30 @@ private fun EnhancedDynamicEye(
 
         // 鏍稿績鐪肩潧缁勪欢
         when (state) {
-            com.airobot.character.airobotui.state.RobotVisualState.IDLE -> IdleEyeEnhanced(size = size)
-            com.airobot.character.airobotui.state.RobotVisualState.LISTENING -> ListeningEyeEnhanced(size = size, audioLevel = audioLevel)
-            com.airobot.character.airobotui.state.RobotVisualState.THINKING -> ThinkingEyeEnhanced(size = size)
-            com.airobot.character.airobotui.state.RobotVisualState.SPEAKING -> SpeakingEyeEnhanced(
+            RobotVisualState.IDLE -> IdleEyeEnhanced(size = size)
+            RobotVisualState.LISTENING -> ListeningEyeEnhanced(size = size, audioLevel = audioLevel)
+            RobotVisualState.THINKING -> ThinkingEyeEnhanced(size = size)
+            RobotVisualState.SPEAKING -> SpeakingEyeEnhanced(
                 size = size,
                 ttsProgressNormalized = ttsProgressNormalized,
                 audioLevel = audioLevel
             )
-            com.airobot.character.airobotui.state.RobotVisualState.FOCUS -> FocusEyeEnhanced(size = size)
-            com.airobot.character.airobotui.state.RobotVisualState.HAPPY -> HappyEyeEnhanced(size = size)
-            com.airobot.character.airobotui.state.RobotVisualState.SLEEPING -> SleepingEyeEnhanced(size = size)
+            RobotVisualState.FOCUS -> FocusEyeEnhanced(size = size)
+            RobotVisualState.HAPPY -> HappyEyeEnhanced(size = size)
+            RobotVisualState.SLEEPING -> SleepingEyeEnhanced(size = size)
         }
     }
 }
 
-private fun getEyeColor(state: com.airobot.character.airobotui.state.RobotVisualState): Color {
+private fun getEyeColor(state: RobotVisualState): Color {
     return when (state) {
-        com.airobot.character.airobotui.state.RobotVisualState.IDLE -> RobotEyeDefault
-        com.airobot.character.airobotui.state.RobotVisualState.LISTENING -> StatusCyan
-        com.airobot.character.airobotui.state.RobotVisualState.THINKING -> RobotEyeActive // Orange
-        com.airobot.character.airobotui.state.RobotVisualState.SPEAKING -> RobotEyeActive // Orange
-        com.airobot.character.airobotui.state.RobotVisualState.FOCUS -> Color(0xFF67E8F9)
-        com.airobot.character.airobotui.state.RobotVisualState.HAPPY -> Color(0xFF10B981)
-        com.airobot.character.airobotui.state.RobotVisualState.SLEEPING -> Color(0xFF94A3B8)
+        RobotVisualState.IDLE -> RobotEyeDefault
+        RobotVisualState.LISTENING -> StatusCyan
+        RobotVisualState.THINKING -> RobotEyeActive // Orange
+        RobotVisualState.SPEAKING -> RobotEyeActive // Orange
+        RobotVisualState.FOCUS -> Color(0xFF67E8F9)
+        RobotVisualState.HAPPY -> Color(0xFF10B981)
+        RobotVisualState.SLEEPING -> Color(0xFF94A3B8)
     }
 }
 
@@ -204,7 +205,7 @@ private fun ListeningEyeEnhanced(
             .width(size * 0.9f)
             .height(dynamicHeight)
             .clip(RoundedCornerShape(50))
-            .background(getEyeColor(com.airobot.character.airobotui.state.RobotVisualState.LISTENING).copy(alpha = 0.95f))
+            .background(getEyeColor(RobotVisualState.LISTENING).copy(alpha = 0.95f))
             .blur(0.5.dp)
     )
 }

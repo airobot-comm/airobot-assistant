@@ -1,4 +1,4 @@
-﻿package com.airobot.character.airobotui.comp.robot
+﻿package com.airobot.character.comp.robot
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.airobot.character.airobotui.state.RobotVisualState
+import com.airobot.character.state.RobotVisualState
 import com.airobot.framework.theme.RobotAntennaStemDark
 import com.airobot.framework.theme.RobotAntennaStemLight
 import com.airobot.framework.theme.RobotBlush
@@ -29,6 +29,8 @@ import com.airobot.framework.theme.RobotHeadBorder
 import com.airobot.framework.theme.RobotHeadColor
 import com.airobot.framework.theme.RobotNeckColor
 import com.airobot.framework.theme.RobotTheme
+import kotlinx.coroutines.delay
+import kotlin.random.Random
 
 
 /**
@@ -38,7 +40,7 @@ import com.airobot.framework.theme.RobotTheme
  */
 @Composable
 fun RobotCharacter(
-    state: com.airobot.character.airobotui.state.RobotVisualState,
+    state: RobotVisualState,
     ttsProgressNormalized: Float = 0f,
     audioLevel: () -> Float = { 0f }, // 浼犲叆闊抽绛夌骇 (Lambda)
     headSize: Dp = 320.dp, // 澧炲ぇ榛樿灏哄浠ュ尮閰?420px 姣斾緥
@@ -62,19 +64,19 @@ fun RobotCharacter(
     LaunchedEffect(state) {
         while (true) {
             // 闅忔満闂撮殧 2s - 7s
-            val delayTime = kotlin.random.Random.nextLong(2000, 7000)
-            kotlinx.coroutines.delay(delayTime)
+            val delayTime = Random.nextLong(2000, 7000)
+            delay(delayTime)
             
             if (state == RobotVisualState.IDLE || state == RobotVisualState.HAPPY || state == RobotVisualState.LISTENING) {
                 isBlinking = true
-                kotlinx.coroutines.delay(150)
+                delay(150)
                 isBlinking = false
                 
                 // 鍋跺皵鍙岀湪鐪?(15% 姒傜巼)
-                if (kotlin.random.Random.nextFloat() < 0.15f) {
-                    kotlinx.coroutines.delay(100)
+                if (Random.nextFloat() < 0.15f) {
+                    delay(100)
                     isBlinking = true
-                    kotlinx.coroutines.delay(150)
+                    delay(150)
                     isBlinking = false
                 }
             }
@@ -184,7 +186,7 @@ fun RobotCharacter(
  */
 @Composable
 private fun RobotHead(
-    state: com.airobot.character.airobotui.state.RobotVisualState,
+    state: RobotVisualState,
     isBlinking: Boolean,
     ttsProgressNormalized: Float,
     audioLevel: () -> Float,
@@ -336,11 +338,11 @@ private fun RobotHead(
                     )
                 
                 // 鍢村反鍔ㄧ敾
-                val isSpeaking = state == com.airobot.character.airobotui.state.RobotVisualState.SPEAKING
-                val isIdle = state == com.airobot.character.airobotui.state.RobotVisualState.IDLE || state == com.airobot.character.airobotui.state.RobotVisualState.LISTENING
+                val isSpeaking = state == RobotVisualState.SPEAKING
+                val isIdle = state == RobotVisualState.IDLE || state == RobotVisualState.LISTENING
 
                 Box(modifier = Modifier.padding(top = headSize * 0.1f)) {
-                    androidx.compose.animation.AnimatedContent(
+                    AnimatedContent(
                         targetState = state,
                         transitionSpec = {
                             fadeIn() togetherWith fadeOut()
@@ -348,14 +350,14 @@ private fun RobotHead(
                         label = "mouthTransition"
                     ) { targetState ->
                         when (targetState) {
-                            com.airobot.character.airobotui.state.RobotVisualState.SPEAKING -> {
+                            RobotVisualState.SPEAKING -> {
                                 SpeakingMouth(
                                     infiniteTransition = infiniteTransition,
                                     modifier = Modifier
                                 )
                             }
-                            com.airobot.character.airobotui.state.RobotVisualState.IDLE, 
-                            com.airobot.character.airobotui.state.RobotVisualState.LISTENING -> {
+                            RobotVisualState.IDLE,
+                            RobotVisualState.LISTENING -> {
                                 StaticMouth(size = 32.dp)
                             }
                             else -> {
@@ -377,7 +379,7 @@ private fun RobotHead(
  */
 @Composable
 private fun RobotAntennas(
-    state: com.airobot.character.airobotui.state.RobotVisualState,
+    state: RobotVisualState,
     headSize: Dp,
     infiniteTransition: InfiniteTransition,
     modifier: Modifier = Modifier
@@ -393,7 +395,7 @@ private fun RobotAntennas(
         label = "antennaRotation"
     )
 
-    val isFocus = state == com.airobot.character.airobotui.state.RobotVisualState.FOCUS
+    val isFocus = state == RobotVisualState.FOCUS
     val antennaColor1 = if (isFocus) Color(0xFFF87171) else Color(0xFF7DD3FC) // sky-300 for neutral
     val antennaColor2 = if (isFocus) Color(0xFFF87171) else Color(0xFF7DD3FC) // same for neutral as per prototype
 

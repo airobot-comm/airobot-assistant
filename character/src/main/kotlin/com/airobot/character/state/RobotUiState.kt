@@ -1,10 +1,9 @@
-package com.airobot.character.airobotui.state
+package com.airobot.character.state
 
 import com.airobot.services.state.ServiceCard
 import com.airobot.services.state.ServiceCardData
 import com.airobot.services.state.TimerCardData
 import com.airobot.services.state.ServiceSubState
-import com.airobot.services.state.ServiceCardType
 
 
 /**

@@ -1,4 +1,4 @@
-package com.airobot.framework.comp.drawer
+package com.airobot.framework.drawer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

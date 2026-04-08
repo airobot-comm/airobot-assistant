@@ -1,4 +1,4 @@
-﻿package com.airobot.character.airobotui.comp.dialogue
+﻿package com.airobot.character.comp.dialogue
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -22,12 +22,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.framework.R
-import com.airobot.character.airobotui.state.RobotVisualState
+import com.airobot.character.state.RobotVisualState
 import com.airobot.framework.theme.RobotTheme
 
 /**
@@ -47,7 +48,7 @@ fun DialogueBubble(
     
     AnimatedVisibility(
         visible = showBubble,
-        enter = scaleIn(transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, 0.5f)) + fadeIn(),
+        enter = scaleIn(transformOrigin = TransformOrigin(0f, 0.5f)) + fadeIn(),
         exit = scaleOut() + fadeOut(),
         modifier = modifier
     ) {
