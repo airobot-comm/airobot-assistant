@@ -53,7 +53,7 @@ import com.airobot.services.state.ServiceCardData
 import com.airobot.services.state.TimerCardData
 import com.airobot.services.state.ServiceSubState
 import com.airobot.tablet.airobotui.viewmodel.MainShellViewModel
-import com.airobot.character.airobotui.viewmodel.ConversationViewModel
+import com.airobot.character.viewmodel.ConversationViewModel
 import com.airobot.services.ServiceViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState

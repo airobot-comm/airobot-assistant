@@ -1,23 +1,25 @@
-package com.airobot.character.airobotui.viewmodel
+package com.airobot.character.viewmodel
 
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.*
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 import com.airobot.audio.AudioEvent
 import com.airobot.audio.AudioService
+import com.airobot.character.state.ConversationSubState
 import com.airobot.character.state.Message
 import com.airobot.character.state.MessageRole
-import com.airobot.core.comm.NetCommService
-import com.airobot.core.comm.NetCommEvent
-import com.airobot.character.state.ConversationSubState
 import com.airobot.character.state.RobotEngineState
 import com.airobot.character.state.RobotStateEngine
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import kotlinx.coroutines.delay
+import com.airobot.core.comm.NetCommEvent
+import com.airobot.core.comm.NetCommService
 
 /**
  * AI Conversation ViewModel
@@ -26,23 +28,23 @@ import kotlinx.coroutines.delay
 class ConversationViewModel @Inject constructor(
     application: Application,
     private val netCommService: NetCommService,
-    private val audioService: AudioService, 
+    private val audioService: AudioService,
     private val robotStateEngine: RobotStateEngine
 ) : AndroidViewModel(application) {
     companion object {
         private const val TAG = "ConversationViewModel"
     }
 
-    private var isAutoMode = false    
-    private var isActive = false      
+    private var isAutoMode = false
+    private var isActive = false
     private val _subState = MutableStateFlow(ConversationSubState.LISTENING)
-    private val _isMuted = MutableStateFlow(false)  
+    private val _isMuted = MutableStateFlow(false)
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
 
     private val _currentRoundUserText = MutableStateFlow<String?>(null)
     val currentRoundUserText: StateFlow<String?> = _currentRoundUserText.asStateFlow()
-    
+
     private val _currentRoundAiText = MutableStateFlow<String?>(null)
     val currentRoundAiText: StateFlow<String?> = _currentRoundAiText.asStateFlow()
 
@@ -164,7 +166,7 @@ class ConversationViewModel @Inject constructor(
         resetRoundText()
         _subState.value = ConversationSubState.LISTENING
         syncSubState()
-        
+
         netCommService.startListening("auto")
         contextData?.let { netCommService.sendAudio(it) }
         audioService.activate()
@@ -189,7 +191,7 @@ class ConversationViewModel @Inject constructor(
         Log.d(TAG, "cleanConversation: Deactivating audio and resetting state")
         isActive = false
         isAutoMode = false
-        
+
         audioService.deactivate()
         audioService.stopPlaying()
 
