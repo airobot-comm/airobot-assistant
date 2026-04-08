@@ -33,6 +33,7 @@ dependencies {
     implementation(project(":framework"))
     implementation(project(":core-comm"))
     implementation(project(":services"))
+    implementation(project(":audio"))
     
     // Accompanist and UI
     implementation(libs.androidx.core.ktx)

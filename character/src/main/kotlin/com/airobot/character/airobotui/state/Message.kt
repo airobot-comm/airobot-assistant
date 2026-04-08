@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.system.model
+package com.airobot.character.airobotui.state
 
 import java.util.*
 
@@ -19,4 +19,3 @@ data class Message(
     val timestamp: Long = System.currentTimeMillis(),
     val isAudio: Boolean = false
 )
-

@@ -25,12 +25,20 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobot.framework.R
 import com.airobot.framework.comp.BackgroundDecorations
 import com.airobot.framework.comp.BottomFooter
-import com.airobot.tablet.airobotui.subpage.AiRobotDialog
+import com.airobot.tablet.airobotui.settings.AiRobotDialog
 import com.airobot.character.airobotui.comp.dialogue.DialogueBubble
 import com.airobot.character.airobotui.comp.robot.*
 import com.airobot.character.airobotui.comp.voice.RobotVoiceInputPanel
 import com.airobot.framework.statusbar.RobotTopBar
-import com.airobot.tablet.airobotui.drawer.RobotDrawerContent
+import com.airobot.framework.comp.drawer.SystemDrawerContent
+import com.airobot.framework.comp.drawer.DrawerMenuItemData
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+import com.airobot.tablet.airobotui.settings.AiRobotConfig
+import com.airobot.tablet.airobotui.settings.RoleConfig
+import com.airobot.tablet.airobotui.settings.SystemAuth
 import com.airobot.services.compoments.DEFAULT_SERVICE_CARDS
 import com.airobot.services.FocusTimerWidget
 import com.airobot.services.compoments.ServiceCardCarousel
@@ -45,8 +53,8 @@ import com.airobot.services.state.ServiceCardType
 import com.airobot.services.state.ServiceCardData
 import com.airobot.services.state.TimerCardData
 import com.airobot.services.state.ServiceSubState
-import com.airobot.tablet.airobotui.viewmodel.RobotMainViewModel
-import com.airobot.tablet.airobotui.viewmodel.ConversationViewModel
+import com.airobot.tablet.airobotui.viewmodel.MainShellViewModel
+import com.airobot.character.airobotui.viewmodel.ConversationViewModel
 import com.airobot.services.ServiceViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -61,7 +69,7 @@ import androidx.compose.animation.core.Spring // ADDED IMPORT
 fun AiRobotMainScreen(
     themeMode: RobotThemeMode = RobotThemeMode.DARK,
     onToggleTheme: () -> Unit = {},
-    robotMainViewModel: RobotMainViewModel = hiltViewModel(),
+    mainShellViewModel: MainShellViewModel = hiltViewModel(),
     conversationViewModel: ConversationViewModel = hiltViewModel(),
     serviceViewModel: ServiceViewModel = hiltViewModel()
 ) {
@@ -74,11 +82,11 @@ fun AiRobotMainScreen(
     )
 
     // 浠?RobotMainViewModel 鏀堕泦涓€绾х姸鎬?
-    val robotState by robotMainViewModel.robotState.collectAsState()
-    val errorMessage by robotMainViewModel.errorMessage.collectAsState()
-    val showActivationDialog by robotMainViewModel.showActivationDialog.collectAsState()
-    val activationCode by robotMainViewModel.activationCode.collectAsState()
-    val mainVoiceLevel by robotMainViewModel.voiceLevel.collectAsState()
+    val robotState by mainShellViewModel.robotState.collectAsState()
+    val errorMessage by mainShellViewModel.errorMessage.collectAsState()
+    val showActivationDialog by mainShellViewModel.showActivationDialog.collectAsState()
+    val activationCode by mainShellViewModel.activationCode.collectAsState()
+    val mainVoiceLevel by mainShellViewModel.voiceLevel.collectAsState()
 
     // 浠?ConversationViewModel 鏀堕泦浜や簰鐘舵€?
     val convAudioLevel by conversationViewModel.audioLevel.collectAsState()
@@ -168,13 +176,13 @@ fun AiRobotMainScreen(
     // 鍒濆鍖栭煶棰戠郴缁?(褰撴潈闄愯幏寰楀悗)
     LaunchedEffect(permissionsState.allPermissionsGranted) {
         if (permissionsState.allPermissionsGranted) {
-            robotMainViewModel.initAudioService()
+            mainShellViewModel.initAudioService()
         }
     }
 
     // 鐩戝惉鍞ら啋浜嬩欢
     LaunchedEffect(Unit) {
-        robotMainViewModel.wakeupEvent.collect {
+        mainShellViewModel.wakeupEvent.collect {
             conversationViewModel.startConversation()
         }
     }
@@ -191,10 +199,17 @@ fun AiRobotMainScreen(
         label = "robotSlide"
     )
 
+    val drawerMenuItems = listOf(
+        DrawerMenuItemData(Icons.Default.Lock, "系统认证", "系统认证信息") { SystemAuth() },
+        DrawerMenuItemData(Icons.Default.Person, "角色管理", "角色管理") { RoleConfig() },
+        DrawerMenuItemData(Icons.Default.Settings, "Ai智能体", "Ai智能体配置") { AiRobotConfig() }
+    )
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            RobotDrawerContent(
+            SystemDrawerContent(
+                menuItems = drawerMenuItems,
                 onClose = { scope.launch { drawerState.close() } },
                 onToggleTheme = onToggleTheme
             )
@@ -437,7 +452,7 @@ fun AiRobotMainScreen(
             if (showActivationDialog && activationCode != null) {
                 AiRobotDialog(
                     activationCode = activationCode!!,
-                    onConfirm = { robotMainViewModel.onActivationConfirmed() },
+                    onConfirm = { mainShellViewModel.onActivationConfirmed() },
                     onDismiss = { /* Optionally handle dismissal, but usually activation is required */ }
                 )
             }

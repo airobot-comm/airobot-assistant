@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.airobotui.viewmodel
+package com.airobot.tablet.airobotui.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -25,7 +25,7 @@ import com.airobot.audio.AudioService
  * 鐠愮喕鐭楅張鍝勬珤娴滆桨绔寸痪褏濮搁幀浣烘畱缁狅紕鎮婃稉搴″瀻閸?
  */
 @HiltViewModel
-class RobotMainViewModel @Inject constructor(
+class MainShellViewModel @Inject constructor(
     private val netCommService: NetCommService,
     private val robotStateEngine: RobotStateEngine,
     private val sysManage: SysManage,
@@ -71,7 +71,7 @@ class RobotMainViewModel @Inject constructor(
                 when (event) {
                     is AudioEvent.Wakeup -> {
                         val currentState = robotStateEngine.robotEngineState.value
-                        Log.d("RobotMainViewModel",
+                        Log.d("MainShellViewModel",
                             "Wakeup detected. Current state: $currentState")
 
                         // 閺嶇绺剧€瑰鍙忛柅鏄忕帆閿涙碍顥呴弻銉ㄧ箻閸忋儱顕拠婵堟畱閸忓牆鍠呴弶鈥叉閿涘苯褰ч張澶婂徔婢跺洦娼禒鑸靛閻喐顒滈崥顖氬З鐎电鐦?
@@ -79,13 +79,13 @@ class RobotMainViewModel @Inject constructor(
                         val isSystemReady = sysManage.state.value is com.airobot.tablet.system.SysState.Ready
                         if (isNetworkReady && isSystemReady &&
                             (currentState is RobotEngineState.Ready || currentState is RobotEngineState.Conversation)) {
-                            Log.d("RobotMainViewModel", "Conditions met. Proceeding with wakeup.")
+                            Log.d("MainShellViewModel", "Conditions met. Proceeding with wakeup.")
                             viewModelScope.launch {
                                 _wakeupEvent.emit(Unit)
                             }
                         } else {
                             // 鐎瑰鍙忛崶鐐衡偓鈧敍姘瑝濠娐ゅ喕閺夆€叉閿涘苯宸遍崚璺虹殺闂婃娊顣堕張宥呭閹峰娲?WAITING 閻樿埖鈧緤绱濋崑婊勵剾閺佺増宓侀崣鎴︹偓?
-                            Log.w("RobotMainViewModel", "Conditions NOT met (Net:$isNetworkReady, Sys:$isSystemReady). Pulling back Audio Service.")
+                            Log.w("MainShellViewModel", "Conditions NOT met (Net:$isNetworkReady, Sys:$isSystemReady). Pulling back Audio Service.")
                             audioService.deactivate()
                         }
                     }
@@ -157,7 +157,7 @@ class RobotMainViewModel @Inject constructor(
                         // 閻?handleAiRobotEvent(NetCommEvent.Connected) 婢跺嫮鎮?
                     }
                     NetworkState.ERROR, NetworkState.IDLE -> {
-                        Log.w("RobotMainViewModel", "Network state is $state. Deactivating Audio Service.")
+                        Log.w("MainShellViewModel", "Network state is $state. Deactivating Audio Service.")
                         audioService.deactivate() // 瀵搫鍩楅崶鐐衡偓鈧棅鎶筋暥閺堝秴濮?
 
                         // 闁灝鍘ら崷銊ュ嚒缂?Unauthorized 閻ㄥ嫭鍎忛崘鍏哥瑓閸掑洤娲?Offline閿涘矂娅庨棃鐐碘€樼€圭偞鏌囧鈧禍?
@@ -183,18 +183,18 @@ class RobotMainViewModel @Inject constructor(
             is NetCommEvent.Connected -> {
                 // 娴犲懎婀棃鐐差嚠鐠囨繄濮搁幀浣风瑓閸掑洤娲?Ready閿涘矂妲诲銏ｎ洬閻╂牕顕拠婵堝Ц閹?
                 if (robotStateEngine.robotEngineState.value !is RobotEngineState.Conversation) {
-                    Log.d("RobotMainViewModel", "Safe transitioning to Ready due to Connected event")
+                    Log.d("MainShellViewModel", "Safe transitioning to Ready due to Connected event")
                     robotStateEngine.updateEngineState(RobotEngineState.Ready)
                 }
                 _errorMessage.value = null
             }
             is NetCommEvent.Disconnected -> {
-                Log.w("RobotMainViewModel", "Received Disconnected event. Deactivating Audio Service.")
+                Log.w("MainShellViewModel", "Received Disconnected event. Deactivating Audio Service.")
                 audioService.deactivate()
                 robotStateEngine.updateEngineState(RobotEngineState.Offline)
             }
             is NetCommEvent.Error -> {
-                Log.e("RobotMainViewModel", "Received Error event: ${event.message}. Deactivating Audio Service.")
+                Log.e("MainShellViewModel", "Received Error event: ${event.message}. Deactivating Audio Service.")
                 audioService.deactivate()
                 _errorMessage.value = event.message
             }

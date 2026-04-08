@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.drawer
+package com.airobot.framework.comp.drawer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -7,7 +7,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.NightsStay
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,20 +22,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airobot.framework.theme.RobotTheme
-import com.airobot.tablet.airobotui.subpage.AiRobotConfig
-import com.airobot.tablet.airobotui.subpage.RoleConfig
-import com.airobot.tablet.airobotui.subpage.SystemAuth
 
-/**
- * 渚ц竟鏍忚彍鍗曞唴瀹?
- * 鎵╁ぇ鏄剧ず鍖哄煙 (640dp锛岀害鍗犳嵁涓绘祦骞虫澘鍗婂睆)
- */
+data class DrawerMenuItemData(
+    val icon: ImageVector,
+    val label: String,
+    val title: String,
+    val content: @Composable () -> Unit
+)
+
 @Composable
-fun RobotDrawerContent(
+fun SystemDrawerContent(
+    menuItems: List<DrawerMenuItemData>,
     onClose: () -> Unit,
     onToggleTheme: () -> Unit = {}
 ) {
-    var selectedTab by remember { mutableStateOf(0) } // 0: 系统认证, 1: 角色管理, 2: Ai智能体
+    var selectedTab by remember { mutableIntStateOf(0) }
 
     Surface(
         modifier = Modifier
@@ -51,34 +54,18 @@ fun RobotDrawerContent(
                     .padding(vertical = 40.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                DrawerMenuItem(
-                    icon = Icons.Default.Lock,
-                    label = "系统认证",
-                    isSelected = selectedTab == 0,
-                    onClick = { selectedTab = 0 }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                DrawerMenuItem(
-                    icon = Icons.Default.Person,
-                    label = "角色管理",
-                    isSelected = selectedTab == 1,
-                    onClick = { selectedTab = 1 }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                DrawerMenuItem(
-                    icon = Icons.Default.Settings,
-                    label = "Ai智能体",
-                    isSelected = selectedTab == 2,
-                    onClick = { selectedTab = 2 }
-                )
+                menuItems.forEachIndexed { index, item ->
+                    DrawerMenuItem(
+                        icon = item.icon,
+                        label = item.label,
+                        isSelected = selectedTab == index,
+                        onClick = { selectedTab = index }
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // 涓婚鍒囨崲鎸夐挳
                 DrawerMenuItem(
                     icon = if (RobotTheme.isDark) Icons.Default.WbSunny else Icons.Default.NightsStay,
                     label = if (RobotTheme.isDark) "浅色模式" else "深色模式",
@@ -87,7 +74,6 @@ fun RobotDrawerContent(
                 )
             }
 
-            // 鍙充晶锛氬瓙椤甸潰灞曠ず鍖哄煙
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -95,6 +81,8 @@ fun RobotDrawerContent(
                     .padding(32.dp)
                     .verticalScroll(rememberScrollState())
             ) {
+                val currentItem = menuItems.getOrNull(selectedTab)
+                
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -102,11 +90,7 @@ fun RobotDrawerContent(
                 ) {
                     Column {
                         Text(
-                            text = when (selectedTab) {
-                                0 -> "系统认证信息"
-                                1 -> "角色管理"
-                                else -> "Ai智能体配置"
-                            },
+                            text = currentItem?.title ?: "",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Black,
                             color = RobotTheme.colors.textPrimary,
@@ -137,13 +121,8 @@ fun RobotDrawerContent(
 
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // 缁熶竴椋庢牸鐨勫瓙椤甸潰瀹瑰櫒
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    when (selectedTab) {
-                        0 -> SystemAuth()
-                        1 -> RoleConfig()
-                        else -> AiRobotConfig()
-                    }
+                    currentItem?.content?.invoke()
                 }
             }
         }
@@ -186,4 +165,3 @@ private fun DrawerMenuItem(
         )
     }
 }
-
