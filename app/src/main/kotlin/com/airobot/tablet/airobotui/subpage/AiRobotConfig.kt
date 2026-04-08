@@ -50,14 +50,14 @@ fun AiRobotConfig(
         Spacer(modifier = Modifier.height(8.dp))
         
         Text(
-            "智能体激活状态 (自动下发)",
+            "智能体激活状态(自动下发)",
             color = RobotTheme.colors.textSecondary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
 
         ConfigTextField(
-            label = "激活凭证 (Activation Code)",
+            label = "激活凭证(Activation Code)",
             value = aiAgent.activationCode,
             onValueChange = {},
             readOnly = true

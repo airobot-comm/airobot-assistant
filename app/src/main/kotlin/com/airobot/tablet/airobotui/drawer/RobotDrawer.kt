@@ -25,8 +25,8 @@ import com.airobot.tablet.airobotui.subpage.RoleConfig
 import com.airobot.tablet.airobotui.subpage.SystemAuth
 
 /**
- * 侧边栏菜单内容
- * 扩大显示区域 (640dp，约占据主流平板半屏)
+ * 渚ц竟鏍忚彍鍗曞唴瀹?
+ * 鎵╁ぇ鏄剧ず鍖哄煙 (640dp锛岀害鍗犳嵁涓绘祦骞虫澘鍗婂睆)
  */
 @Composable
 fun RobotDrawerContent(
@@ -78,7 +78,7 @@ fun RobotDrawerContent(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // 主题切换按钮
+                // 涓婚鍒囨崲鎸夐挳
                 DrawerMenuItem(
                     icon = if (RobotTheme.isDark) Icons.Default.WbSunny else Icons.Default.NightsStay,
                     label = if (RobotTheme.isDark) "浅色模式" else "深色模式",
@@ -87,7 +87,7 @@ fun RobotDrawerContent(
                 )
             }
 
-            // 右侧：子页面展示区域
+            // 鍙充晶锛氬瓙椤甸潰灞曠ず鍖哄煙
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -137,7 +137,7 @@ fun RobotDrawerContent(
 
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // 统一风格的子页面容器
+                // 缁熶竴椋庢牸鐨勫瓙椤甸潰瀹瑰櫒
                 Box(modifier = Modifier.fillMaxWidth()) {
                     when (selectedTab) {
                         0 -> SystemAuth()

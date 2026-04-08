@@ -30,20 +30,20 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // 设置全屏沉浸模式 - 隐藏系统状态栏
+        // 璁剧疆鍏ㄥ睆娌夋蹈妯″紡 - 闅愯棌绯荤粺鐘舵€佹爮
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.apply {
             statusBarColor = android.graphics.Color.TRANSPARENT
             navigationBarColor = android.graphics.Color.TRANSPARENT
         }
         
-        // 隐藏状态栏
+        // 闅愯棌鐘舵€佹爮
         WindowInsetsControllerCompat(window, window.decorView).apply {
             hide(WindowInsetsCompat.Type.statusBars())
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
         
-        Log.d(TAG, "应用启动，开始初始化...")
+        Log.d(TAG, "搴旂敤鍚姩锛屽紑濮嬪垵濮嬪寲...")
         
         setContent {
             var themeMode by remember { mutableStateOf(RobotThemeMode.DARK) }
@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 RobotThemeMode.DARK
                             }
-                            Log.d(TAG, "主题切换: $themeMode")
+                            Log.d(TAG, "涓婚鍒囨崲: $themeMode")
                         }
                     )
                 }

@@ -76,7 +76,7 @@ fun SystemAuth(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("激活状态:", color = RobotTheme.colors.textSecondary, fontSize = 14.sp)
+            Text("激活状态", color = RobotTheme.colors.textSecondary, fontSize = 14.sp)
             Text(
                 if (isActivated) "已成功激活" else "尚未激活",
                 color = if (isActivated) RobotTheme.colors.accent else Color.Red,
