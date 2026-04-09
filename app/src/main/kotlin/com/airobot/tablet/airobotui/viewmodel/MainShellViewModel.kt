@@ -21,8 +21,8 @@ import com.airobot.audio.AudioEvent
 import com.airobot.audio.AudioService
 
 /**
- * 娑撶粯甯堕崚?ViewModel
- * 鐠愮喕鐭楅張鍝勬珤娴滆桨绔寸痪褏濮搁幀浣烘畱缁狅紕鎮婃稉搴″瀻閸?
+ * 主外壳控制 ViewModel
+ * 协调网络通信与系统底层引擎之间的全局状态同步。
  */
 @HiltViewModel
 class MainShellViewModel @Inject constructor(
@@ -57,7 +57,7 @@ class MainShellViewModel @Inject constructor(
     }
 
     /**
-     * 閸掓繂顫愰崠鏍叾妫版垶婀囬崝?
+     * 初始化语音输入服务
      */
     fun initAudioService() {
         viewModelScope.launch {
@@ -74,7 +74,7 @@ class MainShellViewModel @Inject constructor(
                         Log.d("MainShellViewModel",
                             "Wakeup detected. Current state: $currentState")
 
-                        // 閺嶇绺剧€瑰鍙忛柅鏄忕帆閿涙碍顥呴弻銉ㄧ箻閸忋儱顕拠婵堟畱閸忓牆鍠呴弶鈥叉閿涘苯褰ч張澶婂徔婢跺洦娼禒鑸靛閻喐顒滈崥顖氬З鐎电鐦?
+                        // 唤醒后的条件过滤：网络必须连接且系统就绪，且机器人处于 Ready/Conversation 状态时才执行唤醒确认（否则拉回 Audio 状态）
                         val isNetworkReady = netCommService.isConnected
                         val isSystemReady = sysManage.state.value is com.airobot.tablet.system.SysState.Ready
                         if (isNetworkReady && isSystemReady &&
@@ -84,7 +84,7 @@ class MainShellViewModel @Inject constructor(
                                 _wakeupEvent.emit(Unit)
                             }
                         } else {
-                            // 鐎瑰鍙忛崶鐐衡偓鈧敍姘瑝濠娐ゅ喕閺夆€叉閿涘苯宸遍崚璺虹殺闂婃娊顣堕張宥呭閹峰娲?WAITING 閻樿埖鈧緤绱濋崑婊勵剾閺佺増宓侀崣鎴︹偓?
+                            // 条件不满足：可能是初始化中或未激活，此时不响应唤醒并重置音频服务到 WAITING 监听状态
                             Log.w("MainShellViewModel", "Conditions NOT met (Net:$isNetworkReady, Sys:$isSystemReady). Pulling back Audio Service.")
                             audioService.deactivate()
                         }
@@ -123,14 +123,13 @@ class MainShellViewModel @Inject constructor(
                     is SysState.Ready -> {
                         _showActivationDialog.value = false
                         _activationCode.value = null
-                        // OTA 濠碘偓濞?濡偓閺屻儱鐣幋鎰倵閿涘苯鐨剧拠鏇＄箾閹恒儳缍夌紒?
+                        // 系统就绪即开启网络连接（自动根据凭证进行 OTA 认证/激活）
                         netCommService.connect()
-                        // 鐏忔繆鐦崚婵嗩潗閸栨牠鐓舵０鎴炴箛閸?(闁板秶鐤嗛崣顖欑矤 SystemInfo 閼惧嘲褰囬敍灞绢劃婢跺嫭娈忛悽銊╃帛鐠?
-                        // 濞夈劍鍓伴敍姘剁叾妫版垵鍨垫慨瀣閸欘垵鍏橀棁鈧憰浣规綀闂勬劧绱濋柅姘埗閸?UI 鐏炲倹鍨ㄧ涵顔荤箽閺夊啴妾洪崥搴ょ殶閻劊鈧?
-                        // 鏉╂瑩鍣烽弳鍌涙娑撳秷鐨熼悽?audioService.init閿涘瞼鏁?ConversationViewModel 閹?MainViewModel 閻?UI Event 鐟欙箑褰?
+                        // 此时音频服务在系统层已由 SysManage 完成初始化
+                        // 外部在需要时，由 UI 触发或是 ConversationViewModel 层对 MainViewModel 的 UI Event 处理。
                     }
                     is SysState.UpdateAvailable -> {
-                        // TODO: 婢跺嫮鎮婇弴瀛樻煀閹绘劗銇?
+                        // TODO: 处理软件更新
                         robotStateEngine.updateEngineState(RobotEngineState.Ready)
                         // Also try to connect if update is available, assuming it functions
                         netCommService.connect()
@@ -146,7 +145,7 @@ class MainShellViewModel @Inject constructor(
     }
 
     private fun observeNetwork() {
-        // 閻╂垵鎯夌純鎴犵捕閻樿埖鈧?
+        // 观察网络状态变更
         viewModelScope.launch {
             netCommService.state.collect { state ->
                 when (state) {
@@ -154,13 +153,13 @@ class MainShellViewModel @Inject constructor(
                         robotStateEngine.updateEngineState(RobotEngineState.Connecting)
                     }
                     NetworkState.CONNECTED -> {
-                        // 閻?handleAiRobotEvent(NetCommEvent.Connected) 婢跺嫮鎮?
+                        // 由 handleAiRobotEvent(NetCommEvent.Connected) 处理
                     }
                     NetworkState.ERROR, NetworkState.IDLE -> {
                         Log.w("MainShellViewModel", "Network state is $state. Deactivating Audio Service.")
-                        audioService.deactivate() // 瀵搫鍩楅崶鐐衡偓鈧棅鎶筋暥閺堝秴濮?
-
-                        // 闁灝鍘ら崷銊ュ嚒缂?Unauthorized 閻ㄥ嫭鍎忛崘鍏哥瑓閸掑洤娲?Offline閿涘矂娅庨棃鐐碘€樼€圭偞鏌囧鈧禍?
+                        audioService.deactivate() // 确保网络断开时停止录音传输
+                        
+                        // 排除初始化和未认证的状态，其余视为 Offline
                         if (robotStateEngine.robotEngineState.value !is RobotEngineState.Unauthorized && 
                             robotStateEngine.robotEngineState.value !is RobotEngineState.Initializing) {
                             robotStateEngine.updateEngineState(RobotEngineState.Offline)
@@ -170,7 +169,7 @@ class MainShellViewModel @Inject constructor(
             }
         }
 
-        // 閻╂垵鎯夐悧鐟扮暰娴滃娆?
+        // 观察核心业务事件
         viewModelScope.launch {
             netCommService.events.collect { event ->
                 handleAiRobotEvent(event)
@@ -181,7 +180,7 @@ class MainShellViewModel @Inject constructor(
     private fun handleAiRobotEvent(event: NetCommEvent) {
         when (event) {
             is NetCommEvent.Connected -> {
-                // 娴犲懎婀棃鐐差嚠鐠囨繄濮搁幀浣风瑓閸掑洤娲?Ready閿涘矂妲诲銏ｎ洬閻╂牕顕拠婵堝Ц閹?
+                // 连接成功且不处于会话中，则标记为 Ready (可接受唤醒)
                 if (robotStateEngine.robotEngineState.value !is RobotEngineState.Conversation) {
                     Log.d("MainShellViewModel", "Safe transitioning to Ready due to Connected event")
                     robotStateEngine.updateEngineState(RobotEngineState.Ready)
@@ -252,5 +251,3 @@ class MainShellViewModel @Inject constructor(
         netCommService.disconnect()
     }
 }
-
-

@@ -1,4 +1,4 @@
-﻿package com.airobot.character.comp.dialogue
+package com.airobot.character.comp.dialogue
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -32,7 +32,7 @@ import com.airobot.character.state.RobotVisualState
 import com.airobot.framework.theme.RobotTheme
 
 /**
- * AI瀵硅瘽姘旀场缁勪欢 - 澧炲己璁捐鐗?
+ * AI对话气泡组件 - 增强设计版
  */
 @Composable
 fun DialogueBubble(
@@ -53,7 +53,7 @@ fun DialogueBubble(
         modifier = modifier
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // 宸︿晶灏栬 (Pointer)
+            // 左侧尖角 (Pointer)
             Box(
                 modifier = Modifier
                     .size(width = 12.dp, height = 24.dp)
@@ -61,7 +61,7 @@ fun DialogueBubble(
                     .background(RobotTheme.colors.cardBg.copy(alpha = 0.95f))
             )
 
-            // 姘旀场涓讳綋
+            // 气泡主体
             Box(
                 modifier = Modifier
                     .width(360.dp)
@@ -93,13 +93,13 @@ fun DialogueBubble(
                     )
             ) {
                 Column {
-                    // 澶撮儴
+                    // 头部
                     BubbleHeader(
                         robotState = robotState,
                         onClose = onClose
                     )
                     
-                    // 鍐呭
+                    // 内容
                     Box(
                         modifier = Modifier
                             .heightIn(min = 80.dp, max = 300.dp)
@@ -125,7 +125,7 @@ fun DialogueBubble(
                         }
                     }
                     
-                    // 搴曢儴杩涘害鏉?(Speaking)
+                    // 底部进度条 (Speaking)
                     if (robotState == RobotVisualState.SPEAKING) {
                         SpeakingProgressBar()
                     }
@@ -136,7 +136,7 @@ fun DialogueBubble(
 }
 
 /**
- * 鑷畾涔夋皵娉″皷瑙掑舰鐘?
+ * 自定义气泡尖角形状
  */
 private fun BubblePointerShape() = GenericShape { size, _ ->
     moveTo(size.width, 0f)
@@ -194,7 +194,7 @@ private fun BubbleHeader(
             ) {
                 Icon(
                     Icons.Default.Close,
-                    contentDescription = "鍏抽棴",
+                    contentDescription = "关闭",
                     modifier = Modifier.size(14.dp),
                     tint = RobotTheme.colors.textMuted
                 )
@@ -258,5 +258,3 @@ private fun SpeakingProgressBar() {
         )
     }
 }
-
-

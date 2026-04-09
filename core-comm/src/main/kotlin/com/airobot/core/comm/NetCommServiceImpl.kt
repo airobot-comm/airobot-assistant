@@ -37,17 +37,17 @@ class NetCommServiceImpl @Inject constructor(
         get() = singletonWebSocket.isConnected()
 
     init {
-        // 閰嶇疆鍗忚灞傜殑鍙戦€佸洖璋?
+        // 配置协议层的发送回调
         protocol.setRawSender { text ->
             singletonWebSocket.sendTextMessage(text)
         }
 
-        // 妗ユ帴浼犺緭灞備簨浠?
+        // 桥接传输层事件
         scope.launch {
             singletonWebSocket.events.collect { wsEvent ->
                 when (wsEvent) {
                     is WebSocketEvent.Connected -> {
-                        _state.value = NetworkState.CONNECTING // 浼犺緭灞?OK锛岃繘鍏ュ崗璁彙鎵?
+                        _state.value = NetworkState.CONNECTING // 传输层 OK，进入协议握手
                         scope.launch {
                             val deviceInfo = sysProvider.getDeviceInfo()
                             val credentials = sysProvider.getCommCredentials()
@@ -64,9 +64,9 @@ class NetCommServiceImpl @Inject constructor(
                         _events.emit(NetCommEvent.Disconnected)
                     }
                     is WebSocketEvent.TextMessage -> {
-                        // 1. 浜ょ粰鍗忚灞傚鐞嗘彙鎵嬬瓑鎺у埗閫昏緫
+                        // 1. 交给协议层处理握手等控制逻辑
                         protocol.handleRawText(wsEvent.message)
-                        // 2. 浜ょ粰閫傞厤鍣ㄨВ鏋愪笟鍔℃暟鎹?
+                        // 2. 交给适配器解析业务数据
                         protocolAdapter.parseTextMessage(wsEvent.message)?.let { businessEvent ->
                             _events.emit(businessEvent)
                         }
@@ -78,7 +78,7 @@ class NetCommServiceImpl @Inject constructor(
             }
         }
 
-        // 妗ユ帴鍗忚灞傞珮灞備簨浠?
+        // 桥接协议层高层事件
         scope.launch {
             protocol.events.collect { protocolEvent ->
                 if (protocolEvent is NetCommEvent.Connected) {
@@ -88,7 +88,7 @@ class NetCommServiceImpl @Inject constructor(
             }
         }
 
-        // 鐩戝惉绯荤粺缃戠粶鍙樺寲骞跺皾璇曡嚜鍔ㄦ仮澶?
+        // 监听系统网络变化并尝试自动恢复
         scope.launch {
             connectivityMonitor.isNetworkAvailable.collect { isAvailable ->
                 if (isAvailable && !isConnected && _state.value != NetworkState.IDLE) {
@@ -168,4 +168,3 @@ class NetCommServiceImpl @Inject constructor(
     override fun sendText(text: String) = protocol.sendText(text)
     override fun abort(reason: String) = protocol.abort(reason)
 }
-

@@ -18,14 +18,14 @@ import com.airobot.framework.comp.ConfigTextField
 import com.airobot.framework.theme.RobotTheme
 
 /**
- * 瑙掕壊绠＄悊閰嶇疆椤甸潰
- * 灞曠ず褰撳墠瑙掕壊鐨勫舰璞℃ā鍨嬨€佽闊虫ā鍨嬨€佸敜閱掕瘝绛夊浐瀹氶厤缃?
+ * 角色管理配置页面
+ * 展示当前角色的形象模型、语音模型、唤醒词等固定配置。
  */
 @Composable
 fun RoleConfig() {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
 
-        // 鈹€鈹€ 褰㈣薄妯″瀷 鈹€鈹€
+        // —— 形象模型 ——
         Text(
             "形象模型",
             color = RobotTheme.colors.textSecondary,
@@ -40,7 +40,7 @@ fun RoleConfig() {
             readOnly = true
         )
 
-        // 鈹€鈹€ 璇煶妯″瀷 鈹€鈹€
+        // —— 语音模型 ——
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
@@ -57,7 +57,7 @@ fun RoleConfig() {
             readOnly = true
         )
 
-        // 鈹€鈹€ 鍞ら啋璇?鈹€鈹€
+        // —— 唤醒词 ——
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
@@ -74,7 +74,7 @@ fun RoleConfig() {
             readOnly = true
         )
 
-        // 鈹€鈹€ 搴曢儴鎻愮ず 鈹€鈹€
+        // —— 底部提示 ——
         Spacer(modifier = Modifier.height(24.dp))
 
         Box(
@@ -102,4 +102,3 @@ fun RoleConfig() {
         }
     }
 }
-
