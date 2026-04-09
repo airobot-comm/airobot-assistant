@@ -29,7 +29,7 @@ import com.airobot.tablet.airobotui.settings.AiRobotDialog
 import com.airobot.character.comp.dialogue.DialogueBubble
 import com.airobot.character.comp.voice.RobotVoiceInputPanel
 import com.airobot.framework.statusbar.RobotTopBar
-import com.airobot.framework.drawer.SystemDrawerContent
+import com.airobot.framework.drawer.SystemDrawer
 import com.airobot.framework.drawer.DrawerMenuItemData
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
@@ -57,12 +57,12 @@ import com.airobot.character.viewmodel.ConversationViewModel
 import com.airobot.services.ServiceViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import androidx.compose.animation.core.Spring // ADDED IMPORT
+import androidx.compose.animation.core.Spring
 import com.airobot.character.comp.robot.RobotCharacter
 
 /**
- * 鏈哄櫒浜烘湇鍔′富灞忓箷
- * Web鍘熷瀷瀵瑰簲: App.tsx
+ * 机器人服务主屏幕
+ * Web原型对应: App.tsx
  */
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -73,7 +73,7 @@ fun AiRobotMainScreen(
     conversationViewModel: ConversationViewModel = hiltViewModel(),
     serviceViewModel: ServiceViewModel = hiltViewModel()
 ) {
-    // 鏉冮檺绠＄悊
+    // 权限管理
     val permissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
             Manifest.permission.RECORD_AUDIO,
@@ -81,39 +81,39 @@ fun AiRobotMainScreen(
         )
     )
 
-    // 浠?RobotMainViewModel 鏀堕泦涓€绾х姸鎬?
+    // 从 MainShellViewModel 收集一级状态
     val robotState by mainShellViewModel.robotState.collectAsState()
     val errorMessage by mainShellViewModel.errorMessage.collectAsState()
     val showActivationDialog by mainShellViewModel.showActivationDialog.collectAsState()
     val activationCode by mainShellViewModel.activationCode.collectAsState()
     val mainVoiceLevel by mainShellViewModel.voiceLevel.collectAsState()
 
-    // 浠?ConversationViewModel 鏀堕泦浜や簰鐘舵€?
+    // 从 ConversationViewModel 收集交互状态
     val convAudioLevel by conversationViewModel.audioLevel.collectAsState()
     val currentRoundUserText by conversationViewModel.currentRoundUserText.collectAsState()
     val currentRoundAiText by conversationViewModel.currentRoundAiText.collectAsState()
 
-    // 缁勫悎闊抽噺绛夌骇锛氬璇濇椂鐢ㄥ璇漋M鐨勶紝闈炲璇濇椂鐢ㄤ富VM鐨?
+    // 组合音量等级：对话时用对话VM的，非对话时用主VM的
     val audioLevel = if (robotState is RobotEngineState.Conversation) convAudioLevel else mainVoiceLevel
 
-    // 浠?ServiceViewModel 鏀堕泦鍔熻兘鐘舵€?
+    // 从 ServiceViewModel 收集功能状态
     val activeCard by serviceViewModel.activeCard.collectAsState()
     val activeServiceData by serviceViewModel.activeServiceData.collectAsState()
     val serviceSubState by serviceViewModel.serviceSubState.collectAsState()
-    
-    // 鏈湴UI鐘舵€?
+
+    // 本地UI状态
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    
-    // 鏈哄櫒浜篣I鐘舵€?
+
+    // 机器人UI状态
     var robotUiState by remember { mutableStateOf(RobotUiState()) }
     var currentCardIndex by remember { mutableIntStateOf(0) }
-    
-    // 鏈嶅姟鍗＄墖瀹氫箟
+
+    // 服务卡片定义
     val serviceCards = DEFAULT_SERVICE_CARDS
     val currentCard = serviceCards.getOrNull(currentCardIndex) ?: serviceCards.first()
 
-    // 鑷姩杞挱閫昏緫
+    // 自动轮播逻辑
     LaunchedEffect(serviceCards.size, robotUiState.isInteracting) {
         if (serviceCards.isNotEmpty() && !robotUiState.isInteracting) {
             while (true) {
@@ -123,15 +123,15 @@ fun AiRobotMainScreen(
         }
     }
 
-    // 鏈哄櫒浜篣I鐘舵€佹眹鎬诲悓姝?- 鏁村悎澶氫釜鏉ユ簮锛岄伩鍏嶇珵鎬佽鐩?
+    // 机器人UI状态汇总同步 - 整合多个来源，避免竞态覆盖
     LaunchedEffect(
-        robotState, 
-        currentRoundUserText, 
-        currentRoundAiText, 
-        activeCard, 
-        activeServiceData, 
+        robotState,
+        currentRoundUserText,
+        currentRoundAiText,
+        activeCard,
+        activeServiceData,
         serviceSubState,
-        currentCard // currentCard 闅?currentCardIndex 鍙樺寲
+        currentCard // currentCard 随 currentCardIndex 变化
     ) {
         val visualState = when (val s = robotState) {
             is RobotEngineState.Offline -> RobotVisualState.SLEEPING
@@ -166,30 +166,30 @@ fun AiRobotMainScreen(
         )
     }
 
-    // 璇锋眰鏉冮檺
+    // 请求权限
     LaunchedEffect(Unit) {
         if (!permissionsState.allPermissionsGranted) {
             permissionsState.launchMultiplePermissionRequest()
         }
     }
 
-    // 鍒濆鍖栭煶棰戠郴缁?(褰撴潈闄愯幏寰楀悗)
+    // 初始化音频系统 (当权限获得后)
     LaunchedEffect(permissionsState.allPermissionsGranted) {
         if (permissionsState.allPermissionsGranted) {
             mainShellViewModel.initAudioService()
         }
     }
 
-    // 鐩戝惉鍞ら啋浜嬩欢
+    // 监听唤醒事件
     LaunchedEffect(Unit) {
         mainShellViewModel.wakeupEvent.collect {
             conversationViewModel.startConversation()
         }
     }
 
-    // 鏈哄櫒浜烘按骞充綅绉诲姩鐢?
-    // 褰?isCardMode 涓?true (鐐瑰嚮鍗＄墖灞曞紑) 鏃讹紝鏈哄櫒浜烘粦鍚戝乏渚?(bias 0.1f)
-    // 鍚﹀垯淇濇寔鍦ㄤ腑闂?(bias 0.5f)
+    // 机器人水平位移移动动画
+    // 当 isCardMode 为 true (点击卡片展开) 时，机器人滑向左侧 (bias 0.04f)
+    // 否则保持在中间 (bias 0.5f)
     val robotHorizontalBias by animateFloatAsState(
         targetValue = if (robotUiState.isCardMode) 0.04f else 0.5f,
         animationSpec = spring(
@@ -208,7 +208,7 @@ fun AiRobotMainScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            SystemDrawerContent(
+            SystemDrawer(
                 menuItems = drawerMenuItems,
                 onClose = { scope.launch { drawerState.close() } },
                 onToggleTheme = onToggleTheme
@@ -229,12 +229,12 @@ fun AiRobotMainScreen(
                 )
         ) {
             BackgroundDecorations()
-            
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
-                    // 缁夊娅庡銈咁槱鐎佃壈鍩呴弽蹇撳敶鏉堢绐涢敍宀冾唨閼冲本娅欑拹顖溾敍
+                    // 为了防止状态栏遮挡，顶部留出一定空间
             ) {
                 val stateText = when (robotState) {
                     is RobotEngineState.Offline -> "OFFLINE"
@@ -261,10 +261,10 @@ fun AiRobotMainScreen(
                     errorMessage = errorMessage,
                     onLogoClick = { scope.launch { drawerState.open() } }
                 )
-                
-                // ErrorBanner 杩佺Щ鍒?TopBar 涓紝姝ゅ绉婚櫎
-                
-                // 涓績鍐呭鍖哄煙 - 浣跨敤 ConstraintLayout 绮剧‘鎺у埗鐩稿浣嶇疆
+
+                // ErrorBanner 迁移到 TopBar 中，此处移除
+
+                // 中心内容区域 - 使用 ConstraintLayout 精确控制相对位置
                 ConstraintLayout(
                     modifier = Modifier
                         .fillMaxSize()
@@ -272,7 +272,7 @@ fun AiRobotMainScreen(
                 ) {
                     val (robotRef, voicePanelRef, aiBubbleRef, serviceCardsRef, activeCardRef) = createRefs()
 
-                    // 1. 鏈哄櫒浜鸿鑹?(灞呬腑鍋忎笂)
+                    // 1. 机器人角色 (居中偏上)
                     Box(
                         modifier = Modifier
                             .constrainAs(robotRef) {
@@ -281,21 +281,21 @@ fun AiRobotMainScreen(
                                 start.linkTo(parent.start)
                                 end.linkTo(parent.end)
                                 horizontalBias = robotHorizontalBias
-                                verticalBias = 0.35f // 缁х画涓婄Щ锛岀粰涓嬫柟鑵惧嚭閫昏緫绌洪棿
+                                verticalBias = 0.35f // 继续上移，给下方腾出逻辑空间
                             },
                         contentAlignment = Alignment.Center
                     ) {
                         RobotCharacter(
                             state = robotUiState.visualState,
-                            audioLevel = { audioLevel }, // 浼犲叆闊抽绛夌骇鐢ㄤ簬寰〃鎯?
-                            headSize = 400.dp // 420 -> 400 绋嶅井缂╁皬涓€鐐圭偣
+                            audioLevel = { audioLevel }, // 传入音频等级用于微表情
+                            headSize = 400.dp // 420 -> 400 稍微缩小一点点
                         )
                     }
-                    // 2. 璇煶杈撳叆闈㈡澘 (涓嬬Щ 15%锛屽澶у簳閮ㄩ棿璺?
+                    // 2. 语音输入面板 (下移 15%，增大底部间距)
                     Box(
                         modifier = Modifier
                             .constrainAs(voicePanelRef) {
-                                bottom.linkTo(parent.bottom, margin = 40.dp) // 80 -> 40 鏄捐憲涓嬬Щ
+                                bottom.linkTo(parent.bottom, margin = 40.dp) // 80 -> 40 显著下移
                                 start.linkTo(robotRef.start)
                                 end.linkTo(robotRef.end)
                             }
@@ -322,7 +322,7 @@ fun AiRobotMainScreen(
                             onTimerControl = { action ->
                                 serviceViewModel.handleTimerAction(action)
                             },
-                            onCommandClick = { command -> 
+                            onCommandClick = { command ->
                                 if (permissionsState.allPermissionsGranted) {
                                     robotUiState = robotUiState.copy(
                                         interactionType = InteractionType.CHAT,
@@ -335,11 +335,11 @@ fun AiRobotMainScreen(
                         )
                     }
 
-                    // 3. AI 瀵硅瘽姘旀场 (鏈哄櫒浜哄彸涓婅)
+                    // 3. AI 对话气泡 (机器人右上方)
                     Box(
                         modifier = Modifier
                             .constrainAs(aiBubbleRef) {
-                                start.linkTo(robotRef.end, margin = (-180).dp) // 绋嶅井閲嶅彔涓€鐐圭湅璧锋潵鍍忎粠鏈哄櫒浜哄彂鍑?
+                                start.linkTo(robotRef.end, margin = (-180).dp) // 稍微重叠一点看起来像从机器人发出
                                 top.linkTo(robotRef.top, margin = 180.dp)
                             }
                     ) {
@@ -347,7 +347,7 @@ fun AiRobotMainScreen(
                             robotState = robotUiState.visualState,
                             aiMsg = currentRoundAiText,
                             onAiSpeechComplete = {
-                                // 璇煶鎾姤瀹屾垚
+                                // 语音播报完成
                             },
                             onClose = {
                                 robotUiState = robotUiState.copy(
@@ -363,7 +363,7 @@ fun AiRobotMainScreen(
                         )
                     }
 
-                    // 4. 鍙充晶鍔熻兘鎺ㄨ崘鍗＄墖 (闈炰氦浜?鍗＄墖妯″紡鏃舵樉绀?
+                    // 4. 右侧功能推荐卡片 (非交互/卡片模式时显示)
                     if (!robotUiState.isInteracting) {
                         Box(
                             modifier = Modifier
@@ -379,11 +379,11 @@ fun AiRobotMainScreen(
                                 cards = serviceCards,
                                 currentIndex = currentCardIndex,
                                 onPageChanged = { currentCardIndex = it },
-                                statusTip = robotUiState.statusTip, // 浼犻€掔姸鎬佹彁绀哄埌鍗＄墖鍖哄煙
+                                statusTip = robotUiState.statusTip, // 传递状态提示到卡片区域
                                 onCardClick = { card ->
-                                    // 纭繚鐐瑰嚮鐨勬槸褰撳墠鏄剧ず鐨勫崱鐗?
+                                    // 确保点击的是当前显示的卡片
                                     val targetCard = if (serviceCards.contains(card)) card else serviceCards[currentCardIndex]
-                                    
+
                                     robotUiState = robotUiState.copy(
                                         interactionType = InteractionType.CARD,
                                         activeCard = targetCard,
@@ -400,7 +400,7 @@ fun AiRobotMainScreen(
                         }
                     }
 
-                    // 5. 鍔熻兘鍗＄墖璇︽儏 (浜や簰/鍗＄墖妯″紡鏃舵樉绀?
+                    // 5. 功能卡片详情 (交互/卡片模式时显示)
                     if (robotUiState.isCardMode) {
                         Box(
                             modifier = Modifier
@@ -409,7 +409,7 @@ fun AiRobotMainScreen(
                                     top.linkTo(parent.top)
                                     bottom.linkTo(parent.bottom)
                                 }
-                                .width(600.dp) // 鏇村鐨勫崱鐗?
+                                .width(600.dp) // 更宽的卡片
                         ) {
                             FunctionalModulePanel(
                                 card = robotUiState.activeCard,
@@ -440,15 +440,15 @@ fun AiRobotMainScreen(
                     }
                 }
             }
-            
-            // 搴曢儴椤佃剼
+
+            // 底部页脚
             BottomFooter(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .navigationBarsPadding()
             )
-            
-            // 婵€娲诲脊绐?
+
+            // 激活弹窗
             if (showActivationDialog && activationCode != null) {
                 AiRobotDialog(
                     activationCode = activationCode!!,
@@ -470,7 +470,7 @@ private fun FunctionalModulePanel(
     modifier: Modifier = Modifier
 ) {
     if (card == null) return
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -510,7 +510,7 @@ private fun FunctionalModulePanel(
                             tint = Color.White
                         )
                     }
-                    
+
                     Column {
                         Text(
                             text = card.title,
@@ -527,7 +527,7 @@ private fun FunctionalModulePanel(
                         )
                     }
                 }
-                
+
                 IconButton(
                     onClick = onClose,
                     modifier = Modifier
@@ -537,17 +537,17 @@ private fun FunctionalModulePanel(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.close),
-                        contentDescription = "鍏抽棴",
+                        contentDescription = "关闭",
                         modifier = Modifier.size(16.dp),
                         tint = RobotTheme.colors.textMuted
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Removed text display block
-            
+
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -596,7 +596,7 @@ private fun FunctionalModulePanel(
                                 tint = RobotTheme.colors.textMuted.copy(alpha = 0.3f)
                             )
                             Text(
-                                text = card.demoContent ?: "${card.type.name} 鍔熻兘寮€鍙戜腑",
+                                text = card.demoContent ?: "${card.type.name} 功能开发中",
                                 color = RobotTheme.colors.textSecondary,
                                 fontSize = 18.sp,
                                 lineHeight = 28.sp,
@@ -611,4 +611,3 @@ private fun FunctionalModulePanel(
         }
     }
 }
-

@@ -1,4 +1,4 @@
-﻿package com.airobot.character.state
+package com.airobot.character.state
 
 import com.airobot.services.state.ServiceSubState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -8,8 +8,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 闆嗕腑绠＄悊鏈哄櫒浜虹姸鎬侊紝閬垮厤 ViewModel 寰幆渚濊禆銆?
- * 杩欎釜绫绘槸绯荤粺鍚庣閫昏緫鐨勫敮涓€鐘舵€佹満 (State Engine)銆?
+ * 集中管理机器人状态，避免 ViewModel 循环依赖。
+ * 这个类是系统后端逻辑的唯一状态机 (State Engine)。
  */
 @Singleton
 class RobotStateEngine @Inject constructor() {
@@ -23,28 +23,26 @@ class RobotStateEngine @Inject constructor() {
 
 
 /**
- * 浜岀骇鐘舵€侊細瀵硅瘽瀛愮姸鎬?
+ * 二级状态：对话子状态
  */
 enum class ConversationSubState {
-    LISTENING,  // 鑱嗗惉涓?
-    THINKING,   // 鎬濊€冧腑
-    SPEAKING    // 璇磋瘽涓?
+    LISTENING,  // 聆听中
+    THINKING,   // 思考中
+    SPEAKING    // 说话中
 }
 
 /**
- * 涓€绾х姸鎬侊細AI 鏈哄櫒浜烘暣浣撶姸鎬?(绯荤粺搴曞眰寮曟搸鐪熺浉)
+ * 一级状态：AI 机器人整体状态 (系统底层引擎真相)
  */
 sealed class RobotEngineState {
-    object Offline : RobotEngineState()                                               // 绂荤嚎
-    object Initializing : RobotEngineState()                                          // OTA/鍒濆鍖?鎶ュ涓?
-    data class Unauthorized(val code: String) : RobotEngineState()                    // 鏈縺娲?璁よ瘉澶辫触锛屽甫婵€娲荤爜
-    object Connecting : RobotEngineState()                                            // WebSocket/鍗忚鎻℃墜杩炴帴涓?
-    object Ready : RobotEngineState()                                                 // 鍑嗗灏辩华/绛夊緟
-    data class Conversation(val subState: ConversationSubState) : RobotEngineState()  // 瀵硅瘽涓?
+    object Offline : RobotEngineState()                                               // 离线
+    object Initializing : RobotEngineState()                                          // OTA/初始化 报备中
+    data class Unauthorized(val code: String) : RobotEngineState()                    // 未激活 认证失败，带激活码
+    object Connecting : RobotEngineState()                                            // WebSocket/协议握手连接中
+    object Ready : RobotEngineState()                                                 // 准备就绪/等待
+    data class Conversation(val subState: ConversationSubState) : RobotEngineState()  // 对话中
     data class FunctionService(
         val serviceId: String,
         val subState: ServiceSubState
-    ) : RobotEngineState()                                                            // 鍔熻兘鍗＄墖鏈嶅姟涓?
+    ) : RobotEngineState()                                                            // 功能卡片服务中
 }
-
-

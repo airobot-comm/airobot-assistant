@@ -10,20 +10,20 @@ import com.airobot.framework.theme.RobotTheme
 import kotlinx.coroutines.delay
 
 /**
- * 鎵撳瓧鏈烘晥鏋滄枃鏈粍浠?
+ * 打字机效果文本组件
  * 
- * Web鍘熷瀷瀵瑰簲: VoiceDialoguePanel.tsx 涓殑 TypewriterText
+ * Web原型对应: VoiceDialoguePanel.tsx 中的 TypewriterText
  * 
- * 鍔熻兘:
- * - 閫愬瓧鏄剧ず鏂囨湰锛岀‘淇濅笌璇煶鍚屾
- * - 鍙厤缃墦瀛楅€熷害
- * - 瀹屾垚鍥炶皟
- * - 鏀寔鍔ㄦ€佹枃鏈洿鏂?
+ * 功能:
+ * - 逐字显示文本，确保与语音同步
+ * - 可配置打字速度
+ * - 完成回调
+ * - 支持动态文本更新
  */
 @Composable
 fun TypewriterText(
     text: String,
-    speed: Long = 50L, // 绋嶅井闄嶄綆閫熷害锛屾洿鎺ヨ繎姝ｅ父璇€?
+    speed: Long = 50L, // 稍微降低速度，更接近正常语速
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle(
         fontSize = 17.sp,
@@ -36,18 +36,18 @@ fun TypewriterText(
     var displayedText by remember { mutableStateOf("") }
     var isComplete by remember { mutableStateOf(false) }
     
-    // 浣跨敤LaunchedEffect澶勭悊鏂囨湰鍙樺寲锛岀‘淇濇瘡娆℃枃鏈洿鏂伴兘閲嶆柊寮€濮嬫墦瀛楁晥鏋?
+    // 使用LaunchedEffect处理文本变化，确保每次文本更新都重新开始打字效果
     LaunchedEffect(text) {
-        // 濡傛灉鏂版枃鏈互褰撳墠鏄剧ず鏂囨湰寮€澶达紝鍒欑户缁墦瀛楋紝鍚﹀垯閲嶆柊寮€濮?
+        // 如果新文本以当前显示文本开头，则继续打字，否则重新开始
         if (text.startsWith(displayedText)) {
-            // 缁х画鎵撳瓧
+            // 继续打字
             val startIndex = displayedText.length
             for (i in startIndex until text.length) {
                 delay(speed)
                 displayedText = text.substring(0, i + 1)
             }
         } else {
-            // 閲嶆柊寮€濮?
+            // 重新开始
             displayedText = ""
             isComplete = false
             
@@ -69,7 +69,7 @@ fun TypewriterText(
 }
 
 /**
- * 甯﹀厜鏍囩殑鎵撳瓧鏈烘晥鏋?
+ * 带光标的打字机效果
  */
 @Composable
 fun TypewriterTextWithCursor(
@@ -90,7 +90,7 @@ fun TypewriterTextWithCursor(
     var isComplete by remember(text) { mutableStateOf(false) }
     var showCursor by remember { mutableStateOf(true) }
     
-    // 鍏夋爣闂儊
+    // 光标闪烁
     LaunchedEffect(Unit) {
         while (true) {
             delay(500)
@@ -98,7 +98,7 @@ fun TypewriterTextWithCursor(
         }
     }
     
-    // 鎵撳瓧鏁堟灉
+    // 打字效果
     LaunchedEffect(text) {
         displayedText = ""
         isComplete = false
@@ -124,5 +124,3 @@ fun TypewriterTextWithCursor(
         style = style
     )
 }
-
-

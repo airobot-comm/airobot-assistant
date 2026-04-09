@@ -1,4 +1,4 @@
-package com.airobot.framework.drawer
+﻿package com.airobot.framework.drawer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,7 +31,7 @@ data class DrawerMenuItemData(
 )
 
 @Composable
-fun SystemDrawerContent(
+fun SystemDrawer(
     menuItems: List<DrawerMenuItemData>,
     onClose: () -> Unit,
     onToggleTheme: () -> Unit = {}
@@ -82,7 +82,7 @@ fun SystemDrawerContent(
                     .verticalScroll(rememberScrollState())
             ) {
                 val currentItem = menuItems.getOrNull(selectedTab)
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -104,7 +104,7 @@ fun SystemDrawerContent(
                                 .background(RobotTheme.colors.accent)
                         )
                     }
-                    
+
                     IconButton(
                         onClick = onClose,
                         modifier = Modifier

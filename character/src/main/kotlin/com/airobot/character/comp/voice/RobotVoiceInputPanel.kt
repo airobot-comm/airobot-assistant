@@ -31,16 +31,16 @@ import com.airobot.services.state.ServiceSubState
 import com.airobot.framework.theme.RobotTheme
 
 /**
- * 鏈哄櫒浜洪鏍艰闊宠緭鍏ラ潰鏉?
+ * 机器人风格语音输入面板
  * 
- * Web鍘熷瀷瀵瑰簲: VoiceInputPanel.tsx
+ * Web原型对应: VoiceInputPanel.tsx
  * 
- * 鍔熻兘:
- * - 绌洪棽鐘舵€侊細楹﹀厠椋庢寜閽?+ 鎻愮ず鏂囧瓧
- * - 鑱嗗惉鐘舵€侊細娉㈠舰鍔ㄧ敾 + 鐘舵€佹彁绀?
- * - 鎬濊€冪姸鎬侊細鍔犺浇鍔ㄧ敾
- * - 璇磋瘽鐘舵€侊細鎾斁鎸囩ず
- * - 涓撴敞妯″紡锛氳鏃跺櫒鎺у埗鎸夐挳
+ * 功能:
+ * - 空闲状态：麦克风按钮 + 提示文字
+ * - 聆听状态：波形动画 + 状态提示
+ * - 思考状态：加载动画
+ * - 说话状态：播放指示
+ * - 专注模式：计时器控制按钮
  */
 @Composable
 fun RobotVoiceInputPanel(
@@ -52,7 +52,7 @@ fun RobotVoiceInputPanel(
     onStartListening: () -> Unit,
     onStopListening: () -> Unit,
     onTimerControl: (String) -> Unit, // "PAUSE", "RESUME", "STOP"
-    onCommandClick: (String) -> Unit = {}, // 鏂板锛氱偣鍑绘帹鑽愭寚浠ょ殑鍥炶皟
+    onCommandClick: (String) -> Unit = {}, // 新增：点击推荐指令的回调
     modifier: Modifier = Modifier
 ) {
     val isListening = robotState == RobotVisualState.LISTENING
@@ -103,7 +103,7 @@ fun RobotVoiceInputPanel(
             }
         }
 
-        // 1. 鐢ㄦ埛姘旀场鏀惧湪宸︿晶锛屼笌闈㈡澘涓績姘村钩瀵归綈(鍙湪瀵硅瘽鐘舵€佹樉绀?
+        // 1. 用户气泡放在左侧，与面板中心水平对齐(只在对话状态显示)
         if(!userMessage.isNullOrBlank() && (robotState == RobotVisualState.LISTENING
                                 || robotState == RobotVisualState.THINKING
                                 || robotState == RobotVisualState.SPEAKING)) {
@@ -122,8 +122,8 @@ fun RobotVoiceInputPanel(
 }
 
 /**
- * 绌洪棽鐘舵€侀害鍏嬮鎸夐挳 (Waiting State)
- * 鏀寔鐐瑰嚮鍞ら啋鍜屽０娴弽棣?
+ * 空闲状态麦克风按钮 (Waiting State)
+ * 支持点击唤醒和声浪反馈
  */
 @Composable
 private fun IdleMicButton(
@@ -132,11 +132,11 @@ private fun IdleMicButton(
     onStartListening: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 鍩虹鍛煎惛鍔ㄧ敾
+    // 基础呼吸动画
     val infiniteTransition = rememberInfiniteTransition(label = "micPulse")
     val baseScale by infiniteTransition.animateFloat(
         initialValue = 1.0f,
-        targetValue = 1.05f, // 鐣ュ井澧炲姞鍛煎惛鎰?
+        targetValue = 1.05f, // 略微增加呼吸感
         animationSpec = infiniteRepeatable(
             animation = tween(2000, easing = EaseInOutQuad),
             repeatMode = RepeatMode.Reverse
@@ -144,10 +144,10 @@ private fun IdleMicButton(
         label = "baseScale"
     )
     
-    // 鍔ㄦ€佸０娴缉鏀?(鍙犲姞鍦ㄥ懠鍚镐箣涓?
+    // 动态声浪缩放 (叠加在呼吸之上)
     // audioLevel (0~1) -> extraScale (0~0.8)
     val dynamicScale by animateFloatAsState(
-        targetValue = 1.0f + (audioLevel * 0.4f), // 鍑忓皬澹版氮鐏垫晱搴︼紝鏇寸ǔ閲?
+        targetValue = 1.0f + (audioLevel * 0.4f), // 减小声浪灵敏度，更稳重
         animationSpec = spring(stiffness = Spring.StiffnessLow),
         label = "audioScale"
     )
@@ -162,18 +162,18 @@ private fun IdleMicButton(
     Column(
         modifier = modifier.height(180.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically) // 澧炲姞闂磋窛 16 -> 24锛岄槻姝㈤噸鍙?
+        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically) // 增加间距 16 -> 24，防止重叠
     ) {
-        // 楹﹀厠椋庢寜閽?
+        // 麦克风按钮
         Box(
             modifier = Modifier
-                .size(110.dp) // 140 -> 110
-                .clickable(enabled = isConnected) { onStartListening() }, // 鐐瑰嚮鍞ら啋
+                .size(110.dp) 
+                .clickable(enabled = isConnected) { onStartListening() }, // 点击唤醒
             contentAlignment = Alignment.Center
         ) {
-            // 鍔ㄦ€佸搷搴旂幆 - 鍒嗗眰鍏夊湀锛岀Щ闄ょ獊鍏€鐨勮摑鑹插疄绾垮湀
+            // 动态响应环 - 分层光圈，移除突兀的蓝色实线圈
             if (isConnected) {
-                // 搴曞眰澶у厜鏅?(130 -> 120)
+                // 底层大光晕 (130 -> 120)
                 Box(
                     modifier = Modifier
                         .size(120.dp)
@@ -189,7 +189,7 @@ private fun IdleMicButton(
                         )
                         .blur(16.dp)
                 )
-                // 涓眰鏍稿績鍏夊湀 (100 -> 92)
+                // 中层核心光圈 (100 -> 92)
                 Box(
                     modifier = Modifier
                         .size(92.dp)
@@ -205,17 +205,17 @@ private fun IdleMicButton(
                         )
                         .blur(4.dp)
                 )
-                // 鏂板锛氭繁钃濊壊澹伴煶鎰熷簲鑹插潡鍦?(Donut-style band) - 鎻愰珮浜害涓庡姣斿害
+                // 新增：深蓝色声音感应色块圈 (Donut-style band) - 提高亮度与对比度
                 Box(
                     modifier = Modifier
-                        .size(105.dp) // 灏哄浠嬩簬鏍稿績鍏夊湀鍜屾寜閽箣闂?
+                        .size(105.dp) // 尺寸介于核心光圈和按钮之间
                         .scale(finalScale)
                         .clip(CircleShape)
                         .background(
                             brush = Brush.radialGradient(
-                                radius = 200f, // 澧炲ぇ娓愬彉鑼冨洿
+                                radius = 200f, // 增大渐变范围
                                 colors = listOf(
-                                    Color(0xFF3B82F6).copy(alpha = 0.6f), // Blue-500 浜摑鑹?
+                                    Color(0xFF3B82F6).copy(alpha = 0.6f), // Blue-500 亮蓝色
                                     Color(0xFF2563EB).copy(alpha = 0.3f), // Blue-600
                                     Color.Transparent
                                 )
@@ -224,7 +224,7 @@ private fun IdleMicButton(
                 )
             }
             
-            // 鎸夐挳涓讳綋 (76 -> 70, 鍑忓皬绾?8%)
+            // 按钮主体 (76 -> 70, 减小约 8%)
             Box(
                 modifier = Modifier
                     .size(70.dp) 
@@ -250,7 +250,7 @@ private fun IdleMicButton(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.mic),
-                    contentDescription = "鐐瑰嚮鍞ら啋",
+                    contentDescription = "点击唤醒",
                     modifier = Modifier.size(28.dp),
                     tint = if (isConnected) {
                         if (RobotTheme.isDark) Color(0xFF818CF8) else Color(0xFFF97316)
@@ -261,7 +261,7 @@ private fun IdleMicButton(
             }
         }
         
-        // 鎻愮ず鏂囧瓧 - 澧炲姞閫忔槑鑳跺泭鎰?
+        // 提示文字 - 增加透明胶囊感
         VoiceHintText(
             text = if (isConnected) "叫名字，开始对话" else "等待连接..."
         )
@@ -269,7 +269,7 @@ private fun IdleMicButton(
 }
 
 /**
- * 缁熶竴鐨勮闊虫彁绀烘枃瀛楅€昏緫
+ * 统一的语音提示文字逻辑
  */
 @Composable
 private fun VoiceHintText(text: String) {
@@ -299,7 +299,7 @@ private fun VoiceHintText(text: String) {
 }
 
 /**
- * 娲昏穬鐘舵€侀潰鏉?
+ * 活跃状态面板
  */
 @Composable
 private fun ActiveStatusPanel(
@@ -314,14 +314,14 @@ private fun ActiveStatusPanel(
     val infiniteTransition = rememberInfiniteTransition(label = "activeStatus")
     
     Column(
-        modifier = modifier.height(180.dp), // 鍚屾楂樺害
+        modifier = modifier.height(180.dp), // 同步高度
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
     ) {
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(32.dp))
-                .background(RobotTheme.colors.cardBg.copy(alpha = 0.8f)) // 淇敼涓烘繁钃濊壊鑳跺泭锛屽尮閰嶅師鍨?
+                .background(RobotTheme.colors.cardBg.copy(alpha = 0.8f)) 
                 .padding(horizontal = 32.dp, vertical = 18.dp)
                 .clickable(enabled = isListening) { onStopListening() },
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -331,11 +331,11 @@ private fun ActiveStatusPanel(
                 isListening -> {
                         VoiceWaveform(
                             isActive = true,
-                            barColor = RobotTheme.colors.accent, // 绱壊娉㈠舰
+                            barColor = RobotTheme.colors.accent, // 紫色波形
                             audioLevel = audioLevel
                         )
                         Text(
-                            text = "璇疯璇?..",
+                            text = "请说话...",
                             color = RobotTheme.colors.textPrimary.copy(alpha = 0.8f),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
@@ -360,7 +360,7 @@ private fun ActiveStatusPanel(
                         tint = RobotTheme.colors.accent
                     )
                     Text(
-                        text = "鎬濊€冧腑",
+                        text = "思考中",
                         color = RobotTheme.colors.textPrimary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
@@ -372,7 +372,7 @@ private fun ActiveStatusPanel(
                         dotColor = RobotTheme.colors.accent
                     )
                     Text(
-                        text = "姝ｅ湪鎾斁鍥炲", // 鏇村尮閰嶅師鍨嬬殑鐘舵€佹弿杩?
+                        text = "正在播放回复", 
                         color = RobotTheme.colors.textPrimary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
@@ -382,7 +382,7 @@ private fun ActiveStatusPanel(
             }
         }
 
-        // 蹇嵎寤鸿鎸囦护 - 绱ч殢鑳跺泭涓嬫柟
+        // 快捷建议指令 - 紧随胶囊下方
         QuickCommandChips(
             commands = listOf("打开知识问答", "打开互助播报", "讲个笑话吧"),
             onCommandClick = onCommandClick
@@ -391,7 +391,7 @@ private fun ActiveStatusPanel(
 }
 
 /**
- * 蹇嵎鍛戒护鑺墖缁?
+ * 快捷命令芯片组
  */
 @Composable
 private fun QuickCommandChips(
@@ -421,7 +421,7 @@ private fun QuickCommandChips(
 }
 
 /**
- * 璁℃椂鍣ㄦ帶鍒堕潰鏉?
+ * 计时器控制面板
  */
 @Composable
 private fun TimerControlPanel(
@@ -436,7 +436,7 @@ private fun TimerControlPanel(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 娌欐紡鍥炬爣
+        // 沙漏图标
         Box(
             modifier = Modifier
                 .size(64.dp)
@@ -450,7 +450,7 @@ private fun TimerControlPanel(
             contentAlignment = Alignment.Center
         ) {
             if (serviceSubState == ServiceSubState.RUNNING) {
-                // 鏃嬭浆杈规
+                // 旋转边框
                 val rotation by infiniteTransition.animateFloat(
                     initialValue = 0f,
                     targetValue = 360f,
@@ -478,31 +478,31 @@ private fun TimerControlPanel(
             )
         }
         
-        // 鎺у埗鎸夐挳
+        // 控制按钮
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 鏆傚仠/缁х画鎸夐挳
+            // 暂停/继续按钮
             if (serviceSubState == ServiceSubState.RUNNING) {
                 TimerControlChip(
                     iconResId = R.drawable.volume_low, // pause icon
-                    text = "鏆傚仠璁℃椂",
+                    text = "暂停计时",
                     iconColor = Color(0xFFFACC15), // yellow-400
                     onClick = { onTimerControl("PAUSE") }
                 )
             } else if (serviceSubState == ServiceSubState.PAUSED) {
                 TimerControlChip(
                     iconResId = R.drawable.mic, // play icon
-                    text = "缁х画璁℃椂",
+                    text = "继续计时",
                     iconColor = Color(0xFF34D399), // emerald-400
                     onClick = { onTimerControl("RESUME") }
                 )
             }
             
-            // 鍋滄鎸夐挳
+            // 停止按钮
             TimerControlChip(
                 iconResId = R.drawable.close, // stop icon
-                text = "缁撴潫涓撴敞",
+                text = "结束专注",
                 iconColor = Color(0xFFF87171), // red-400
                 isDestructive = true,
                 onClick = { onTimerControl("STOP") }
@@ -512,7 +512,7 @@ private fun TimerControlPanel(
 }
 
 /**
- * 璁℃椂鍣ㄦ帶鍒舵寜閽?
+ * 计时器控制按钮
  */
 @Composable
 private fun TimerControlChip(
@@ -546,5 +546,3 @@ private fun TimerControlChip(
         )
     }
 }
-
-

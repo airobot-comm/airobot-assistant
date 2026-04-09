@@ -1,4 +1,4 @@
-﻿package com.airobot.character.comp.robot
+package com.airobot.character.comp.robot
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Canvas
@@ -23,22 +24,22 @@ import com.airobot.framework.theme.RobotEyeDefault
 import com.airobot.framework.theme.StatusCyan
 
 /**
- * 澧炲己鐨勫姩鎬佺溂鐫涚粍浠?- 鏀寔寰〃鎯呭悓姝?
+ * 增强的动态眼睛组件 - 支持微表情同步
  *
- * Web鍘熷瀷瀵瑰簲: IPCharacter.tsx 涓殑 getEyes() 鍑芥暟
+ * Web原型对应: IPCharacter.tsx 中的 getEyes() 函数
  */
 @Composable
 fun DynamicEyes(
     state: RobotVisualState,
-    ttsProgressNormalized: Float = 0f, // 0-1, TTS鎾斁杩涘害
-    audioLevel: () -> Float = { 0f }, // 浼犲叆闊抽绛夌骇 0-1 (Lambda)
+    ttsProgressNormalized: Float = 0f, // 0-1, TTS 播放进度
+    audioLevel: () -> Float = { 0f }, // 传入音频等级 0-1 (Lambda)
     eyeSize: Dp = 48.dp,
     eyeGap: Dp = 56.dp,
     modifier: Modifier = Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "enhancedEyeAnimation")
 
-    // 璇磋瘽鏃剁殑鐪肩潧杞姩鍋忕Щ锛堢紦鎱㈠乏鍙崇Щ鍔級
+    // 说话时的眼睛转动偏移（缓慢左右移动）
     val speakingEyeLookX by infiniteTransition.animateFloat(
         initialValue = -3f,
         targetValue = 3f,
@@ -49,7 +50,7 @@ fun DynamicEyes(
         label = "speakingEyeLook"
     )
 
-    // 鎬濊€冩椂鐨勭溂鐫涢绉伙紙鏇村ぇ骞呭害鐨勪笂涓嬪乏鍙崇Щ鍔級
+    // 思考时的眼睛飘移（更大幅度的上下左右移动）
     val thinkingEyeOffsetX by infiniteTransition.animateFloat(
         initialValue = -8f,
         targetValue = 8f,
@@ -70,7 +71,7 @@ fun DynamicEyes(
         label = "thinkingEyeOffsetY"
     )
 
-    // 璁＄畻鐪肩潧鐨勫疄闄呭亸绉?
+    // 计算眼睛的实际偏移
     val eyeOffsetX = when (state) {
         RobotVisualState.SPEAKING -> speakingEyeLookX.dp
         RobotVisualState.THINKING -> thinkingEyeOffsetX.dp
@@ -104,7 +105,7 @@ fun DynamicEyes(
 }
 
 /**
- * 鍗曚釜鐪肩潧缁勪欢 - 澧炲己鐗?(甯︽湁鍙戝厜鏁堟灉)
+ * 单个眼睛组件 - 增强版 (带有发光效果)
  */
 @Composable
 private fun EnhancedDynamicEye(
@@ -114,19 +115,34 @@ private fun EnhancedDynamicEye(
     audioLevel: () -> Float = { 0f },
     modifier: Modifier = Modifier
 ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "eyeGlowPulse")
+    
+    // 基础发光呼吸效果
+    val glowPulse by infiniteTransition.animateFloat(
+        initialValue = 0.8f,
+        targetValue = 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glowPulse"
+    )
+
     Box(
         modifier = modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
-        // 澶栭儴鍙戝厜灞?(Bloom Effect) - 鏀逛负闀挎き鍦?
+        // 外部发光层 (Bloom Effect) - 改为长椭圆
+        val glowColor = getEyeColor(state)
         Box(
             modifier = Modifier
                 .size(width = size * 1.5f, height = size * 1.2f)
+                .graphicsLayer { alpha = 0.4f * glowPulse }
                 .clip(RoundedCornerShape(size))
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
-                            getEyeColor(state).copy(alpha = 0.4f),
+                            glowColor,
                             Color.Transparent
                         )
                     )
@@ -134,7 +150,7 @@ private fun EnhancedDynamicEye(
                 .blur(size * 0.25f)
         )
 
-        // 鏍稿績鐪肩潧缁勪欢
+        // 核心眼睛组件
         when (state) {
             RobotVisualState.IDLE -> IdleEyeEnhanced(size = size)
             RobotVisualState.LISTENING -> ListeningEyeEnhanced(size = size, audioLevel = audioLevel)
@@ -164,7 +180,7 @@ private fun getEyeColor(state: RobotVisualState): Color {
 }
 
 /**
- * IDLE 鐘舵€佺溂鐫?- 妞渾褰?+ 楂樺厜
+ * IDLE 状态眼睛 - 椭圆形 + 高光
  */
 @Composable
 private fun IdleEyeEnhanced(
@@ -174,12 +190,12 @@ private fun IdleEyeEnhanced(
     Box(
         modifier = modifier
             .width(size)
-            .height(size * 0.95f) // 鏇村渾涓€鐐癸紝鍖归厤鍘熷瀷
+            .height(size * 0.95f) // 更圆一点，匹配原型
             .clip(CircleShape)
             .background(RobotEyeDefault),
         contentAlignment = Alignment.Center
     ) {
-        // 鍗曚釜鏄庝寒楂樺厜 - 鍖归厤鍘熷瀷
+        // 单个明亮高光 - 匹配原型
         Box(
             modifier = Modifier
                 .size(size * 0.35f)
@@ -191,12 +207,12 @@ private fun IdleEyeEnhanced(
 }
 
 /**
- * LISTENING 鐘舵€佺溂鐫?- 闊抽鎰熷簲楂樺害
+ * LISTENING 状态眼睛 - 音频感应高度
  */
 @Composable
 private fun ListeningEyeEnhanced(
     size: Dp,
-    audioLevel: () -> Float, // 澧炲姞闊抽绛夌骇璋冨埗
+    audioLevel: () -> Float, // 增加音频等级调制
     modifier: Modifier = Modifier
 ) {
     val dynamicHeight = size * (0.4f + audioLevel() * 1.0f)
@@ -211,7 +227,7 @@ private fun ListeningEyeEnhanced(
 }
 
 /**
- * THINKING 鐘舵€佺溂鐫?- 鏃嬭浆鍔犺浇鐜?
+ * THINKING 状态眼睛 - 旋转加载环
  */
 @Composable
 private fun ThinkingEyeEnhanced(
@@ -220,7 +236,7 @@ private fun ThinkingEyeEnhanced(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "thinkingEyeArch")
     
-    // 鍛煎惛鎰燂細绮楃粏涓庝綅缃交寰彉鍔?
+    // 呼吸感：粗细与位置轻微变动
     val breath by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
@@ -240,7 +256,7 @@ private fun ThinkingEyeEnhanced(
             drawArc(
                 color = RobotEyeActive,
                 startAngle = 180f,
-                sweepAngle = 180f, // 鎷卞舰锛堝紑鍙ｅ悜涓嬶級
+                sweepAngle = 180f, // 拱形（开口向下）
                 useCenter = false,
                 style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
             )
@@ -249,7 +265,7 @@ private fun ThinkingEyeEnhanced(
 }
 
 /**
- * SPEAKING 鐘舵€佺溂鐫?- 缂╂斁鑴夊啿 + 闊抽璋冨埗
+ * SPEAKING 状态眼睛 - 缩放脉冲 + 音频调制
  */
 @Composable
 private fun SpeakingEyeEnhanced(
@@ -260,14 +276,14 @@ private fun SpeakingEyeEnhanced(
 ) {
     val audioEffect = audioLevel()
     
-    // 璇磋瘽鏃朵篃鏄鑹叉嫳褰紝浣嗕細闅忕潃澹伴煶娉㈠姩鈥滃紶鍚堚€?
+    // 说话时也是橙色拱形，但会随着声音波动“张合”
     Box(
         modifier = modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = (size.toPx() * 0.15f) + (audioEffect * 5.dp.toPx())
-            // 鎵繃瑙掑害闅忓０闊冲彉鍖栵紝浜х敓鐪ㄥ姩鎰?
+            // 扫过角度随音频变化，产生眨动感
             val sweep = 180f - (audioEffect * 20f)
             val start = 180f + (audioEffect * 10f)
             
@@ -283,7 +299,7 @@ private fun SpeakingEyeEnhanced(
 }
 
 /**
- * FOCUS 鐘舵€佺溂鐫?- 鎵佸钩绂呮剰鐪肩潧 (鏋佺獎妞渾)
+ * FOCUS 状态眼睛 - 扁平禅意眼睛 (极窄椭圆)
  */
 @Composable
 private fun FocusEyeEnhanced(
@@ -300,14 +316,14 @@ private fun FocusEyeEnhanced(
 }
 
 /**
- * HAPPY 鐘舵€佺溂鐫?- 寮集绗戠溂
+ * HAPPY 状态眼睛 - 弯弯笑眼
  */
 @Composable
 private fun HappyEyeEnhanced(
     size: Dp,
     modifier: Modifier = Modifier
 ) {
-    // 渚濈劧浣跨敤妞渾浣滀负鍩虹
+    // 依然使用椭圆作为基础
     Box(
         modifier = modifier
             .width(size)
@@ -323,7 +339,7 @@ private fun HappyEyeEnhanced(
             ),
         contentAlignment = Alignment.Center
     ) {
-        // 绗戠溂鐨勫姬褰㈤伄鎸?(绠€鍗曞疄鐜帮細閫氳繃涓婃柟棰滆壊瑕嗙洊)
+        // 笑眼的弧形遮挡 (简单实现：通过上方颜色覆盖)
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -335,7 +351,7 @@ private fun HappyEyeEnhanced(
 }
 
 /**
- * SLEEPING 鐘舵€佺溂鐫?- 闂溂
+ * SLEEPING 状态眼睛 - 闭眼
  */
 @Composable
 private fun SleepingEyeEnhanced(
@@ -344,7 +360,7 @@ private fun SleepingEyeEnhanced(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "sleepingEye")
 
-    // 缂撴參鍛煎惛鍔ㄧ敾
+    // 缓慢呼吸动画
     val breathScale by infiniteTransition.animateFloat(
         initialValue = 0.95f,
         targetValue = 1f,
@@ -363,5 +379,3 @@ private fun SleepingEyeEnhanced(
             .background(Color(0xFF94A3B8).copy(alpha = 0.6f)) // slate-400
     )
 }
-
-

@@ -1,4 +1,4 @@
-﻿package com.airobot.character.comp.robot
+package com.airobot.character.comp.robot
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -34,21 +34,21 @@ import kotlin.random.Random
 
 
 /**
- * 鏈哄櫒浜鸿鑹蹭富缁勪欢 - 澧炲己鐗?
+ * 机器人角色主组件 - 增强版
  * 
- * 瀵瑰簲鍘熷瀷: IPCharacter.tsx
+ * 对应原型: IPCharacter.tsx
  */
 @Composable
 fun RobotCharacter(
     state: RobotVisualState,
     ttsProgressNormalized: Float = 0f,
-    audioLevel: () -> Float = { 0f }, // 浼犲叆闊抽绛夌骇 (Lambda)
-    headSize: Dp = 320.dp, // 澧炲ぇ榛樿灏哄浠ュ尮閰?420px 姣斾緥
+    audioLevel: () -> Float = { 0f }, // 传入音频等级 (Lambda)
+    headSize: Dp = 320.dp, // 增大默认尺寸以匹配 420px 比例
     modifier: Modifier = Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "robotAnimation")
     
-    // 鎮诞鍔ㄧ敾 (Floating) - 鑼冨洿鍔犲ぇ锛屾洿鐢熷姩
+    // 悬浮动画 (Floating) - 范围加大，更生动
     val floatOffset by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 18f, // 12 -> 18
@@ -59,11 +59,11 @@ fun RobotCharacter(
         label = "floatOffset"
     )
     
-    // 鐪ㄧ溂鐘舵€侀€昏緫 (浣跨敤 Random 瀹炵幇闅忔満鎬?
+    // 眨眼状态逻辑 (使用 Random 实现随机性)
     var isBlinking by remember { mutableStateOf(false) }
     LaunchedEffect(state) {
         while (true) {
-            // 闅忔満闂撮殧 2s - 7s
+            // 随机间隔 2s - 7s
             val delayTime = Random.nextLong(2000, 7000)
             delay(delayTime)
             
@@ -72,7 +72,7 @@ fun RobotCharacter(
                 delay(150)
                 isBlinking = false
                 
-                // 鍋跺皵鍙岀湪鐪?(15% 姒傜巼)
+                // 偶尔双眨眼 (15% 概率)
                 if (Random.nextFloat() < 0.15f) {
                     delay(100)
                     isBlinking = true
@@ -89,9 +89,9 @@ fun RobotCharacter(
             .height(headSize * 1.8f),
         contentAlignment = Alignment.Center
     ) {
-        // 澧炲己鍨嬭儗鏅幆澧冨厜 (鍙屽眰鍏夋檿 + 鍛煎惛鎰?
+        // 增强型背景环境光 (双层光晕 + 呼吸感)
         val auraColor = RobotTheme.colors.robotAuraStart
-        val auraAlpha = if (RobotTheme.isDark) 0.55f else 0.7f // 鎻愰珮涓嶉€忔槑搴?
+        val auraAlpha = if (RobotTheme.isDark) 0.55f else 0.7f // 提高不透明度
         
         val auraScale by infiniteTransition.animateFloat(
             initialValue = 1.0f,
@@ -103,7 +103,7 @@ fun RobotCharacter(
             label = "auraScale"
         )
 
-        // 鏍稿績鍐呭眰鍏?
+        // 核心内层光
         Box(
             modifier = Modifier
                 .size(headSize * 1.5f)
@@ -123,7 +123,7 @@ fun RobotCharacter(
                 .blur(60.dp)
         )
         
-        // 澶栧眰澶у厜鏅?(鎵╂暎鎰?
+        // 外层大光晕 (扩散感)
         Box(
             modifier = Modifier
                 .size(headSize * 2.1f)
@@ -143,15 +143,15 @@ fun RobotCharacter(
                 .blur(100.dp)
         )
         
-        // 涓讳綋缁撴瀯
+        // 主体结构
         Column(
             modifier = Modifier
                 .offset(y = if (state == RobotVisualState.IDLE) floatOffset.dp else 0.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 鐘舵€佹彁绀烘皵娉″凡绉婚櫎锛岃縼绉诲埌鍔熻兘鍗＄墖缁勪欢
+            // 状态提示气泡已移除，迁移到功能卡片组件
             
-            // 鏈哄櫒浜哄ご閮?
+            // 机器人头部
             RobotHead(
                 state = state,
                 isBlinking = isBlinking,
@@ -160,7 +160,7 @@ fun RobotCharacter(
                 headSize = headSize
             )
             
-            // 鍦伴潰闃村奖 - 璺熼殢娴姩杞诲井缂╂斁
+            // 地面阴影 - 跟随浮动轻微缩放
             Box(
                 modifier = Modifier
                     .offset(y = (-10).dp)
@@ -175,14 +175,14 @@ fun RobotCharacter(
                     .blur(20.dp)
             )
             
-            // 搴曢儴鑴栧瓙鍜岄瀛?
+            // 底部脖子和领子
             RobotNeck(headSize = headSize)
         }
     }
 }
 
 /**
- * 鏈哄櫒浜哄ご閮ㄧ粍浠?
+ * 机器人头部组件
  */
 @Composable
 private fun RobotHead(
@@ -197,27 +197,27 @@ private fun RobotHead(
     
     Box(
         modifier = modifier
-            .width(headSize * 1.1f) // 鎵╁瀹瑰櫒锛屽绾崇獊鍑虹殑鑰虫湹
+            .width(headSize * 1.1f) // 扩宽容器，容纳突出的耳朵
             .height(headSize * 0.74f),
         contentAlignment = Alignment.Center
     ) {
-        // 澶╃嚎 (鏀剧疆鍦ㄥご閮ㄥ悗闈?
+        // 天线 (放置在头部后面)
         RobotAntennas(
             state = state,
             headSize = headSize,
             infiniteTransition = infiniteTransition
         )
         
-        // 鑰虫湹 (绉诲嚭澶撮儴瑁佸壀 Box锛屽苟娣诲姞 3D 杞粨灞?
+        // 耳朵 (移出头部裁剪 Box，并添加 3D 轮廓层)
         Box(
             modifier = Modifier.width(headSize * 1.08f),
             contentAlignment = Alignment.Center
         ) {
-            // 宸﹁€?(涓ゅ眰鍙犲姞瀹炵幇绐佽捣鐨勮竟妗嗘劅)
+            // 左耳 (两层叠加实现突起的边框感)
             Box(
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
-                // 澶栬竟妗?鑳屾澘
+                // 外边框/背板
                 Box(
                     modifier = Modifier
                         .size(width = headSize * 0.08f, height = headSize * 0.19f)
@@ -225,7 +225,7 @@ private fun RobotHead(
                         .background(RobotHeadBorder.copy(alpha = 0.4f))
                         .blur(0.5.dp)
                 )
-                // 鍐呬富浣?
+                // 内主体
                 Box(
                     modifier = Modifier
                         .padding(start = 2.dp, top = 2.dp, bottom = 2.dp)
@@ -235,11 +235,11 @@ private fun RobotHead(
                 )
             }
             
-            // 鍙宠€?
+            // 右耳
             Box(
                 modifier = Modifier.align(Alignment.CenterEnd)
             ) {
-                // 澶栬竟妗?鑳屾澘
+                // 外边框/背板
                 Box(
                     modifier = Modifier
                         .size(width = headSize * 0.08f, height = headSize * 0.19f)
@@ -247,7 +247,7 @@ private fun RobotHead(
                         .background(RobotHeadBorder.copy(alpha = 0.4f))
                         .blur(0.5.dp)
                 )
-                // 鍐呬富浣?
+                // 内主体
                 Box(
                     modifier = Modifier
                         .padding(end = 2.dp, top = 2.dp, bottom = 2.dp)
@@ -258,7 +258,7 @@ private fun RobotHead(
             }
         }
         
-        // 澶撮儴澶栧３ - 鏀逛负娴呰摑鑹?(sky-200)
+        // 头部外壳 - 改为浅蓝色 (sky-200)
         Box(
             modifier = Modifier
                 .width(headSize)
@@ -270,10 +270,10 @@ private fun RobotHead(
                     spotColor = RobotTheme.colors.robotAuraStart.copy(alpha = 0.3f)
                 )
                 .clip(RoundedCornerShape(headSize * 0.28f))
-                .background(RobotHeadColor) // 鍥哄畾娴呰摑鑹?
+                .background(RobotHeadColor) // 固定浅蓝色
         ) {
 
-            // 楂樺厜 (Glossy effect)
+            // 高光 (Glossy effect)
             Box(
                 modifier = Modifier
                     .padding(top = headSize * 0.05f, start = headSize * 0.15f)
@@ -287,13 +287,13 @@ private fun RobotHead(
                     .blur(2.dp)
             )
 
-            // 鍐呴儴鏄剧ず灞忓尯鍩?(Inset Face)
+            // 内部显示屏区域 (Inset Face)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(headSize * 0.085f) // 鍖归厤 inset-9 姣斾緥
+                    .padding(headSize * 0.085f) // 匹配 inset-9 比例
                     .clip(RoundedCornerShape(headSize * 0.24f))
-                    .background(RobotFaceColor) // 鍥哄畾娴呰壊闈㈤儴
+                    .background(RobotFaceColor) // 固定浅色面部
                     .border(
                         width = 1.dp,
                         color = Color(0xFF7DD3FC).copy(alpha = 0.5f),
@@ -314,14 +314,14 @@ private fun RobotHead(
                         RobotBlush.copy(alpha = 0.35f), CircleShape))
                 }
 
-                // 鐪肩潧鍜屽槾宸?
+                // 眼睛和嘴巴
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                 if (isBlinking) {
-                    // 鐪ㄧ溂鍔ㄧ敾 (淇濇寔闀挎き鍦?
+                    // 眨眼动画 (保持长椭圆)
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(headSize * 0.2f)
                     ) {
@@ -337,7 +337,7 @@ private fun RobotHead(
                         eyeGap = headSize * 0.2f
                     )
                 
-                // 鍢村反鍔ㄧ敾
+                // 嘴巴动画
                 val isSpeaking = state == RobotVisualState.SPEAKING
                 val isIdle = state == RobotVisualState.IDLE || state == RobotVisualState.LISTENING
 
@@ -375,7 +375,7 @@ private fun RobotHead(
 }
 
 /**
- * 鏈哄櫒浜哄ぉ绾?- 澧炲己鍙戝厜鏁堟灉
+ * 机器人天线 - 增强发光效果
  */
 @Composable
 private fun RobotAntennas(
@@ -384,7 +384,7 @@ private fun RobotAntennas(
     infiniteTransition: InfiniteTransition,
     modifier: Modifier = Modifier
 ) {
-    // 鏃嬭浆鍔ㄧ敾 - 鍔犲ぇ瑙掑害
+    // 旋转动画 - 加大角度
     val antennaRotation by infiniteTransition.animateFloat(
         initialValue = -12f, // -5 -> -12
         targetValue = 12f,   // 5 -> 12
@@ -402,12 +402,12 @@ private fun RobotAntennas(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .offset(y = (-headSize * 0.35f)), // 鍚戜笂绉诲姩鏇村锛屽洜涓哄ぉ绾垮彉闀夸簡
+            .offset(y = (-headSize * 0.35f)), // 向上移动更多，因为天线变长了
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        // 宸﹀ぉ绾?
+        // 左天线
         AntennaItem(color = antennaColor1, rotation = antennaRotation, headSize = headSize)
-        // 鍙冲ぉ绾?
+        // 右天线
         AntennaItem(color = antennaColor2, rotation = -antennaRotation, headSize = headSize)
     }
 }
@@ -418,7 +418,7 @@ private fun AntennaItem(color: Color, rotation: Float, headSize: Dp) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.graphicsLayer { rotationZ = rotation }
     ) {
-        // 鐏ご + 鍙戝厜 (淇濇寔涓嶅彉)
+        // 灯头 + 发光 (保持不变)
         Box(contentAlignment = Alignment.Center) {
             Box(
                 modifier = Modifier
@@ -438,10 +438,10 @@ private fun AntennaItem(color: Color, rotation: Float, headSize: Dp) {
                     .shadow(elevation = 8.dp, shape = CircleShape, clip = false, spotColor = color)
             )
         }
-        // 澶╃嚎鏉?- 娓愬彉鐏拌壊
+        // 天线杆 - 渐变灰色
         Box(
             modifier = Modifier
-                .width(headSize * 0.025f) // 绾?8-10dp
+                .width(headSize * 0.025f) // 约 8-10dp
                 .height(headSize * 0.35f)
                 .clip(RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp))
                 .background(
@@ -454,7 +454,7 @@ private fun AntennaItem(color: Color, rotation: Float, headSize: Dp) {
 }
 
 /**
- * 璇磋瘽鍢村反鍔ㄧ敾
+ * 说话嘴巴动画
  */
 @Composable
 private fun SpeakingMouth(
@@ -474,15 +474,15 @@ private fun SpeakingMouth(
     Box(
         modifier = modifier
             .width(32.dp * mouthScale)
-            .height(10.dp) // 绋嶅井鍔犲帤涓€鐐?
+            .height(10.dp) // 稍微加厚一点
             .clip(CircleShape)
-            .background(Color(0xFF334155)) // 鏀逛负娣辩伆鑹诧紝鍖归厤鍘熷瀷椋庢牸 (slate-700)
+            .background(Color(0xFF334155)) // 改为深灰色，匹配原型风格 (slate-700)
             .blur(0.3.dp)
     )
 }
 
 /**
- * 闈欐€佸槾宸?(IDLE 鐘舵€?
+ * 静态嘴巴 (IDLE 状态)
  */
 @Composable
 private fun StaticMouth(
@@ -494,14 +494,14 @@ private fun StaticMouth(
             .width(size)
             .height(5.dp)
             .clip(CircleShape)
-            .background(Color(0xFF334155).copy(alpha = 0.8f)) // 娣辩伆鑹叉í绾?
+            .background(Color(0xFF334155).copy(alpha = 0.8f)) // 深灰色横线
     )
 }
 
-// StatusTipBubble宸插垹闄わ紝杩佺Щ鍒板姛鑳藉崱鐗囩粍浠?
+// StatusTipBubble已删除，迁移到功能卡片组件
 
 /**
- * 鐪ㄧ溂鏃剁殑鐪肩潧褰㈢姸
+ * 眨眼时的眼睛形状
  */
 @Composable
 private fun BlinkingEye(size: Dp) {
@@ -510,12 +510,12 @@ private fun BlinkingEye(size: Dp) {
             .width(size * 1.2f)
             .height(size * 0.15f)
             .clip(RoundedCornerShape(50))
-            .background(RobotEyeDefault.copy(alpha = 0.7f)) // 浣跨敤鍥哄畾鐨勭溂鐫涙繁鑹?
+            .background(RobotEyeDefault.copy(alpha = 0.7f)) // 使用固定的眼睛深色
     )
 }
 
 /**
- * 鑴栧瓙鍜岄瀛愮粍浠?
+ * 脖子和领子组件
  */
 @Composable
 private fun RobotNeck(
@@ -523,25 +523,23 @@ private fun RobotNeck(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.offset(y = (-15).dp), // 鍚戜笂绋嶅井缂╄繘锛屾樉寰楄剸瀛愭洿鐭洿绋冲浐
+        modifier = modifier.offset(y = (-15).dp), // 向上稍微缩进，显得脖子更短更稳固
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 鑴栧瓙绔嬬 - 閰嶅悎鏂伴鑹?
+        // 脖子立管 - 配合新颜色
         Box(
             modifier = Modifier
                 .width(headSize * 0.14f)
-                .height(headSize * 0.08f) // 缂╃煭
+                .height(headSize * 0.08f) // 缩短
                 .background(RobotNeckColor)
         )
-        // 棰嗗瓙/搴曞骇 - 鏋侀珮鍦嗚妯′豢鍘熷瀷绮樺湡鎰?
+        // 领子/底座 - 极高圆角模仿原型粘土感
         Box(
             modifier = Modifier
-                .width(headSize * 0.55f) // 鍔犲
+                .width(headSize * 0.55f) // 加宽
                 .height(headSize * 0.14f)
-                .clip(RoundedCornerShape(topStart = 100.dp, topEnd = 100.dp)) // 瀹岀編鍗婂渾椤?
+                .clip(RoundedCornerShape(topStart = 100.dp, topEnd = 100.dp)) // 完美半圆顶
                 .background(RobotCollarColor)
         )
     }
 }
-
-

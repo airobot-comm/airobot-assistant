@@ -7,32 +7,30 @@ import com.airobot.services.state.ServiceSubState
 
 
 /**
- * 鏈哄櫒浜鸿瑙夌姸鎬?- 鐢ㄤ簬鎺у埗鐪肩潧銆佸ぉ绾跨瓑鍔ㄧ敾
- * 鏄犲皠鑷?RobotState锛屼笓娉ㄤ簬瑙嗚琛ㄧ幇
+ * 机器人视觉状态 - 用于控制眼睛、天线等动画
+ * 映射自 RobotState，专注于视觉表现
  */
 enum class RobotVisualState {
-    IDLE,       // 绌洪棽 - 娓愬彉鍦嗗舰鐪肩潧 + 鍛煎惛鍔ㄧ敾
-    LISTENING,  // 鑱嗗惉 - 楂樺害鑴夊啿鍔ㄧ敾
-    THINKING,   // 鎬濊€?- 鏃嬭浆鍔犺浇鐜?
-    SPEAKING,   // 璇磋瘽 - 缂╂斁鑴夊啿 + 鍢村反鍔ㄧ敾
-    FOCUS,      // 涓撴敞 - 鎵佸钩绂呮剰鐪肩潧
-    HAPPY,      // 寮€蹇?- 寮集绗戠溂
-    SLEEPING    // 鐫＄湢 - 闂溂 + 缂撴參鍛煎惛
+    IDLE,       // 空闲 - 渐变圆形眼睛 + 呼吸动画
+    LISTENING,  // 聆听 - 高度脉冲动画
+    THINKING,   // 思考 - 旋转加载环
+    SPEAKING,   // 说话 - 缩放脉冲 + 嘴巴动画
+    FOCUS,      // 专注 - 扁平禅意眼睛
+    HAPPY,      // 开心 - 弯弯笑眼
+    SLEEPING    // 睡眠 - 闭眼 + 缓慢呼吸
 }
 
 /**
- * 浜や簰绫诲瀷
+ * 交互类型
  */
 enum class InteractionType {
-    CHAT,   // 鏅€氳亰澶╂ā寮?
-    CARD    // 鍔熻兘鍗＄墖妯″紡
+    CHAT,   // 普通聊天模式
+    CARD    // 功能卡片模式
 }
 
 
-
-
 /**
- * 鏈哄櫒浜?UI 鏁翠綋灞曠幇鐘舵€?(鍞竴鐨?UI Truth Source)
+ * 机器人 UI 整体展现状态 (唯一的 UI Truth Source)
  */
 data class RobotUiState(
     // === UI Visual & System ===
@@ -51,7 +49,7 @@ data class RobotUiState(
     val activeServiceData: ServiceCardData? = null
 ) {
     /**
-     * 鏄惁澶勪簬浜や簰鐘舵€?
+     * 是否处于交互状态
      */
     val isInteracting: Boolean
         get() = (visualState != RobotVisualState.IDLE && visualState != RobotVisualState.SLEEPING) 
@@ -59,13 +57,13 @@ data class RobotUiState(
                 || activeCard != null
     
     /**
-     * 鏄惁涓哄崱鐗囨ā寮?
+     * 是否为卡片模式
      */
     val isCardMode: Boolean
         get() = isInteracting && interactionType == InteractionType.CARD
     
     /**
-     * 鍔ㄦ€佺姸鎬佹彁绀?
+     * 动态状态提示
      */
     val dynamicStatusTip: String
         get() = when {
@@ -80,5 +78,3 @@ data class RobotUiState(
             else -> statusTip
         }
 }
-
-
