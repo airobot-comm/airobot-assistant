@@ -111,9 +111,9 @@ airobot-tablet/
 
 ## 📚 基于小智ai的对话通信协议
 
-- [对话流程](./protocol/flow.md) - 对话流程实现和状态管理
-- [通信协议](./protocol/protocol.md) - websocket协议
-- [MCP协议](./protocol/mcp.md) - MCP工具调用协议
+- [对话流程](protocol/flow.md) - 对话流程实现和状态管理
+- [通信协议](protocol/protocol.md) - websocket协议
+- [MCP协议](protocol/mcp.md) - MCP工具调用协议
 
 ## 🔗 相关链接
 
