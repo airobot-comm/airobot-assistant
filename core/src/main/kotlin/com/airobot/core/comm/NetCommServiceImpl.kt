@@ -5,7 +5,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import com.airobot.core.comm.provider.CommSysProvider
+import com.airobot.core.system.SysManage
 import com.airobot.core.comm.protocol.CommProtocol
 import com.airobot.core.comm.protocol.ProtocolAdapter
 import com.airobot.core.comm.transport.ConnectivityMonitor
@@ -15,7 +15,7 @@ import com.airobot.core.comm.transport.SingletonWebSocket
 @Singleton
 class NetCommServiceImpl @Inject constructor(
     private val singletonWebSocket: SingletonWebSocket,
-    private val sysProvider: CommSysProvider,
+    private val sysManage: SysManage,
     private val protocolAdapter: ProtocolAdapter,
     private val connectivityMonitor: ConnectivityMonitor,
     private val protocol: CommProtocol
@@ -49,8 +49,8 @@ class NetCommServiceImpl @Inject constructor(
                     is WebSocketEvent.Connected -> {
                         _state.value = NetworkState.CONNECTING // 传输层 OK，进入协议握手
                         scope.launch {
-                            val deviceInfo = sysProvider.getDeviceInfo()
-                            val credentials = sysProvider.getCommCredentials()
+                            val deviceInfo = sysManage.getDeviceInfo()
+                            val credentials = sysManage.getCommCredentials()
                             if (credentials != null) {
                                 protocol.open("", deviceInfo.macAddress, credentials.token)
                             } else {
@@ -101,22 +101,22 @@ class NetCommServiceImpl @Inject constructor(
 
     override fun connect() {
         scope.launch {
-            if (!sysProvider.isDeviceActivated()) {
+            if (!sysManage.isDeviceActivated()) {
                 _state.value = NetworkState.ERROR
                 _events.emit(NetCommEvent.Error("Device not activated, please authenticate"))
                 return@launch
             }
 
             // 2. Check AIRobot activation
-            if (!sysProvider.isAiRobotActivated()) {
+            if (!sysManage.isAiRobotActivated()) {
                 _state.value = NetworkState.ERROR
                 _events.emit(NetCommEvent.Error("AIRobot not activated, please activate in settings"))
                 return@launch
             }
 
             // 3. Get composed parameters
-            val deviceInfo = sysProvider.getDeviceInfo()
-            val credentials = sysProvider.getCommCredentials()
+            val deviceInfo = sysManage.getDeviceInfo()
+            val credentials = sysManage.getCommCredentials()
             
             if (credentials == null || credentials.url.isBlank()) {
                 _state.value = NetworkState.ERROR

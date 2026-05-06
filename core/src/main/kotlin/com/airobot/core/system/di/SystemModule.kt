@@ -1,4 +1,4 @@
-﻿package com.airobot.core.system.di
+package com.airobot.core.system.di
 
 import com.airobot.core.system.SysManage
 import com.airobot.core.system.SysManageImpl
@@ -16,9 +16,6 @@ abstract class SystemModule {
     @Singleton
     abstract fun bindSysManage(impl: SysManageImpl): SysManage
 
-    @Binds
-    @Singleton
-    abstract fun bindCommSysProvider(impl: com.airobot.core.system.CommSysProviderImpl): com.airobot.core.comm.provider.CommSysProvider
 }
 
 
