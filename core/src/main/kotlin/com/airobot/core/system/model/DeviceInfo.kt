@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.system.model
+﻿package com.airobot.core.system.model
 
 import android.content.Context
 import android.provider.Settings

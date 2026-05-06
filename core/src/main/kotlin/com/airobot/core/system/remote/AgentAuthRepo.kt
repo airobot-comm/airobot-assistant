@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.system.remote
+﻿package com.airobot.core.system.remote
 
 
 // todo :add xiaozhi,coze,toyagent auto

@@ -1,13 +1,13 @@
-﻿package com.airobot.tablet.system
+﻿package com.airobot.core.system
 
 import android.content.Context
-import com.airobot.tablet.system.model.ActiveInfo
-import com.airobot.tablet.system.model.AiAgent
-import com.airobot.tablet.system.model.CommCredentials
-import com.airobot.tablet.system.model.DeviceInfo
-import com.airobot.tablet.system.model.SystemInfo
-import com.airobot.tablet.system.repository.SysInfoRepo
-import com.airobot.tablet.system.remote.OtaNetRepo
+import com.airobot.core.system.model.ActiveInfo
+import com.airobot.core.system.model.AiAgent
+import com.airobot.core.system.model.CommCredentials
+import com.airobot.core.system.model.DeviceInfo
+import com.airobot.core.system.model.SystemInfo
+import com.airobot.core.system.repository.SysInfoRepo
+import com.airobot.core.system.remote.OtaNetRepo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.system.remote
+﻿package com.airobot.core.system.remote
 
 import android.annotation.SuppressLint
 import kotlinx.serialization.SerialName

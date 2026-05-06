@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.system.repository
+﻿package com.airobot.core.system.repository
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.airobot.tablet.system.model.SystemInfo
+import com.airobot.core.system.model.SystemInfo
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers

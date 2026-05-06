@@ -1,6 +1,6 @@
-﻿package com.airobot.tablet.system.repository
+﻿package com.airobot.core.system.repository
 
-import com.airobot.tablet.system.model.SystemInfo
+import com.airobot.core.system.model.SystemInfo
 
 /**
  * 配置仓库接口 - 定义系统配置管理的契约

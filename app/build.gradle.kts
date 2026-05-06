@@ -131,7 +131,7 @@ dependencies {
     implementation(project(":audio"))
     implementation(project(":framework"))
     implementation(project(":services"))
-    implementation(project(":core-comm"))
+    implementation(project(":core"))
     implementation(project(":character"))
     implementation(files("../audio/libs/sherpa-onnx-1.12.28.aar"))
     implementation(libs.androidx.core.ktx)

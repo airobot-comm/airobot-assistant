@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet.system.remote
+﻿package com.airobot.core.system.remote
 
 /**
  * OTA仓库接口 - 定义OTA相关操作的契约

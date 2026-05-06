@@ -1,7 +1,7 @@
-package com.airobot.tablet.system.di
+﻿package com.airobot.core.system.di
 
-import com.airobot.tablet.system.SysManage
-import com.airobot.tablet.system.SysManageImpl
+import com.airobot.core.system.SysManage
+import com.airobot.core.system.SysManageImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -18,7 +18,7 @@ abstract class SystemModule {
 
     @Binds
     @Singleton
-    abstract fun bindCommSysProvider(impl: com.airobot.tablet.system.CommSysProviderImpl): com.airobot.core.comm.provider.CommSysProvider
+    abstract fun bindCommSysProvider(impl: com.airobot.core.system.CommSysProviderImpl): com.airobot.core.comm.provider.CommSysProvider
 }
 
 

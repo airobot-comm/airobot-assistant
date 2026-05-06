@@ -1,9 +1,9 @@
-﻿package com.airobot.tablet.system.di
+﻿package com.airobot.core.system.di
 
-import com.airobot.tablet.system.repository.SysInfoRepo
-import com.airobot.tablet.system.remote.OtaNetRepo
-import com.airobot.tablet.system.remote.OtaNetXiaozhi
-import com.airobot.tablet.system.repository.SysInfoRepoImpl
+import com.airobot.core.system.repository.SysInfoRepo
+import com.airobot.core.system.remote.OtaNetRepo
+import com.airobot.core.system.remote.OtaNetXiaozhi
+import com.airobot.core.system.repository.SysInfoRepoImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

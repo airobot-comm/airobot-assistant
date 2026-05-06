@@ -31,7 +31,7 @@ kotlin {
 
 dependencies {
     implementation(project(":framework"))
-    implementation(project(":core-comm"))
+    implementation(project(":core"))
     implementation(project(":services"))
     implementation(project(":audio"))
     

@@ -1,10 +1,10 @@
-﻿package com.airobot.tablet.system
+﻿package com.airobot.core.system
 
-import com.airobot.tablet.system.model.ActiveInfo
-import com.airobot.tablet.system.model.AiAgent
-import com.airobot.tablet.system.model.CommCredentials
-import com.airobot.tablet.system.model.DeviceInfo
-import com.airobot.tablet.system.model.SystemInfo
+import com.airobot.core.system.model.ActiveInfo
+import com.airobot.core.system.model.AiAgent
+import com.airobot.core.system.model.CommCredentials
+import com.airobot.core.system.model.DeviceInfo
+import com.airobot.core.system.model.SystemInfo
 import kotlinx.coroutines.flow.StateFlow
 
 /**

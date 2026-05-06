@@ -1,4 +1,4 @@
-package com.airobot.tablet.system
+﻿package com.airobot.core.system
 
 import com.airobot.core.comm.provider.CommAuthCredentials
 import com.airobot.core.comm.provider.CommDeviceInfo

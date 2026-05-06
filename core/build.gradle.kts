@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.airobot.core.comm"
+    namespace = "com.airobot.core"
     compileSdk = 36
 
     defaultConfig {
@@ -31,6 +31,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.gson)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.datastore.preferences)
     
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
