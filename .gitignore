@@ -6,6 +6,7 @@
 .DS_Store
 .trae
 .vscode
+.worktrees/
 /local.properties
 /.idea/AndroidProjectSystem.xml
 /.idea/deploymentTargetSelector.xml
