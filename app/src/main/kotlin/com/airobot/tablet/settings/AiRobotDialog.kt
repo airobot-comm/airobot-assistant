@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.settings
+package com.airobot.tablet.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,7 +45,7 @@ fun AiRobotDialog(
                         color = RobotTheme.colors.textPrimary,
                         fontSize = MaterialTheme.typography.headlineSmall.fontSize
                     )
-                    
+
                     IconButton(
                         onClick = onDismiss,
                         modifier = Modifier.size(24.dp)
@@ -57,17 +57,17 @@ fun AiRobotDialog(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text(
                     text = "使用以下激活码激活Ai智能体：",
                     color = RobotTheme.colors.textSecondary,
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     color = RobotTheme.colors.surfaceOverlay.copy(alpha = 0.05f),
@@ -81,9 +81,9 @@ fun AiRobotDialog(
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End

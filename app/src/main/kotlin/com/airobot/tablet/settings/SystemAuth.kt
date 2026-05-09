@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.settings
+package com.airobot.tablet.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobot.framework.comp.ConfigTextField
 import com.airobot.framework.theme.RobotTheme
-import com.airobot.tablet.airobotui.viewmodel.MainShellViewModel
+import com.airobot.tablet.viewmodel.MainShellViewModel
 
 @Composable
 fun SystemAuth(
@@ -20,11 +20,11 @@ fun SystemAuth(
 ) {
     val deviceInfo by viewModel.deviceInfo.collectAsState()
     val isActivated by viewModel.isDeviceActivated.collectAsState()
-    
-    var productKey by remember(deviceInfo) { 
-        mutableStateOf(deviceInfo.activation.productKey) 
+
+    var productKey by remember(deviceInfo) {
+        mutableStateOf(deviceInfo.activation.productKey)
     }
-    
+
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
             "设备基本信息 (不可修改)",
@@ -48,7 +48,7 @@ fun SystemAuth(
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             "设备激活与授权",
             color = RobotTheme.colors.textSecondary,
@@ -97,8 +97,8 @@ fun SystemAuth(
             shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                if (isActivated) "已激活" else "立即激活设备", 
-                color = Color.White, 
+                if (isActivated) "已激活" else "立即激活设备",
+                color = Color.White,
                 fontWeight = FontWeight.Bold
             )
         }

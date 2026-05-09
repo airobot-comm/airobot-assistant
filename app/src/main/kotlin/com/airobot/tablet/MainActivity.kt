@@ -14,10 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.airobot.tablet.airobotui.AiRobotMainScreen
 import com.airobot.framework.theme.AiRobotTheme
 import com.airobot.framework.theme.RobotTheme
 import com.airobot.framework.theme.RobotThemeMode
+import com.airobot.tablet.apppages.AppMainScreen
 
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -26,34 +26,34 @@ class MainActivity : ComponentActivity() {
     companion object {
         private const val TAG = "MainActivity"
     }
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         // 设置全屏模式 - 沉浸式系统栏设计
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.apply {
             statusBarColor = android.graphics.Color.TRANSPARENT
             navigationBarColor = android.graphics.Color.TRANSPARENT
         }
-        
+
         // 隐藏状态栏
         WindowInsetsControllerCompat(window, window.decorView).apply {
             hide(WindowInsetsCompat.Type.statusBars())
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
-        
+
         Log.d(TAG, "MainActivity onCreate: 启动中...")
-        
+
         setContent {
             var themeMode by remember { mutableStateOf(RobotThemeMode.DARK) }
-            
+
             AiRobotTheme(themeMode = themeMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = RobotTheme.colors.background
                 ) {
-                    AiRobotMainScreen(
+                    AppMainScreen(
                         themeMode = themeMode,
                         onToggleTheme = {
                             themeMode = if (themeMode == RobotThemeMode.DARK) {

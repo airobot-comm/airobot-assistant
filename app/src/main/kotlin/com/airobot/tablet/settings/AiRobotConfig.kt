@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.settings
+package com.airobot.tablet.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobot.framework.comp.ConfigTextField
 import com.airobot.framework.theme.RobotTheme
-import com.airobot.tablet.airobotui.viewmodel.MainShellViewModel
+import com.airobot.tablet.viewmodel.MainShellViewModel
 
 @Composable
 fun AiRobotConfig(
@@ -20,7 +20,7 @@ fun AiRobotConfig(
 ) {
     val aiAgent by viewModel.aiAgent.collectAsState()
     val isActivated by viewModel.isAiRobotActivated.collectAsState()
-    
+
     // UI state for agent configuration
     var agentVendor by remember(aiAgent) { mutableStateOf(aiAgent.agentVendor) }
     var editedAgentUrl by remember(aiAgent) { mutableStateOf(aiAgent.agentUrl) }
@@ -48,7 +48,7 @@ fun AiRobotConfig(
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             "智能体激活状态(自动下发)",
             color = RobotTheme.colors.textSecondary,
@@ -76,7 +76,7 @@ fun AiRobotConfig(
                 fontSize = 14.sp
             )
         }
-        
+
         if (isActivated) {
             Text(
                 "智能体已就绪，当前智能体: ${aiAgent.agentVendor}",
@@ -103,7 +103,7 @@ fun AiRobotConfig(
         ) {
             Text(
                 if (isActivated) "Ai智能体已激活" else "保存配置并激活",
-                color = Color.White, 
+                color = Color.White,
                 fontWeight = FontWeight.Bold
             )
         }

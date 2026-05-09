@@ -1,4 +1,4 @@
-package com.airobot.tablet.airobotui.viewmodel
+package com.airobot.tablet.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -76,7 +76,7 @@ class MainShellViewModel @Inject constructor(
 
                         // 唤醒后的条件过滤：网络必须连接且系统就绪，且机器人处于 Ready/Conversation 状态时才执行唤醒确认（否则拉回 Audio 状态）
                         val isNetworkReady = netCommService.isConnected
-                        val isSystemReady = sysManage.state.value is com.airobot.core.system.SysState.Ready
+                        val isSystemReady = sysManage.state.value is SysState.Ready
                         if (isNetworkReady && isSystemReady &&
                             (currentState is RobotEngineState.Ready || currentState is RobotEngineState.Conversation)) {
                             Log.d("MainShellViewModel", "Conditions met. Proceeding with wakeup.")
