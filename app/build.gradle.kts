@@ -132,7 +132,7 @@ dependencies {
     implementation(project(":framework"))
     implementation(project(":services"))
     implementation(project(":core"))
-    implementation(project(":character"))
+    implementation(project(":airbot"))
     implementation(files("../audio/libs/sherpa-onnx-1.12.28.aar"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

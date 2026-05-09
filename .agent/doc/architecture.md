@@ -16,7 +16,7 @@ ai机器人Android Tablet系统架构，技术设计等概要说明
 - 采用多模块化 (Multi-module) + MVVM 的 Clear Architecture
 - AiRobotUi 组件化设计，使用 Jetpack Compose 开发
 - 语音 (`audio`) 与核心协议通信 (`core-comm`) 模块物理隔离，设计高性能、自愈合、高可靠
-- 角色表现层 (`character`) 独立化，支持多种动画机制和灵活配置，以纯组件形式提供
+- 角色表现层 (`airbot`) 独立化，支持多种动画机制和灵活配置，以纯组件形式提供
 - 系统管理模块负责系统配置与 OTA 管理等功能
 - 各个业务模块间通过 Hilt DI 机制解耦调用
 
@@ -28,10 +28,12 @@ airobot-tablet/
 │   │   ├── system/               # 系统管理业务实现
 │   │   ├── MainActivity.kt
 │   │   └── RobotApplication.kt
-├── character/                    # 👽 虚拟角色模块 (Android Library)
-│   └── src/main/kotlin/com/airobot/character/
-│       ├── comp/                 # 视觉动效组件
-│       └── AiCharacterScreen.kt  # 提供不同引擎配置的角色组装入口
+├── airbot/                       # 👽 虚拟角色核心模块 (Android Library)
+│   └── src/main/kotlin/com/airobot/airbot/
+│       ├── character/            # 视觉动效组件
+│       ├── dialogue/             # 气泡与对话UI组件
+│       ├── state/                # 状态与模型定义
+│       └── viewmodel/            # 交互状态调度与ViewModel
 ├── core-comm/                    # 📡 核心协议与通讯网络模块 (Android Library)
 │   └── src/main/kotlin/com/airobot/core/comm/
 │       └── websocket/            # AI对话连接与协议分发
@@ -57,9 +59,9 @@ airobot-tablet/
 └── agent/                        # 🧠 AI 智能体模块 (Future: Rust Integration)
 ```
 
-### 业务结构与组装层解耦 (Framework, Character & Services)
+### 业务结构与组装层解耦 (Framework, Airbot & Services)
 - **Framework ( UI底层 )**: 全局的 `com.airobot.framework` 作为无状态基础组件库，**禁止**依赖任何具体 `ViewModel` 逻辑及全家桶状态引擎。它只接收原语类型 (Primitive typed args) 负责呈现视图。
-- **Character ( 角色层 )**: 独立的渲染表达层，内部收敛如Rive/Lottie等引擎实现，使用外部透传的抽象状态，避免环形依赖主业务流程的上下文。
+- **Airbot ( 角色层 )**: 独立的渲染表达层，内部收敛如Rive/Lottie等引擎实现，使用外部透传的抽象状态，避免环形依赖主业务流程的上下文。
 - **Services ( 服务卡片层 )**: 专注提供番茄钟、天气等卡片，具有自包含的状态体系 (`ServiceCardData` 等)，不再强耦合系统顶级 `RobotEngineState`。
 - **App Shell**: 主 `app` 模块专门负责顶层组装，从 Hilt 提取网络协议层 (`core-comm`) 的状态流向下分发，提供纯净的胶水调用实现多 App 形态。
 

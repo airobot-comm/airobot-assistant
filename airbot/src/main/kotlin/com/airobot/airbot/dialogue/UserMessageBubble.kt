@@ -1,4 +1,4 @@
-﻿package com.airobot.character.comp.dialogue
+package com.airobot.airbot.dialogue
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.background

@@ -26,8 +26,8 @@ import com.airobot.framework.R
 import com.airobot.framework.comp.BackgroundDecorations
 import com.airobot.framework.comp.BottomFooter
 import com.airobot.tablet.airobotui.settings.AiRobotDialog
-import com.airobot.character.comp.dialogue.DialogueBubble
-import com.airobot.character.comp.voice.RobotVoiceInputPanel
+import com.airobot.airbot.dialogue.DialogueBubble
+import com.airobot.airbot.character.RobotVoiceInputPanel
 import com.airobot.framework.statusbar.RobotTopBar
 import com.airobot.framework.drawer.SystemDrawer
 import com.airobot.framework.drawer.DrawerMenuItemData
@@ -42,23 +42,23 @@ import com.airobot.services.compoments.DEFAULT_SERVICE_CARDS
 import com.airobot.services.FocusTimerWidget
 import com.airobot.services.compoments.ServiceCardCarousel
 import com.airobot.services.compoments.getServiceCardIcon
-import com.airobot.character.state.ConversationSubState
-import com.airobot.character.state.InteractionType
-import com.airobot.character.state.RobotEngineState
-import com.airobot.character.state.RobotUiState
-import com.airobot.character.state.RobotVisualState
+import com.airobot.airbot.state.ConversationSubState
+import com.airobot.airbot.state.InteractionType
+import com.airobot.airbot.state.RobotEngineState
+import com.airobot.airbot.state.RobotUiState
+import com.airobot.airbot.state.RobotVisualState
 import com.airobot.services.state.ServiceCard
 import com.airobot.services.state.ServiceCardType
 import com.airobot.services.state.ServiceCardData
 import com.airobot.services.state.TimerCardData
 import com.airobot.services.state.ServiceSubState
 import com.airobot.tablet.airobotui.viewmodel.MainShellViewModel
-import com.airobot.character.viewmodel.ConversationViewModel
+import com.airobot.airbot.viewmodel.ConversationViewModel
 import com.airobot.services.ServiceViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import androidx.compose.animation.core.Spring
-import com.airobot.character.comp.robot.RobotCharacter
+import com.airobot.airbot.character.RobotCharacter
 
 /**
  * 机器人服务主屏幕

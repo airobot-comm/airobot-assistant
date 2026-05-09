@@ -1,4 +1,4 @@
-package com.airobot.character.state
+package com.airobot.airbot.dialogue
 
 import java.util.*
 

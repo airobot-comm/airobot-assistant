@@ -1,4 +1,4 @@
-package com.airobot.character.comp.dialogue
+package com.airobot.airbot.dialogue
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*

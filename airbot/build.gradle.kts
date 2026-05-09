@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.airobot.character"
+    namespace = "com.airobot.airbot"
     compileSdk = 36
 
     defaultConfig {

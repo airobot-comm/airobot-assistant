@@ -1,4 +1,4 @@
-package com.airobot.character.comp.robot
+package com.airobot.airbot.character
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Canvas
-import com.airobot.character.state.RobotVisualState
+import com.airobot.airbot.state.RobotVisualState
 import com.airobot.framework.theme.RobotEyeActive
 import com.airobot.framework.theme.RobotEyeDefault
 import com.airobot.framework.theme.StatusCyan

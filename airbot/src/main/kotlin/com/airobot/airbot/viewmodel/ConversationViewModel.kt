@@ -1,4 +1,4 @@
-package com.airobot.character.viewmodel
+package com.airobot.airbot.viewmodel
 
 import android.app.Application
 import android.util.Log
@@ -13,11 +13,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.airobot.audio.AudioEvent
 import com.airobot.audio.AudioService
-import com.airobot.character.state.ConversationSubState
-import com.airobot.character.state.Message
-import com.airobot.character.state.MessageRole
-import com.airobot.character.state.RobotEngineState
-import com.airobot.character.state.RobotStateEngine
+import com.airobot.airbot.state.ConversationSubState
+import com.airobot.airbot.dialogue.Message
+import com.airobot.airbot.dialogue.MessageRole
+import com.airobot.airbot.state.RobotEngineState
+import com.airobot.airbot.state.RobotStateEngine
 import com.airobot.core.comm.NetCommEvent
 import com.airobot.core.comm.NetCommService
 

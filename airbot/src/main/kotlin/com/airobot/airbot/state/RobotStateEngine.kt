@@ -1,4 +1,4 @@
-package com.airobot.character.state
+package com.airobot.airbot.state
 
 import com.airobot.services.state.ServiceSubState
 import kotlinx.coroutines.flow.MutableStateFlow

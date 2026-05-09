@@ -1,4 +1,4 @@
-﻿package com.airobot.character.comp.voice
+package com.airobot.airbot.character
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
