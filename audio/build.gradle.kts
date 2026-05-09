@@ -14,7 +14,7 @@ android {
         minSdk = 29
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        
+
         ndk {
             abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
         }
@@ -22,7 +22,10 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags += "-std=c++17"
-                arguments += listOf("-DANDROID_STL=c++_shared")
+                arguments += listOf(
+                    "-DANDROID_STL=c++_shared",
+                    "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384"
+                )
             }
         }
     }
@@ -60,7 +63,7 @@ android {
 dependencies {
     compileOnly(files("libs/sherpa-onnx-1.12.28.aar"))
     implementation(libs.androidx.core.ktx)
-    
+
     // Kotlin Coroutines
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
@@ -71,5 +74,4 @@ dependencies {
 
     // Audio libraries
     implementation(libs.opus.v131)
-    implementation(libs.noise)
 }

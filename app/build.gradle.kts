@@ -94,6 +94,12 @@ android {
         compose = true
         prefab = true
     }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
 }
 
 // 4. APK Renaming via PackageApplication task
@@ -110,7 +116,7 @@ tasks.withType<com.android.build.gradle.tasks.PackageApplication>().configureEac
                     file.name.contains("x86") -> "x86"
                     else -> "universal"
                 }
-                
+
                 val newName = "${appName}_v${verName}_${verCode}_${abi}_release.apk"
                 val destination = file.parentFile.resolve(newName)
                 if (file.name != newName) {
@@ -150,7 +156,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.accompanist.permissions)
-    implementation(libs.noise)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.constraintlayout.compose)
