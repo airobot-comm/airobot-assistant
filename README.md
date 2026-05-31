@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./doc/assets/logo.webp" width="128" height="128" alt="AiRobot Logo" />
+<img src="./docs/assets/logo.webp" width="128" height="128" alt="AiRobot Logo" />
 
 # AiRobot Assistant
 
@@ -159,11 +159,11 @@
 
 深入了解代码底色与架构方案，请查阅以下资料：
 
-- **[项目规则]**：[`./doc/rules.md`](./doc/rules.md) - 项目 Vibe Code 执行规则与基础约定
-- **[技术架构]**：[`./doc/architect.md`](./doc/architect.md) - 项目代码架构与技术规范大纲
+- **[项目规则]**：[`./docs/rules.md`](./doc/rules.md) - 项目 Vibe Code 执行规则与基础约定
+- **[技术架构]**：[`./docs/architect.md`](./doc/architect.md) - 项目代码架构与技术规范大纲
 - **[系统原型设计]**：`./prototype` - 项目 Web 端系统原型可交互操作展示
-- **[界面设计图片]**：`./doc/design` - 功能界面的相关原始手稿与视觉设计参考
-- **[通信协议说明]**：`./doc/protocol.md` - AiRobot 与后端 Agent 进行 WebSocket 通讯指令设计的详尽内容文档
+- **[界面设计图片]**：`./docs/design` - 功能界面的相关原始手稿与视觉设计参考
+- **[通信协议说明]**：`./docs/protocol.md` - AiRobot 与后端 Agent 进行 WebSocket 通讯指令设计的详尽内容文档
 
 ---
 
