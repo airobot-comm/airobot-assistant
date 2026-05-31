@@ -84,7 +84,7 @@ class OtaNetXiaozhi @Inject constructor() : OtaNetRepo {
             ),
             board = DeviceReportRequest.BoardInfo(
                 type = "wifi", // 标识为Wi-Fi设备类型
-                name = "airobot-tablet",
+                name = "airobot-assistant",
                 ssid = "test-ssid", // Wi-Fi SSID，如需要可从系统获取
                 rssi = -55, // Wi-Fi信号强度，如需要可从系统获取
                 channel = 1, // Wi-Fi频道，如需要可从系统获取

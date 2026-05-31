@@ -1,4 +1,4 @@
-package com.airobot.tablet.settings
+package com.airobot.assistant.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airobot.framework.comp.ConfigTextField
 import com.airobot.framework.theme.RobotTheme
-import com.airobot.tablet.viewmodel.MainShellViewModel
+import com.airobot.assistant.viewmodel.MainShellViewModel
 
 @Composable
 fun AiRobotConfig(

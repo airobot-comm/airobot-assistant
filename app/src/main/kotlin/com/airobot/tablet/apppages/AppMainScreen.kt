@@ -1,4 +1,4 @@
-package com.airobot.tablet.apppages
+package com.airobot.assistant.apppages
 
 import android.Manifest
 import androidx.compose.animation.core.*
@@ -25,15 +25,15 @@ import com.airobot.framework.theme.RobotTheme
 import com.airobot.framework.theme.RobotThemeMode
 import com.airobot.framework.comp.BackgroundDecorations
 import com.airobot.framework.comp.BottomFooter
-import com.airobot.tablet.settings.AiRobotDialog
+import com.airobot.assistant.settings.AiRobotDialog
 import com.airobot.airbot.dialogue.DialogueBubble
 import com.airobot.airbot.character.RobotVoiceInputPanel
 import com.airobot.framework.statusbar.RobotTopBar
 import com.airobot.framework.drawer.SystemDrawer
 import com.airobot.framework.drawer.DrawerMenuItemData
-import com.airobot.tablet.settings.AiRobotConfig
-import com.airobot.tablet.settings.RoleConfig
-import com.airobot.tablet.settings.SystemAuth
+import com.airobot.assistant.settings.AiRobotConfig
+import com.airobot.assistant.settings.RoleConfig
+import com.airobot.assistant.settings.SystemAuth
 import com.airobot.services.compoments.DEFAULT_SERVICE_CARDS
 import com.airobot.services.compoments.ServiceCardCarousel
 import com.airobot.services.compoments.ServiceDetailPanel
@@ -43,7 +43,7 @@ import com.airobot.airbot.state.RobotEngineState
 import com.airobot.airbot.state.RobotUiState
 import com.airobot.airbot.state.RobotVisualState
 import com.airobot.services.state.ServiceSubState
-import com.airobot.tablet.viewmodel.MainShellViewModel
+import com.airobot.assistant.viewmodel.MainShellViewModel
 import com.airobot.airbot.viewmodel.ConversationViewModel
 import com.airobot.services.ServiceViewModel
 import com.airobot.airbot.character.RobotCharacter

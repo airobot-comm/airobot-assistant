@@ -1,4 +1,4 @@
-package com.airobot.tablet.settings
+package com.airobot.assistant.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

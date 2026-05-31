@@ -1,4 +1,4 @@
-package com.airobot.tablet
+package com.airobot.assistant
 
 import android.os.Bundle
 import android.util.Log
@@ -17,7 +17,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.airobot.framework.theme.AiRobotTheme
 import com.airobot.framework.theme.RobotTheme
 import com.airobot.framework.theme.RobotThemeMode
-import com.airobot.tablet.apppages.AppMainScreen
+import com.airobot.assistant.apppages.AppMainScreen
 
 import dagger.hilt.android.AndroidEntryPoint
 

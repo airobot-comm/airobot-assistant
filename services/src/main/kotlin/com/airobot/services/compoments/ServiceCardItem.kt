@@ -27,9 +27,9 @@ import com.airobot.framework.theme.RobotTheme
 
 /**
  * 服务卡片组件
- * 
+ *
  * Web原型对应: ProactiveServiceKit.tsx
- * 
+ *
  * 功能:
  * - 显示服务卡片信息
  * - 点击交互
@@ -44,13 +44,13 @@ fun ServiceCardItem(
     modifier: Modifier = Modifier
 ) {
     var isHovered by remember { mutableStateOf(false) }
-    
+
     val offsetX by animateFloatAsState(
         targetValue = if (isHovered) 8f else 0f,
         animationSpec = spring(dampingRatio = 0.8f),
         label = "cardOffset"
     )
-    
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -71,9 +71,9 @@ fun ServiceCardItem(
                     }
                 )
             )
-            .clickable { 
+            .clickable {
                 isHovered = true
-                onClick() 
+                onClick()
             }
             .padding(16.dp)
     ) {
@@ -104,7 +104,7 @@ fun ServiceCardItem(
                     tint = Color.White
                 )
             }
-            
+
             // 内容
             Column(
                 modifier = Modifier.weight(1f),
@@ -142,7 +142,7 @@ fun ServiceCardItem(
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
             }
-            
+
             // 箭头
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -153,7 +153,7 @@ fun ServiceCardItem(
                 tint = RobotTheme.colors.accent.copy(alpha = if (isHovered) 1f else 0.3f)
             )
         }
-        
+
         // 进度条
         if (showProgress) {
             CardProgressBar(
@@ -176,14 +176,14 @@ private fun CardProgressBar(
     modifier: Modifier = Modifier
 ) {
     val progress = remember { Animatable(0f) }
-    
+
     LaunchedEffect(Unit) {
         progress.animateTo(
             targetValue = 1f,
             animationSpec = tween(durationMillis = duration, easing = LinearEasing)
         )
     }
-    
+
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(1.dp))
@@ -218,7 +218,7 @@ fun getServiceCardIcon(type: ServiceCardType): Int {
 /**
  * 预定义的服务卡片池
  */
-private const val DEMO_CONTENT = "ai服务卡片需要小智ai / coze 等Agent平台支持，并配套MCP服务；\n\n 或联系社区获取商业版 AiRobot-Tablet支持"
+private const val DEMO_CONTENT = "ai服务卡片需要小智ai / coze 等Agent平台支持，并配套MCP服务；\n\n 或联系社区获取商业版 AiRobot-Assistant支持"
 
 val DEFAULT_SERVICE_CARDS = listOf(
     ServiceCard(

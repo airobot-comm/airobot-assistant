@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# AIRobot Android Tablet
+# AIRobot Assistant
 
 AIRobot团队vibe_code执行规则，以及项目编程与技术规则
 

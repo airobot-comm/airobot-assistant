@@ -1,5 +1,5 @@
 {
-  "name": "AiRobot Tablet Pro",
+  "name": "AiRobot Assistant Pro",
   "description": "A futuristic, minimalist AI service robot for Android tablets featuring immersive IP interaction, proactive service kits, and natural voice interaction.",
   "requestFramePermissions": [
     "camera",

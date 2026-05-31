@@ -40,8 +40,8 @@ data class DeviceInfo(
         fun create(context: Context): DeviceInfo {
             val deviceId = generateDeviceId(context)
              return DeviceInfo(
-                 name = "airobot-tablet",
-                 model = "airobot-tablet-V1",
+                 name = "airobot-assistant",
+                 model = "airobot-assistant-V1",
                  version = "1.0.0",
                  deviceId = deviceId,
                  macAddress = generateStableMac(deviceId),

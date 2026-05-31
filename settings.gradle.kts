@@ -38,7 +38,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "airobot-tablet"
+rootProject.name = "airobot-assistant"
 include(":app")
 include(":framework")
 include(":services")

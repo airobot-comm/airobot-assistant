@@ -1,4 +1,4 @@
-﻿package com.airobot.tablet
+﻿package com.airobot.assistant
 
 import org.junit.Test
 

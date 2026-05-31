@@ -1,4 +1,4 @@
-package com.airobot.tablet.viewmodel
+package com.airobot.assistant.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

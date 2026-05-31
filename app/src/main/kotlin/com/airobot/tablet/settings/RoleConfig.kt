@@ -1,4 +1,4 @@
-package com.airobot.tablet.settings
+package com.airobot.assistant.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
