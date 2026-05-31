@@ -37,15 +37,15 @@
     <tr>
       <td align="center" style="width: 33%;">
         <b>首页效果</b><br/>
-        <img src="./doc/design/home_page.png" width="100%" />
+        <img src="./docs/design/home_page.png" width="100%" />
       </td>
       <td align="center" style="width: 33%;">
         <b>对话交互</b><br/>
-        <img src="./doc/design/speak_bubble.png" width="100%" />
+        <img src="./docs/design/speak_bubble.png" width="100%" />
       </td>
       <td align="center" style="width: 33%;">
         <b>功能卡片</b><br/>
-        <img src="./doc/design/function_card.png" width="100%" />
+        <img src="./docs/design/function_card.png" width="100%" />
       </td>
     </tr>
   </table>
@@ -97,12 +97,12 @@
 1. **第一步：系统设备激活**
    安装应用后，首先在“系统设置”的系统认证页内点击激活设备。**备注：当前系统仅支持小智 AI 智能体**（对 Coze/JoyAgent、Dify 等平台的支持已规划在后续版本中）。
    
-   <img src="./doc/design/system_auth.png" width="600" alt="系统认证信息" />
+   <img src="./docs/design/system_auth.png" width="600" alt="系统认证信息" />
 
 2. **第二步：小智后台智能体绑定**
    进入 AI 智能体配置项获取界面上弹出的“设备 Ai 智能体激活码”（如：`642225`），随后前往小智 AI 后台，将该激活码加入到您创建好的智能体配置当中，完成设备与云端智能体的绑定。
 
-   <img src="./doc/design/agent_activation.png" width="600" alt="设备Ai智能体激活" />
+   <img src="docs/design/agent_activation.png" width="600" alt="设备Ai智能体激活" />
 
 3. **第三步：唤醒即刻对话**
    无需繁琐的云端平台激活，直接通过唤醒词（如“小叶，小叶”）即可开始交流。
