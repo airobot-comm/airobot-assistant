@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="focus_msg">保持专注，享受当下</string>
+    <string name="timer_msg">倒计时开始，继续加油</string>
+    <string name="category_clock">AI时钟</string>
+    <string name="category_clock_subtitle">ai时间管理好搭档</string>
+    <string name="category_podcast">AI播客</string>
+    <string name="category_podcast_subtitle">自由订阅、一对一互动AI播客</string>
+    <string name="category_schedule">AI日程</string>
+    <string name="category_schedule_subtitle">你的私人AI秘书</string>
+
+    <string name="clock_alarm">闹钟</string>
+    <string name="clock_timer">计时器</string>
+    <string name="clock_focus">专注</string>
+
+    <string name="podcast_home">播客首页</string>
+    <string name="podcast_library">订阅库</string>
+    <string name="podcast_subscribe">热门订阅</string>
+
+    <string name="schedule_today">今日日程</string>
+    <string name="schedule_board">任务看板</string>
+    <string name="schedule_list">详细列表</string>
+
+    <!-- 闹钟 -->
+    <string name="alarm_ringing">正在响铃</string>
+    <string name="alarm_default_message">准备睡觉 · 温柔模式</string>
+    <string name="alarm_stop_btn">停止</string>
+    <string name="alarm_next_hint">下个闹钟: %s</string>
+    <string name="alarm_none">无</string>
+    <string name="alarm_add_hint">对 AETHER 说：“帮我定个明早 7 点的闹钟”</string>
+    <string name="alarm_prompt_context">AETHER 提示</string>
+    <string name="alarm_prompt_text">无论是每日唤醒还是临时提醒，对我说“Aether，每周工作日 7 点叫我起床”，我会准时轻柔地唤醒您。</string>
+    <string name="alarm_title">AI 闹钟</string>
+    <string name="alarm_subtitle">规律你的作息，智能语音唤醒</string>
+
+    <!-- 专注与计时 -->
+    <string name="focus_title">AI 专注</string>
+    <string name="focus_subtitle">排除干扰，专注当下一刻</string>
+    <string name="timer_title">AI 计时</string>
+    <string name="timer_subtitle">倒数每一秒，高效每一刻</string>
+    <string name="timer_prompt_context">AETHER 提示</string>
+    <string name="timer_prompt_text">无论是做家务还是重要会议，随时对我说“Aether，帮我倒计时 X 分钟”，我会分秒不差地提醒您。</string>
+    <string name="focus_prompt_context">AETHER 提示</string>
+    <string name="focus_prompt_text">进入深度专注期后，我会自动为您开启屏幕免打扰，并播放适合心流的脑波音乐。准备好了随时告诉我。</string>
+
+    <string name="clock_title">AI 时钟</string>
+    <string name="clock_subtitle">ai时间管理好搭档</string>
+
+    <string name="common_close">关闭</string>
+    <string name="podcast_now_playing">正在播放</string>
+    <string name="podcast_control_rewind">快退</string>
+    <string name="podcast_control_play_pause">播放/暂停</string>
+    <string name="podcast_control_forward">快进</string>
+
+    <!-- 日志 -->
+    <string name="logbook_title">AI日志与历史</string>
+    <string name="logbook_cd_icon">日志本</string>
+    <string name="logbook_cd_write">写日志</string>
+    <string name="logbook_hint">写下你的想法&#8230;</string>
+    <string name="logbook_today_header">今日日志</string>
+
+    <!-- 提醒与通知 -->
+    <string name="aether_notification_label">AETHER 提醒</string>
+    <string name="aether_expand_cd">展开</string>
+    <string name="aether_system_module">AETHER 系统模块</string>
+
+    <!-- 服务卡片 -->
+    <string name="card_focus_title">专注时钟</string>
+    <string name="card_focus_desc">番茄工作法效率助手</string>
+    <string name="card_story_title">故事时间</string>
+    <string name="card_story_desc">探索比特森林的奥秘</string>
+    <string name="card_focus_tip">是时候专注了</string>
+    <string name="card_story_tip">想听个故事吗？</string>
+
+    <!-- 数据库初始化默认值 -->
+    <string name="alarm_default_workday">工作早起</string>
+    <string name="alarm_default_sleep">准备睡觉</string>
+    <string name="alarm_default_lunch">午休结束</string>
+    <string name="timer_preset_pomodoro">番茄钟</string>
+    <string name="timer_preset_short_break">短休息</string>
+    <string name="timer_preset_long_break">长休息</string>
+    <string name="focus_preset_reading">深度阅读</string>
+    <string name="focus_preset_coding">编程心流</string>
+    <string name="focus_preset_meditation">冥想练习</string>
+    <string name="focus_close_step1">确定退出专注吗？ (1/3)</string>
+    <string name="focus_close_step2">再次点击将强退专注 (2/3)</string>
+    <string name="focus_close_step3">专注已中断</string>
+
+    <!-- Newly migrated clock module strings -->
+    <string name="hourly_chime_label">准点报时</string>
+    <string name="alarm_default_meeting">早会提醒</string>
+    <string name="alarm_voice_mode_hint">提示</string>
+    <string name="alarm_voice_mode_standard">标准</string>
+    <string name="alarm_voice_mode_urgent">紧要</string>
+    <string name="alarm_voice_dismiss_prompt">请说出您的名字关闭闹钟 (点击跳过)</string>
+    <string name="alarm_status_enabled">已开启</string>
+    <string name="alarm_status_disabled">已关闭</string>
+    <string name="timer_preset_ramen">泡面计时</string>
+    <string name="timer_preset_mask">面膜计时</string>
+    <string name="timer_preset_reading">深度阅读</string>
+    <string name="timer_preset_meditation">冥想专注</string>
+    <string name="timer_finished_focus">专注完成！</string>
+    <string name="timer_finished_countdown">计时完成！</string>
+    <string name="timer_focus_duration_stat">已专注 %1$d 分钟</string>
+    <string name="timer_click_to_close">点击任意位置关闭</string>
+    <string name="timer_music_nature">自然</string>
+    <string name="timer_music_lofi">Lofi</string>
+    <string name="timer_music_piano">钢琴</string>
+    <string name="timer_music_cyberpunk">赛博朋克</string>
+    <string name="timer_music_library">图书馆</string>
+    <string name="timer_music_zen">禅意</string>
+    <string name="timer_music_tick">滴答声</string>
+    <string name="alarm_ringing_notification_title">闹钟正在响铃</string>
+    <string name="toast_timer_already_running">已有计时任务运行中，请先停止当前任务</string>
+    <string name="pending_alarms_title">未处理的闹钟提醒</string>
+    <string name="pending_alarms_untriggered">未响铃</string>
+    <string name="pending_alarms_confirm">确认并清除</string>
+ 
+    <!-- Remaining clock i18n optimizations -->
+    <string name="alarm_ringing_label">正在响铃</string>
+    <string name="alarm_dismiss_suffix_voice"> • 需语音</string>
+    <string name="alarm_dismiss_suffix_auto"> • 自动关闭</string>
+    <string name="alarm_mode_format">%1$s • %2$s关闭</string>
+    <string name="timer_mode_countdown">计时</string>
+    <string name="timer_mode_focus">专注</string>
+    <string name="timer_preset_duration_minutes">%1$d 分钟</string>
+    <string name="timer_preset_reminder_interval"> • 每%1$d分钟提醒</string>
+    <string name="timer_preset_music_label"> • 🎵 %1$s</string>
+    <string name="timer_preset_name_placeholder">名称</string>
+    <string name="timer_preset_duration_title">时长</string>
+    <string name="timer_preset_minutes_unit">分钟</string>
+    <string name="timer_preset_reminder_label">提醒间隔</string>
+    <string name="timer_preset_reminder_none">无提醒</string>
+    <string name="timer_preset_reminder_minutes">%1$d分钟</string>
+    <string name="timer_preset_bg_music_title">背景音</string>
+    <string name="timer_mode_focus_label">专注空间</string>
+    <string name="timer_mode_countdown_label">计时器</string>
+    <string name="timer_preset_reminder_minutes_chime">每%1$d分钟提醒</string>
+
+    <!-- Alarm list item string resources -->
+    <string name="alarm_repeat_everyday">每天</string>
+    <string name="alarm_label_placeholder">闹钟名称</string>
+    <string name="alarm_expanded_auto_dismiss">自动关闭</string>
+    <string name="alarm_time_seconds_unit">%1$d秒</string>
+    <string name="alarm_expanded_repeat_count">唤醒次数</string>
+    <string name="alarm_time_times_unit">%1$d次</string>
+    <string name="alarm_expanded_interval">间隔时间</string>
+    <string name="alarm_time_minutes_unit">%1$d分钟</string>
+    <string name="alarm_expanded_dismiss_mode">关闭方式</string>
+    <string name="alarm_dismiss_mode_voice">语音</string>
+    <string name="alarm_dismiss_mode_auto">自动</string>
+    <string name="alarm_dismiss_mode_manual">手动</string>
+
+    <!-- Hourly Chime Overlay Strings -->
+    <string name="chime_mode_every_hour">整点报时</string>
+    <string name="chime_mode_odd_hour">奇点报时</string>
+    <string name="chime_mode_even_hour">偶点报时</string>
+    <string name="chime_time_range">报时区间</string>
+    <string name="chime_weather_reminder">天气语音提醒</string>
+    <string name="chime_schedule_reminder">日程语音提醒</string>
+    <string name="chime_ai_pending">AI待接入</string>
+    <string name="chime_master_toggle">准点报时</string>
+    <string name="chime_mode_label">报时模式</string>
+
+    <!-- Timer Concurrency & Pause Timeout -->
+    <string name="timer_pause_timeout_cleared">计时已清除：暂停超时</string>
+    <string name="timer_blocked_focus_active">专注模式进行中，无法启动新计时</string>
+    <string name="timer_blocked_concurrent_focus">请先停止正在运行的计时，再启动专注</string>
+    <string name="timer_blocked_duplicate_preset">该计时已在运行中</string>
+
+    <!-- Podcast module strings -->
+    <string name="podcast_studio_interactive_title">可互动Ai播客</string>
+    <string name="podcast_studio_interactive_subtitle">INTERACTIVE\nAI PODCAST</string>
+    <string name="podcast_home_recommended_title">推荐收听</string>
+    <string name="podcast_home_add_subs">追加更多播客订阅</string>
+    
+    <string name="podcast_library_title">节目库</string>
+    <string name="podcast_library_subtitle">个人订阅收藏与定制节目库</string>
+    <string name="podcast_library_latest">最新播客</string>
+    <string name="podcast_library_empty_latest">暂无未播放的最新播客</string>
+    <string name="podcast_library_all_programs">全部节目</string>
+    <string name="podcast_library_filter_all">全部</string>
+    <string name="podcast_library_filter_favorite">收藏</string>
+    <string name="podcast_library_no_results">没有找到符合条件的播客</string>
+    <string name="podcast_episode_played">已播放</string>
+    <string name="podcast_episode_unplayed">未播放</string>
+    
+    <string name="podcast_subscribe_title">栏目订阅</string>
+    <string name="podcast_subscribe_subtitle">订阅专属栏目，ai按时为你创作</string>
+    <string name="podcast_subscribe_my">我的订阅</string>
+    <string name="podcast_subscribe_recommended">推荐栏目</string>
+    <string name="podcast_subscribed">已订阅</string>
+    <string name="podcast_subscribe_action">订阅栏目</string>
+    <string name="podcast_subscribe_custom">自定义新栏目</string>
+    <string name="podcast_home_view_more">查看更多节目</string>
+    
+    <string name="podcast_dialogues_count">%1$d 条对话</string>
+    <string name="podcast_no_active_episode">暂无播放节目</string>
+    <string name="podcast_no_active_episode_summary">暂无本期节目介绍内容。</string>
+    
+    <string name="podcast_tag_video">视频</string>
+    <string name="podcast_tag_audio">音频</string>
+    <string name="podcast_tag_text">图文</string>
+    <string name="podcast_tag_custom">自定义</string>
+    
+    <string name="podcast_diy_scanning_audio">正在检索目录下的音频文件…</string>
+    <string name="podcast_diy_scanning_video">正在检索目录下的视频文件…</string>
+    <string name="podcast_diy_empty_audio">未发现可导入的音频文件</string>
+    <string name="podcast_diy_empty_video">未发现可导入的视频文件</string>
+    <string name="podcast_diy_empty_hint">请确保文件存放在默认扫描路径中</string>
+    <string name="podcast_error_invalid_demo_data">无效播客数据：该节目为演示数据，无真实音视频素材</string>
+
+    <!-- Guidance / Card Recommendations -->
+    <string name="card_podcast_title">AI播客</string>
+    <string name="card_podcast_content">你的专属智能播客</string>
+    <string name="card_podcast_tip">听点有意思的</string>
+    <string name="card_podcast_diy_title">播客DIY</string>
+    <string name="card_podcast_diy_content">创作你的播客节目</string>
+    <string name="card_podcast_diy_tip">来点灵感</string>
+    <string name="card_notepad_title">AI记事本</string>
+    <string name="card_notepad_content">时间轨迹与行为分析</string>
+    <string name="card_notepad_tip">记录成长足迹</string>
+    <string name="card_alarm_title">AI闹钟</string>
+    <string name="card_alarm_content">智能闹钟与日程提醒</string>
+    <string name="card_alarm_tip">按时唤醒与提醒</string>
+    <string name="card_timer_title">AI计时器</string>
+    <string name="card_timer_content">便捷倒计时与声音提醒</string>
+    <string name="card_timer_tip">合理规划短暂时间</string>
+    <string name="card_focus_title_rec">AI专注空间</string>
+    <string name="card_focus_content_rec">番茄钟与物理白噪音</string>
+    <string name="card_focus_tip_rec">专注高效的每一刻</string>
+    <string name="card_schedule_title">AI日程规划</string>
+    <string name="card_schedule_content">查看日程安排与任务清单</string>
+    <string name="card_schedule_tip">让生活更有条理</string>
+</resources>

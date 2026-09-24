@@ -9,42 +9,44 @@
 ![API](https://img.shields.io/badge/API-24%2B-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-purple?style=for-the-badge)
 
-**基于多智能体平台、极具生命力的动画互动与全语音交互 airobot 系统**
+🌐 **[简体中文](README_zh.md) | [English](README.md)**
 
-[📖 项目简介](#-项目简介) • [✨ 核心功能](#-核心功能) • [📱 应用场景](#-应用场景) • [🔖 使用方法](#-使用方法) • [🚀 开发指南](#-开发指南) • [🌍 Ai机器人社区](#-ai机器人社区)
+**An energetic animated interactive and full voice interaction airobot system based on multi-agent platforms**
+
+[📖 Introduction](#-introduction) • [✨ Core Features](#-core-features) • [📱 Application Scenarios](#-application-scenarios) • [🔖 How to Use](#-how-to-use) • [🚀 Development Guide](#-development-guide) • [🌍 AiRobot Community](#-airobot-community)
 
 </div>
 
 ---
 
-## 📖 项目简介
+## 📖 Introduction
 
-**AiRobot Assistant** 是一款高度可定制、支持多种领先 Agent 平台（如小智AI、Coze、Dify等）无缝接入的实体 AI 机器人客户端系统。本项目专为大屏安卓平板及具有屏幕的桌面级机器人硬件设计，可自由定制学习陪伴、桌面办公助理、养老陪护等各类场景应用系统。
+**AiRobot Assistant** is a highly customizable robot client system that seamlessly integrates with leading Agent platforms (such as Xiaozhi AI, Coze, Dify, etc.). Designed specifically for Android tablets and desktop robots with screens, this project enables developers to build custom applications for scenarios like learning companionship, office assistance, eldercare, and more.
 
-有别于传统的语音助手，本项目融合前沿大模型能力，**以“动态情感交互”与“主动式场景服务”为核心**。通过生动细腻的动画 IP 角色表现、极速流畅的全语音交互体验，以及按需下发的扩展卡片机制，为不同维度的用户群体提供有温度的、沉浸式的“数字生命”陪伴。AiRobot 突破单向问答局限，将交互真正升级为主动服务体验，更懂用户的真实诉求。
+Different from traditional voice assistants, this project leverages cutting-edge LLMs and centers around **"dynamic emotional interaction"** and **"proactive scenario services"**. With vibrant and delicate animated IP character behaviors, lightning-fast full-duplex voice interactions, and dynamic on-demand extension cards, it brings warm, immersive "digital life" companion experiences to users. AiRobot breaks the limitation of one-way Q&A and elevates the interaction to proactive service delivery, aligning closer to users' real needs.
 
-### 🎯 核心定位
+### 🎯 Core Positioning
 
-- **🤖 多引擎智能底座**：解耦式底层设计，支持灵活挂载百花齐放的 Agent 平台（如小智AI、Coze、Dify），按需享受最顶尖的大模型与生态能力。
-- **🎭 沉浸式数字生命**：以细腻灵动的多角色动画 IP 形式呈现，赋予AI“生命力”，带来超越纯文本与生硬声音的真实物理陪伴感。
-- **🗣️ 全语音极致交互**：全双工、全语音交互机制，支持极速语音唤醒、流式录音、实时人声识别与双向打断机制。
-- **🧩 动态卡片式服务**：首创按需扩展的主动服务卡片闭环，AI 在聊天语境中不仅给出语音回复，还能主动为用户推送相应的服务卡片（如番茄时钟、天气提醒、备忘录等）。
+- **🤖 Multi-Engine Agent Base**: Decoupled design that supports flexible attachment of diverse Agent platforms (e.g. Xiaozhi AI, Coze, Dify), allowing access to top-tier models and ecosystems.
+- **🎭 Immersive Digital Life**: Presented via delicate and expressive 3D/2D animation IP characters, breathing life into AI and providing a true sense of physical companionship beyond mere text or static voice.
+- **🗣️ Full-Voice Interaction**: Full-duplex and full-voice mechanisms featuring instant wake-up, streaming recording, real-time voice recognition, and bidirectional interruption.
+- **🧩 Dynamic Card Services**: A pioneering proactive service card loop. In conversations, the AI not only replies via voice but also actively pushes service cards (e.g. Tomato Timer, weather reminders, AI memos) to users.
 
-### 📸 应用截图
+### 📸 Application Screenshots
 
 <div align="center">
   <table style="width: 100%; border-collapse: collapse;">
     <tr>
       <td align="center" style="width: 33%;">
-        <b>首页效果</b><br/>
+        <b>Home Page</b><br/>
         <img src="./docs/design/home_page.png" width="100%" />
       </td>
       <td align="center" style="width: 33%;">
-        <b>对话交互</b><br/>
+        <b>Dialogue Bubble</b><br/>
         <img src="./docs/design/speak_bubble.png" width="100%" />
       </td>
       <td align="center" style="width: 33%;">
-        <b>功能卡片</b><br/>
+        <b>Function Cards</b><br/>
         <img src="./docs/design/function_card.png" width="100%" />
       </td>
     </tr>
@@ -53,140 +55,149 @@
 
 ---
 
-## ✨ 核心功能
+## ✨ Core Features
 
-### 🎭 动画互动 (Animation Interaction)
-- **多角色IP呈现**：支持 3D/2D 动画角色的无缝切换呈现，高度定制角色表现形式、互动效果。
-- **灵动情感呈现**：角色拥有顺畅的聆听、思考、表达、闲置等丰富的状态机动画切换，配合语意情感自然过渡，拒绝机械呆板的界面。
-- **视觉反馈增强**：提供网络异常、唤醒监听、处理中等丰富视觉微交互效果，让每一条系统指令都能被直观感知。
+### 🎭 Animation Interaction
+- **Multi-Role IP Representation**: Supports seamless switching between 3D/2D animated characters, with highly customizable character visual styles and interactive behaviors.
+- **Dynamic Emotional Expressions**: Characters feature smooth transitions across states (listening, thinking, speaking, idling), naturally aligning with semantic emotional cues to avoid robotic interfaces.
+- **Enhanced Visual Feedback**: Offers rich visual micro-interactions for states such as network exceptions, wake-word listening, processing, etc., ensuring system feedback is easily perceived.
 
-### 🗣️ 全语音交互 (Full Voice Interaction)
-- **极速离线唤醒**：集成高效关键词唤醒算法（KWS），即时响应唤醒词并切入对话状态。
-- **VAD 智能检测**：提供精准的语音活动检测（Voice Activity Detection），自动进行断句与静音结束检测。
-- **底噪抑制与回声消除处理**：结合设备硬件能力优化 AEC 算法与录音增益，让远场拾音和复杂噪声环境下的对话体验同样精确。
+### 🗣️ Full Voice Interaction
+- **Fast Offline Wake-up**: Integrates efficient Keyword Spotting (KWS) to immediately respond to wake-words and transition to active dialogue.
+- **Intelligent VAD**: Uses highly accurate Voice Activity Detection (VAD) for automatic phrase segmentation and silence detection.
+- **Voice Interruption**: Supports real-time interruption while the robot is speaking, enabling natural, flowy turn-taking.
+- **Continuous Conversation**: Supports continuous multi-round dialogue after waking up, eliminating the need to repeat the wake-word for every query.
+- **Noise Suppression & Echo Cancellation**: Integrates hardware-assisted AEC and gain-control optimizations to ensure accurate voice recognition in far-field or noisy environments.
 
-### 🧩 按需扩展的功能卡片服务 (On-demand Function Cards)
-- **服务自动触达**：智能体意图识别后，可携带扩展的卡片协议命令动态拉起界面卡片，实现“聊即所得”。
-- **全场景业务模版**：内置或支持扩展丰富的卡片功能，当前囊括：专注番茄钟、AI备忘录、事务闹钟、多媒体播客面板等。
-- **无限扩展体验**：基于系统极佳的可扩展性（借鉴 MCP 能力协议层），开发者能迅速添加各类生活或办公实用功能，让功能卡片无缝植入机器人大脑。
+### 🧩 On-demand Function Card Services
+- **Automatic Service Delivery**: Once the Agent recognizes the user's intent, it can push interface cards via the custom protocol, achieving a "what you talk is what you get" experience.
+- **All-Scenario Business Templates**: Built-in and extensible card modules, currently including Focus Tomato Timer, AI Memo, Task Alarm, Podcast DIY, Audio Podcast, Video Podcast, and more.
+- **Infinite Extensibility**: Powered by a protocol layer mimicking MCP, developers can quickly add various utility or lifestyle modules to the robot's brain.
 
 ---
 
-## 📱 应用场景
+## 📱 Application Scenarios
 
-### 🏠 智能桌搭与信息牌
-- **美学桌面牌**：作为个性化桌面陪伴利器，展示时钟、天气流或是极具观赏性的数字IP动态。
-- **办公小秘书**：通过语音快速设定事务脑图、发起日程记录、番茄专注时钟等。
+### 🏠 Smart Desktop & Information Display
+- **Aesthetic Desk Clock**: Serves as a personalized desk companion displaying clock face, weather updates, and dynamic IP character visual animations.
+- **Office Assistant**: Quickly set mindmaps, log schedules, and launch tomato timers using voice.
 
-### 👶👧 儿童教育与陪伴
-- **全天候AI伴学**：耐心解答孩童的各类问题，并采用动态视窗及功能面板将复杂的知识点可视化展现。
-- **温柔情感辅导**：凭借有亲和力、具象化的角色动作及温和声音体验，为儿童带来积极的心理引导与成长陪伴。
+### 👶👧 Children Companionship & Education
+- **All-Day AI Companion**: Patiently answers children's questions, using dynamic panels to visualize complex educational topics.
+- **Emotional Support**: Provides friendly, concrete character animations and gentle voice responses to offer positive mental guidance and growth companionship.
 
-### 🏢 门店迎宾与业务引流
-- **互动接待员**：部署于接待前台或线下展会，它能凭借动态神态和全双工语音主动招呼顾客并介绍展品特色。
-- **可视导览**：语音询问后主动展开各类业务信息图文卡片，促成导购转化。
+### 🏢 Store Welcome & Customer Guide
+- **Interactive Receptionist**: Deployed at front desks or exhibition halls, greeting customers with dynamic gestures and full-duplex voice to introduce featured products.
+- **Visual Guiding**: Actively opens info/graphics cards based on voice inquiries to drive conversions.
 
-### 🧓 养老关怀
-- **生活提醒利器**：以极大字体和清晰提示下发吃药提醒面板、每日重点新闻卡板。
-- **温暖陪伴守护**：打破老年群体的触控障碍，全语音顺畅沟通，提供零门槛的老年谈心与信息问询通道。
+### 🧓 Eldercare & Companionship
+- **Daily Reminders**: Uses large fonts and clear voice cues to present medication reminders and daily news cards.
+- **Accessible Conversations**: Overcomes barriers of touchscreen menus with fully fluid voice chat, providing zero-barrier conversations.
 
-### 🔖 使用方法
+---
 
-主要分为两步（项目当前只支持小智AI智能体）：
+## 🔖 How to Use
 
-1. **第一步：系统设备激活**
-   安装应用后，首先在“系统设置”的系统认证页内点击激活设备。**备注：当前系统仅支持小智 AI 智能体**（对 Coze/JoyAgent、Dify 等平台的支持已规划在后续版本中）。
+Mainly consists of the following steps (current system supports Xiaozhi AI Agent):
+
+1. **Step 1: System Device Activation**
+   After installing the app, navigate to "System Settings" -> "System Authentication" and click to activate the device. **Note: Currently the system only supports Xiaozhi AI Agent** (support for Coze/JoyAgent, Dify, etc., is planned in subsequent releases).
    
-   <img src="./docs/design/system_auth.png" width="600" alt="系统认证信息" />
+   <img src="./docs/design/system_auth.png" width="600" alt="System Auth Info" />
 
-2. **第二步：小智后台智能体绑定**
-   进入 AI 智能体配置项获取界面上弹出的“设备 Ai 智能体激活码”（如：`642225`），随后前往小智 AI 后台，将该激活码加入到您创建好的智能体配置当中，完成设备与云端智能体的绑定。
+2. **Step 2: Xiaozhi Backend Agent Binding**
+   Retrieve the "Device AI Agent Activation Code" (e.g. `642225`) displayed on the screen. Go to the Xiaozhi AI Console and add this activation code to your configured Agent settings to bind the device.
 
-   <img src="docs/design/agent_activation.png" width="600" alt="设备Ai智能体激活" />
+   <img src="docs/design/agent_activation.png" width="600" alt="Device AI Agent Activation" />
 
-3. **第三步：唤醒即刻对话**
-   无需繁琐的云端平台激活，直接通过唤醒词（如“小叶，小叶”）即可开始交流。
+3. **Step 3: Wake Up and Converse**
+   Directly wake up the robot using the wake-word (e.g. "Xiao Ye, Xiao Ye") to start chatting.
 
-> **💡 备注**：小智 AI 的智能体具体配置，请详细参考小智 AI 官方使用手册。
-> - **小智 AI 官方后台管理**：[xiaozhi.me](https://xiaozhi.me)
+4. **Step 4: Smart Podcast Experience (Creation & Playback)**
+   - **Podcast Creation (DIY Card)**: Issue a voice request like "I want to create a podcast about AI technology", and the AI will push a "Podcast DIY Card". Customize the topic, hosts' genders, and style on the card, and click to submit.
+   - **Podcast Playback (Audio Playback)**: Once generated, the system launches the "Podcast Player Card", playing your custom podcast via our high-performance media subsystem. The character's animation will adjust dynamically to the audio.
+
+> **💡 Note**: For details about Xiaozhi AI Agent configurations, please refer to the official Xiaozhi AI manuals.
+> - **Xiaozhi AI Console**: [xiaozhi.me](https://xiaozhi.me)
 
 ---
 
-## 🚀 开发指南
+## 🚀 Development Guide
 
-### 📋 环境要求
-- **IDE**：推荐 Android Studio 最新稳定版 (Koala 或更新)
-- **开发套件**：Android SDK (API 34/35+), Android Gradle Plugin 9+
-- **环境要求**：Kotlin 2.0+, 建议搭载 Android 11.0+ 对应设备效果更佳
+### 📋 Environment Requirements
+- **IDE**: Android Studio latest stable version (Koala or newer recommended)
+- **Android SDK**: API 34/35+, Android Gradle Plugin 9+
+- **Languages/Tools**: Kotlin 2.0+, Android 11.0+ (API 30+) devices recommended for optimal performance
 
-### 📦 安装与运行步骤
+### 📦 Installation & Setup
 
-1. **克隆项目源码**
+1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-org/airobot-assistant.git
+   git clone https://github.com/ronnieshi79/airobot-assistant.git
    cd airobot-assistant
    ```
-2. **导入项目并配置**
-   - 使用 Android Studio 打开该目录。
-   - 参考项目中的 `keystore/` 设置自己的签名属性（或遵循 `./doc/rules.md` 中的要求和安全规范设置环境变量）。
-3. **构建与体验**
-   - 连接 Android 大屏平板或相关开发硬件设备。
-   - 编译并推送 `app` 安装：点击 Android Studio 的 **Run** 按钮。
-   - 打开设备联网，设置好 Agent 后端地址环境，唤醒即可体验极致顺滑的交互和卡片推送。
+2. **Import and Configure**
+   - Open the directory in Android Studio.
+   - Reference `keystore/` settings to set your signing configurations (or configure environment variables following instructions in `.agent/rules/code-guild.md`).
+3. **Build & Run**
+   - Connect your Android tablet or desktop hardware.
+   - Compile and deploy the `app` module by clicking **Run** in Android Studio.
+   - Set up the Agent backend URL, wake the robot up, and enjoy the full-duplex voice experience.
 
-### 📅 功能规划
+### 📅 Roadmap
 
-- [x] **v1.0：表现引擎与单向联动基座建设**
-  - [x] 确立基础架构与系统 Vibe 流程标准
-  - [x] 基于 ViewModel 状态机的多角色动画表现层
-  - [x] TTS 语音合成反馈及对话链路的初步跑通
-  - [x] 按需功能卡片底座开发与 UI 模板示范（番茄钟、文字卡板）
-- [ ] **v1.1：过渡版本 - 架构优化与打断机制完善**
-  - [ ] 优化核心设计：重构 UI 层逻辑，统一 AiRobot 状态管理，提升角色扩展灵活性
-  - [ ] 优化通信层：增强协议兼容性以支持多智能体协议（Coze/Dify 等）接入
-  - [ ] 接入并优化 KWS 与 VAD 双引擎实时打断机制
-- [ ] **v1.2：多智能体对接与多角色切换**
-  - [ ] 深度对接主流 Agent (Coze / Dify 等 API 桥接及 WebSocket 协议)
-  - [ ] 实现通信协议规范中各指令（如音量调控、系统指令）的完全支持
-  - [ ] 多角色支持：实现多个角色的配置展示，支持用户进行角色选择与实时切换
-- [ ] **v2.0：生态繁荣与 MCP 服务开放**
-  - [ ] 加深 MCP 分发服务协议应用，允许三方灵活上架各类小程序应用级智能卡片
-  - [ ] 结合应用场景强化 3D 模型的物理反应及表情表现库
-- [ ] **v3.0：迈向硬件终端生态**
-  - [ ] 构建白牌定制屏幕硬件及 OS 极简深度修改打包方案
+- [x] **v1.0: Expression Engine & Unidirectional Integration Base**
+  - [x] Establish base architecture and project Vibe flow standards
+  - [x] Implement multi-role animated expression layer based on ViewModel state machines
+  - [x] Synthesize TTS audio replies and establish baseline dialogue loops
+  - [x] Develop on-demand function card base and template demos (Tomato Timer, Text Cards)
+- [x] **v1.1: Architecture Optimization & Interruption Mechanisms**
+  - [x] Refactor UI architecture, unify AiRobot state flows, and improve role extension flexibility
+  - [x] Support real-time Voice Interruption using dual-engine KWS and VAD
+  - [x] Support Continuous Conversation, drastically improving speech interaction continuity
+- [x] **v1.2: Multi-Role Switch & Agent Base**
+  - [x] Introduce decoupled AI Agent bases and mind orchestration engines (`agent` module)
+  - [x] Support Multi-Role configurations, enabling users to choose and switch characters in real time (`airbot` module)
+  - [x] Extend function card ecosystem to support Podcast DIY, Audio/Video Podcast card triggers
+- [ ] **v2.0: Multi-Platform Ecosystem & MCP Open Services**
+  - [ ] Connect mainstream Agent platforms (Coze / Dify APIs and WebSockets)
+  - [ ] Enhance MCP service capabilities, allowing third-parties to upload card-based micro-apps
+  - [ ] Expand 3D character physics reactions and emotion/expression libraries
+- [ ] **v3.0: Hardware Terminal Ecosystem**
+  - [ ] Build customization plans for white-label screens and deep OS level packaging
 
-### 📚 项目文档
+### 📚 Project Documents
 
-深入了解代码底色与架构方案，请查阅以下资料：
+Explore the codebase architecture and engineering norms:
 
-- **[项目规则]**：[`./docs/rules.md`](./doc/rules.md) - 项目 Vibe Code 执行规则与基础约定
-- **[技术架构]**：[`./docs/architect.md`](./doc/architect.md) - 项目代码架构与技术规范大纲
-- **[系统原型设计]**：`./prototype` - 项目 Web 端系统原型可交互操作展示
-- **[界面设计图片]**：`./docs/design` - 功能界面的相关原始手稿与视觉设计参考
-- **[通信协议说明]**：`./docs/protocol.md` - AiRobot 与后端 Agent 进行 WebSocket 通讯指令设计的详尽内容文档
+- **[Project Rules]**: [`.agent/rules/code-guild.md`](.agent/rules/code-guild.md) - Project Vibe Code rules and code style guides
+- **[Technical Architecture]**: [`docs/architecture.md`](docs/architecture.md) - Code architecture and component overview
+- **[System Prototype]**: [`prototype/`](prototype) - Interactive Web-based prototype designs
+- **[UI Design Assets]**: [`docs/design/`](docs/design) - Visual drafts and UI reference images
+- **[Communication Protocols]**: [`docs/protocol/protocol.md`](docs/protocol/protocol.md) - Complete documentation on WebSocket commands and messages between AiRobot and the Agent
 
 ---
 
-## 🌍 Ai机器人社区
+## 🌍 AiRobot Community
 
-**Ai机器人社区**是一个连接极客、硬件方案商和行业应用者的开放生态。欢迎加入我们，一起打造桌面ai机器人学习陪伴，养老陪护，门店服务等各种场景应用，开启智能机器人共创之旅！
+**AiRobot Community** connects geeks, hardware providers, and industry solution developers. Welcome to join us and build desktop companion robots, eldercare assistants, smart welcoming displays, and share in the AI robot co-creation journey!
 
-### 🎯 社区目标
-- **打造开源数字生命**：通过 AI 驱动的动画互动与语音交互，赋予机器“灵魂”，让 AI 机器人走进千家万户。
-- **构建硬件与算法生态**：探讨 AI 硬件的无限可能，共创 AI 时代的交互未来。
-- **赋能垂直行业场景**：将领先的 AI 能力落地到教育、养老、门店服务等真实世界。
+### 🎯 Community Goals
+- **Build Open-Source Digital Life**: Empower hardware with animated companionship and voice capabilities, bringing digital life to millions of families.
+- **Hardware & Algorithm Ecosystem**: Explore the hardware form factors of AI desktop robots and build the physical companion interfaces of tomorrow.
+- **Empower Vertical Industries**: Bridge advanced LLM agents to physical education, rehabilitation, and retail scenes.
 
-### 🤝 商业合作
-- **全栈合作计划**：社区提供商业版本及多种深度合作模式，诚邀行业集成商、AI 创客共同探索商业变现路径。
-- **端侧智能优势**：商业版搭载自主研发的端侧智能体，在确保数据本地安全的同时，提供高度场景化、按需下发的智能功能卡片服务。
-- **定制化解决方案**：为各垂直领域集成商、IP 运营方提供从角色形象设计到核心交互逻辑的定制化机器人全案，快速实现业务落地。
+### 🤝 Commercial Partnerships
+- **Full-Stack Partnership Plan**: We offer commercial editions and flexible partnerships for integrators and hardware makers.
+- **Edge Intelligence**: The commercial version comes with proprietary local agent engines, ensuring data privacy while supporting custom active function cards.
+- **Custom Solutions**: Provide turn-key solutions from character modeling to core dialog orchestration, facilitating rapid go-to-market.
 
-### 🤝 参与我们
-- **🔗 关注最新动态**：[Ai机器人社区 - 小红书](https://www.xiaohongshu.com/user/profile/5c2851dc0000000007038e53)
-- **💡 贡献与合作**：本项目欢迎各种形式的共创！如果您想参与代码贡献、硬件合作或寻求行业方案，请查阅我们的 [**贡献指南 (CONTRIBUTING.md)**](./CONTRIBUTING.md)。
+### 🤝 Join Us
+- **🔗 Stay Tuned**: [AiRobot Community - Xiaohongshu](https://www.xiaohongshu.com/user/profile/5c2851dc0000000007038e53)
+- **💡 Contributing & Collaboration**: We welcome code commits, hardware configurations, and scenario partnerships! Check [**CONTRIBUTING.md**](./CONTRIBUTING.md) to start.
 
 ---
 
 <div align="center">
-  <p>以心智创造生命，用科技温暖生活。</p>
+  <p>Create life with mind, warm life with technology.</p>
 </div>

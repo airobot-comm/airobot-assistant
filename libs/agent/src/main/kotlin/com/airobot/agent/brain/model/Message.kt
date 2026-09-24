@@ -1,0 +1,21 @@
+package com.airobot.agent.brain.model
+
+import java.util.UUID
+
+/**
+ * 消息角色枚举
+ */
+enum class MessageRole {
+    USER, AGENT, SYSTEM
+}
+
+/**
+ * 消息数据类
+ */
+data class Message(
+    val id: String = UUID.randomUUID().toString(),
+    val role: MessageRole,
+    val content: String,
+    val timestamp: Long = System.currentTimeMillis(),
+    val isAudio: Boolean = false
+)

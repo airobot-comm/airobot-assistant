@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# AIRobot Assistant
+# AIRobot comm.
 
 AIRobot团队vibe_code执行规则，以及项目编程与技术规则
 

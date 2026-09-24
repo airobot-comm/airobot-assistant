@@ -1,6 +1,9 @@
 [versions]
+room = "2.6.1"
+rive = "11.6.1"
+startup = "1.1.1"
 accompanistPermissions = "0.37.3"
-agp = "9.2.1"
+agp = "9.3.0"
 gson = "2.13.2"
 kotlin = "2.3.10"
 coreKtx = "1.17.0"
@@ -21,8 +24,14 @@ hilt-navigation-compose = "1.3.0"
 constraintlayout = "2.2.1"
 constraintlayout-compose = "1.1.1"
 datastore = "1.2.0"
+media3 = "1.6.1"
 
 [libraries]
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+rive-android = { module = "app.rive:rive-android", version.ref = "rive" }
+androidx-startup = { module = "androidx.startup:startup-runtime", version.ref = "startup" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
@@ -54,6 +63,10 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", v
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesAndroid" }
+# Media3 (ExoPlayer successor - podcast playback)
+media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
+media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
+media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

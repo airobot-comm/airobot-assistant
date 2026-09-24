@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dialogue -->
+    <string name="dialogue_default_title">Focus Clock</string>
+    <string name="aether_state_listening">AETHER LISTENING</string>
+    <string name="aether_state_thinking">AETHER THINKING</string>
+    <string name="aether_state_speaking">AETHER SPEAKING</string>
+    <string name="aether_state_ready">AETHER READY</string>
+    <string name="aether_system_label">AETHER SYSTEM</string>
+    <string name="common_close">Close</string>
+
+    <!-- Voice Input -->
+    <string name="voice_status_thinking">Thinking&#8230;</string>
+    <string name="voice_status_speaking">Speaking</string>
+    <string name="voice_status_listening">Listening&#8230;</string>
+    <string name="voice_idle_tip">Call name to talk</string>
+    <string name="voice_suggest_next">Play next</string>
+    <string name="voice_suggest_summary">What is this about?</string>
+    <string name="voice_suggest_recommend">Recommend tech podcasts</string>
+    <string name="voice_timer_pause">Pause</string>
+    <string name="voice_timer_resume">Resume</string>
+    <string name="voice_timer_stop">Stop</string>
+</resources>

@@ -16,4 +16,6 @@
     <string name="permission_required">需要录音权限才能使用语音功能</string>
     <string name="reconnect">重连</string>
     <string name="clear">清除</string>
+    <string name="speech_interruption">语音打断</string>
+    <string name="speech_interruption_desc">开启后支持全双工对话，说话可随时打断机器人</string>
 </resources>

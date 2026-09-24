@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="focus_msg">Stay focused, enjoy the moment</string>
+    <string name="timer_msg">Countdown started, keep it up</string>
+    <string name="category_clock">AI Clock</string>
+    <string name="category_clock_subtitle">AI time management partner</string>
+    <string name="category_podcast">AI Podcast</string>
+    <string name="category_podcast_subtitle">One-on-one interactive AI podcast</string>
+    <string name="category_schedule">AI Schedule</string>
+    <string name="category_schedule_subtitle">Your private AI secretary</string>
+
+    <string name="clock_alarm">Alarm</string>
+    <string name="clock_timer">Timer</string>
+    <string name="clock_focus">Focus</string>
+
+    <string name="podcast_home">Podcast</string>
+    <string name="podcast_library">Library</string>
+    <string name="podcast_subscribe">Subscribe</string>
+
+    <string name="schedule_today">Today</string>
+    <string name="schedule_board">Board</string>
+    <string name="schedule_list">List</string>
+
+    <!-- Alarm -->
+    <string name="alarm_ringing">Ringing</string>
+    <string name="alarm_default_message">Ready to sleep · Gentle mode</string>
+    <string name="alarm_stop_btn">STOP</string>
+    <string name="alarm_next_hint">Next Alarm: %s</string>
+    <string name="alarm_none">None</string>
+    <string name="alarm_add_hint">Say to AETHER: \"Wake me up at 7 AM\"</string>
+    <string name="alarm_prompt_context">AETHER PROMPT</string>
+    <string name="alarm_prompt_text">Whether it\'s a daily wake-up or a temporary reminder, say \"Aether, wake me up at 7 AM on workdays\" and I will wake you up gently and on time.</string>
+    <string name="alarm_title">AI Alarm</string>
+    <string name="alarm_subtitle">Regularize your schedule, intelligent voice wake-up</string>
+
+    <!-- Focus & Timer -->
+    <string name="focus_title">AI Focus</string>
+    <string name="focus_subtitle">Eliminate distractions, focus on the present moment</string>
+    <string name="timer_title">AI Timer</string>
+    <string name="timer_subtitle">Count down every second, be efficient every moment</string>
+    <string name="timer_prompt_context">AETHER PROMPT</string>
+    <string name="timer_prompt_text">Whether it\'s chores or an important meeting, say \"Aether, count down X minutes for me\" and I\'ll remind you perfectly.</string>
+    <string name="focus_prompt_context">AETHER PROMPT</string>
+    <string name="focus_prompt_text">Once you enter the deep focus period, I will automatically turn on Do Not Disturb for you and play brainwave music suitable for flow. Tell me when you are ready.</string>
+
+    <string name="clock_title">AI Clock</string>
+    <string name="clock_subtitle">AI time management partner</string>
+
+    <string name="common_close">Close</string>
+    <string name="podcast_now_playing">NOW PLAYING</string>
+    <string name="podcast_control_rewind">Rewind</string>
+    <string name="podcast_control_play_pause">Play/Pause</string>
+    <string name="podcast_control_forward">Forward</string>
+
+    <!-- Logbook -->
+    <string name="logbook_title">AI Logbook &amp; History</string>
+    <string name="logbook_cd_icon">Logbook</string>
+    <string name="logbook_cd_write">Write</string>
+    <string name="logbook_hint">Write down your thoughts...</string>
+    <string name="logbook_today_header">Today\'s Logs</string>
+
+    <!-- Proactive & Notification -->
+    <string name="aether_notification_label">AETHER Notification</string>
+    <string name="aether_expand_cd">expand</string>
+    <string name="aether_system_module">AETHER SYSTEM MODULE</string>
+
+    <!-- Service Cards -->
+    <string name="card_focus_title">Focus Timer</string>
+    <string name="card_focus_desc">Pomodoro productivity assistant</string>
+    <string name="card_story_title">Story Time</string>
+    <string name="card_story_desc">Explore the mysteries of the Bit Forest</string>
+    <string name="card_focus_tip">Time to focus</string>
+    <string name="card_story_tip">Want to hear a story?</string>
+
+    <!-- Defaults for Database Initialization -->
+    <string name="alarm_default_workday">Workday morning</string>
+    <string name="alarm_default_sleep">Ready to sleep</string>
+    <string name="alarm_default_lunch">End of lunch break</string>
+    <string name="timer_preset_pomodoro">Pomodoro</string>
+    <string name="timer_preset_short_break">Short break</string>
+    <string name="timer_preset_long_break">Long break</string>
+    <string name="focus_preset_reading">Deep reading</string>
+    <string name="focus_preset_coding">Coding flow</string>
+    <string name="focus_preset_meditation">Meditation</string>
+    <string name="focus_close_step1">Interrupt focus? (1/3)</string>
+    <string name="focus_close_step2">Click again to exit focus (2/3)</string>
+    <string name="focus_close_step3">Focus interrupted</string>
+
+    <!-- Newly migrated clock module strings -->
+    <string name="hourly_chime_label">Hourly Chime</string>
+    <string name="alarm_default_meeting">Morning meeting</string>
+    <string name="alarm_voice_mode_hint">Hint</string>
+    <string name="alarm_voice_mode_standard">Standard</string>
+    <string name="alarm_voice_mode_urgent">Urgent</string>
+    <string name="alarm_voice_dismiss_prompt">Please say your name to dismiss the alarm (Click to skip)</string>
+    <string name="alarm_status_enabled">Enabled</string>
+    <string name="alarm_status_disabled">Disabled</string>
+    <string name="timer_preset_ramen">Ramen cooking</string>
+    <string name="timer_preset_mask">Facial mask</string>
+    <string name="timer_preset_reading">Deep reading</string>
+    <string name="timer_preset_meditation">Meditation focus</string>
+    <string name="timer_finished_focus">Focus completed!</string>
+    <string name="timer_finished_countdown">Timer completed!</string>
+    <string name="timer_focus_duration_stat">Focused for %1$d minutes</string>
+    <string name="timer_click_to_close">Click anywhere to close</string>
+    <string name="timer_music_nature">Nature</string>
+    <string name="timer_music_lofi">Lofi</string>
+    <string name="timer_music_piano">Piano</string>
+    <string name="timer_music_cyberpunk">Cyberpunk</string>
+    <string name="timer_music_library">Library</string>
+    <string name="timer_music_zen">Zen</string>
+    <string name="timer_music_tick">Tick</string>
+    <string name="alarm_ringing_notification_title">Alarm is ringing</string>
+    <string name="toast_timer_already_running">Another timer is already running, please stop it first</string>
+    <string name="pending_alarms_title">Unhandled alarm alerts</string>
+    <string name="pending_alarms_untriggered">Not rung</string>
+    <string name="pending_alarms_confirm">Confirm and Clear</string>
+ 
+    <!-- Remaining clock i18n optimizations -->
+    <string name="alarm_ringing_label">Ringing</string>
+    <string name="alarm_dismiss_suffix_voice"> • Voice</string>
+    <string name="alarm_dismiss_suffix_auto"> • Auto-dismiss</string>
+    <string name="alarm_mode_format">%1$s • %2$s Dismiss</string>
+    <string name="timer_mode_countdown">Timer</string>
+    <string name="timer_mode_focus">Focus</string>
+    <string name="timer_preset_duration_minutes">%1$d minutes</string>
+    <string name="timer_preset_reminder_interval"> • Every %1$d min</string>
+    <string name="timer_preset_music_label"> • 🎵 %1$s</string>
+    <string name="timer_preset_name_placeholder">Name</string>
+    <string name="timer_preset_duration_title">Duration</string>
+    <string name="timer_preset_minutes_unit">minutes</string>
+    <string name="timer_preset_reminder_label">Reminder Interval</string>
+    <string name="timer_preset_reminder_none">No reminder</string>
+    <string name="timer_preset_reminder_minutes">%1$d minutes</string>
+    <string name="timer_preset_bg_music_title">Background Music</string>
+    <string name="timer_mode_focus_label">Focus Space</string>
+    <string name="timer_mode_countdown_label">Timer</string>
+    <string name="timer_preset_reminder_minutes_chime">Remind every %1$d min</string>
+
+    <!-- Alarm list item string resources -->
+    <string name="alarm_repeat_everyday">Everyday</string>
+    <string name="alarm_label_placeholder">Alarm Name</string>
+    <string name="alarm_expanded_auto_dismiss">Auto-dismiss</string>
+    <string name="alarm_time_seconds_unit">%1$ds</string>
+    <string name="alarm_expanded_repeat_count">Repeat Count</string>
+    <string name="alarm_time_times_unit">%1$d times</string>
+    <string name="alarm_expanded_interval">Interval</string>
+    <string name="alarm_time_minutes_unit">%1$d min</string>
+    <string name="alarm_expanded_dismiss_mode">Dismiss Mode</string>
+    <string name="alarm_dismiss_mode_voice">Voice</string>
+    <string name="alarm_dismiss_mode_auto">Auto</string>
+    <string name="alarm_dismiss_mode_manual">Manual</string>
+
+    <!-- Hourly Chime Overlay Strings -->
+    <string name="chime_mode_every_hour">Every Hour Chime</string>
+    <string name="chime_mode_odd_hour">Odd Hour Chime</string>
+    <string name="chime_mode_even_hour">Even Hour Chime</string>
+    <string name="chime_time_range">Chime Range</string>
+    <string name="chime_weather_reminder">Weather Forecast</string>
+    <string name="chime_schedule_reminder">Schedule Reminder</string>
+    <string name="chime_ai_pending">AI Pending</string>
+    <string name="chime_master_toggle">Hourly Chime</string>
+    <string name="chime_mode_label">Chime Mode</string>
+
+    <!-- Timer Concurrency & Pause Timeout -->
+    <string name="timer_pause_timeout_cleared">Timer cleared: paused too long</string>
+    <string name="timer_blocked_focus_active">Focus mode active — cannot start new timer</string>
+    <string name="timer_blocked_concurrent_focus">Stop running timers before starting focus</string>
+    <string name="timer_blocked_duplicate_preset">This timer is already running</string>
+
+    <!-- Podcast module strings -->
+    <string name="podcast_studio_interactive_title">Interactive AI Podcast</string>
+    <string name="podcast_studio_interactive_subtitle">INTERACTIVE\nAI PODCAST</string>
+    <string name="podcast_home_recommended_title">Recommended</string>
+    <string name="podcast_home_add_subs">Add More Subscriptions</string>
+    
+    <string name="podcast_library_title">Podcast Library</string>
+    <string name="podcast_library_subtitle">Personal subscriptions, favorites, and custom podcast library</string>
+    <string name="podcast_library_latest">Latest Podcasts</string>
+    <string name="podcast_library_empty_latest">No unplayed new podcasts</string>
+    <string name="podcast_library_all_programs">All Programs</string>
+    <string name="podcast_library_filter_all">All</string>
+    <string name="podcast_library_filter_favorite">Favorites</string>
+    <string name="podcast_library_no_results">No matching podcasts found</string>
+    <string name="podcast_episode_played">Played</string>
+    <string name="podcast_episode_unplayed">Unplayed</string>
+    
+    <string name="podcast_subscribe_title">Podcast Subscriptions</string>
+    <string name="podcast_subscribe_subtitle">Subscribe to exclusive channels, AI creates for you on time</string>
+    <string name="podcast_subscribe_my">My Subscriptions</string>
+    <string name="podcast_subscribe_recommended">Recommended Channels</string>
+    <string name="podcast_subscribed">Subscribed</string>
+    <string name="podcast_subscribe_action">Subscribe</string>
+    <string name="podcast_subscribe_custom">Custom New Channel</string>
+    <string name="podcast_home_view_more">More Programs</string>
+    
+    <string name="podcast_dialogues_count">%1$d Dialogues</string>
+    <string name="podcast_no_active_episode">No program playing</string>
+    <string name="podcast_no_active_episode_summary">No description available for this episode.</string>
+    
+    <string name="podcast_tag_video">Video</string>
+    <string name="podcast_tag_audio">Audio</string>
+    <string name="podcast_tag_text">Text</string>
+    <string name="podcast_tag_custom">Custom</string>
+    
+    <string name="podcast_diy_scanning_audio">Scanning directory for audio files…</string>
+    <string name="podcast_diy_scanning_video">Scanning directory for video files…</string>
+    <string name="podcast_diy_empty_audio">No importable audio files found</string>
+    <string name="podcast_diy_empty_video">No importable video files found</string>
+    <string name="podcast_diy_empty_hint">Please ensure files are placed in the default scan path</string>
+    <string name="podcast_error_invalid_demo_data">Invalid podcast data: This episode is a demo and contains no real media</string>
+
+    <!-- Guidance / Card Recommendations -->
+    <string name="card_podcast_title">AI Podcast</string>
+    <string name="card_podcast_content">Your personal smart podcast</string>
+    <string name="card_podcast_tip">Listen to something fun</string>
+    <string name="card_podcast_diy_title">Podcast DIY</string>
+    <string name="card_podcast_diy_content">Create your custom podcast</string>
+    <string name="card_podcast_diy_tip">Unleash your creativity</string>
+    <string name="card_notepad_title">AI Notepad</string>
+    <string name="card_notepad_content">Time track &amp; behavior analysis</string>
+    <string name="card_notepad_tip">Record growth footprints</string>
+    <string name="card_alarm_title">AI Alarm</string>
+    <string name="card_alarm_content">Smart alarm and wake-up notifications</string>
+    <string name="card_alarm_tip">Wake up on time</string>
+    <string name="card_timer_title">AI Timer</string>
+    <string name="card_timer_content">Convenient countdowns and alerts</string>
+    <string name="card_timer_tip">Keep track of time</string>
+    <string name="card_focus_title_rec">AI Focus</string>
+    <string name="card_focus_content_rec">Tomato timer and white noise</string>
+    <string name="card_focus_tip_rec">Focus on every moment</string>
+    <string name="card_schedule_title">AI Schedule</string>
+    <string name="card_schedule_content">Manage your tasks and calendar</string>
+    <string name="card_schedule_tip">Organize your day</string>
+</resources>

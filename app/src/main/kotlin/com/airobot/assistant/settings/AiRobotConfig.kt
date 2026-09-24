@@ -1,18 +1,32 @@
 package com.airobot.assistant.settings
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.res.stringResource
+import com.airobot.assistant.R
+import com.airobot.assistant.viewmodel.MainShellViewModel
 import com.airobot.framework.comp.ConfigTextField
 import com.airobot.framework.theme.RobotTheme
-import com.airobot.assistant.viewmodel.MainShellViewModel
 
 @Composable
 fun AiRobotConfig(
@@ -20,19 +34,13 @@ fun AiRobotConfig(
 ) {
     val aiAgent by viewModel.aiAgent.collectAsState()
     val isActivated by viewModel.isAiRobotActivated.collectAsState()
+    val isSpeechInterruptionEnabled by viewModel.isSpeechInterruptionEnabled.collectAsState()
 
     // UI state for agent configuration
     var agentVendor by remember(aiAgent) { mutableStateOf(aiAgent.agentVendor) }
     var editedAgentUrl by remember(aiAgent) { mutableStateOf(aiAgent.agentUrl) }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text(
-            "智能体配置",
-            color = RobotTheme.colors.textSecondary,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold
-        )
-
         ConfigTextField(
             label = "AI智能体选择",
             value = agentVendor,
@@ -77,6 +85,34 @@ fun AiRobotConfig(
             )
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.speech_interruption),
+                    color = RobotTheme.colors.textPrimary,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    stringResource(R.string.speech_interruption_desc),
+                    color = RobotTheme.colors.textSecondary,
+                    fontSize = 12.sp
+                )
+            }
+            androidx.compose.material3.Switch(
+                checked = isSpeechInterruptionEnabled,
+                onCheckedChange = { viewModel.setSpeechInterruptionEnabled(it) },
+                colors = androidx.compose.material3.SwitchDefaults.colors(
+                    checkedThumbColor = RobotTheme.colors.accent,
+                    checkedTrackColor = RobotTheme.colors.accent.copy(alpha = 0.5f)
+                )
+            )
+        }
+
         if (isActivated) {
             Text(
                 "智能体已就绪，当前智能体: ${aiAgent.agentVendor}",
@@ -90,8 +126,11 @@ fun AiRobotConfig(
 
         Button(
             onClick = {
-                viewModel.configureAndActivateAiAgent(editedAgentUrl,
-                    agentVendor) },
+                viewModel.configureAndActivateAiAgent(
+                    editedAgentUrl,
+                    agentVendor
+                )
+            },
             modifier = Modifier.fillMaxWidth(),
             enabled = !isActivated,
             colors = ButtonDefaults.buttonColors(
@@ -109,5 +148,3 @@ fun AiRobotConfig(
         }
     }
 }
-
-

@@ -17,8 +17,7 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 /.idea
-/build
-/*/build
+build/
 .cxx
 /*/.cxx
 /captures

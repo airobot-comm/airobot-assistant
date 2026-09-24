@@ -14,12 +14,17 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.airobot.assistant.assembly.AppMainScreen
 import com.airobot.framework.theme.AiRobotTheme
 import com.airobot.framework.theme.RobotTheme
 import com.airobot.framework.theme.RobotThemeMode
-import com.airobot.assistant.apppages.AppMainScreen
 
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import com.airobot.framework.util.LanguageMode
+import com.airobot.features.FeaturesModule
+
+import com.airobot.assistant.assembly.APP_SUPPORTED_OVERLAYS
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -27,8 +32,14 @@ class MainActivity : ComponentActivity() {
         private const val TAG = "MainActivity"
     }
 
+    @Inject
+    lateinit var featuresModule: FeaturesModule
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize background features with custom configuration
+        featuresModule.initialize(APP_SUPPORTED_OVERLAYS)
 
         // 设置全屏模式 - 沉浸式系统栏设计
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -47,6 +58,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             var themeMode by remember { mutableStateOf(RobotThemeMode.DARK) }
+            var languageMode by remember { mutableStateOf(LanguageMode.CHINESE) }
 
             AiRobotTheme(themeMode = themeMode) {
                 Surface(
@@ -55,6 +67,11 @@ class MainActivity : ComponentActivity() {
                 ) {
                     AppMainScreen(
                         themeMode = themeMode,
+                        languageMode = languageMode,
+                        onLanguageChange = { newMode ->
+                            languageMode = newMode
+                            Log.d(TAG, "切换语言: $languageMode")
+                        },
                         onToggleTheme = {
                             themeMode = if (themeMode == RobotThemeMode.DARK) {
                                 RobotThemeMode.LIGHT
